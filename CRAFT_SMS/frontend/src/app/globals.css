@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+:root {
+  /* Official Institutional Brand Palette */
+  --primary: #0F4C81;          /* Deep Academic Blue */
+  --secondary: #0D9488;        /* Modern Teal */
+  --accent: #22D3EE;           /* Cyan Highlight */
+  --background: #0B1120;       /* Deep Night */
+  --surface: #111827;          /* Dark Gray */
+  --foreground: #F9FAFB;
+  
+  /* Institutional Branding Defaults */
+  --brand-primary: var(--primary);
+  --brand-primary-rgb: 15, 76, 129;
+  --brand-secondary: var(--surface);
+
+  /* Elite Spacing Tokens */
+  --spacing-layout: 3rem;
+  --spacing-card: 2rem;
+  --radius-card: 1.5rem;
+}
+
+html {
+  background: var(--background);
+  color: var(--foreground);
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  /* Core glassmorphism card - Elevated institutional version */
+  .premium-card {
+    @apply bg-[var(--surface)]/60 border border-white/[0.08] rounded-[var(--radius-card)] p-[var(--spacing-card)] 
+           backdrop-blur-xl shadow-2xl shadow-black/40 transition-all duration-500;
+    background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.03), transparent);
+  }
+
+  .premium-card:hover {
+    @apply border-white/20 bg-[var(--surface)]/80 shadow-[0_20px_50px_rgba(0,0,0,0.5)];
+  }
+
+  /* Academic Gradient text */
+  .gradient-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary)] to-[var(--accent)];
+  }
+
+  /* Professional Dashboard Rhythm */
+  .dashboard-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[var(--spacing-layout)];
+  }
+
+  /* Institutional Glow */
+  .brand-glow {
+    @apply relative overflow-hidden;
+  }
+  .brand-glow::after {
+    content: '';
+    @apply absolute -top-[50%] -left-[50%] w-[200%] h-[200%] pointer-events-none opacity-[0.03] transition-opacity duration-700;
+    background: radial-gradient(circle at center, var(--accent) 0%, transparent 70%);
+  }
+  .brand-glow:hover::after {
+    @apply opacity-[0.08];
+  }
+
+  /* Custom scrollbar for sidebar and overflow areas */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.1) transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 4px;
+  }
+
+  /* Status badge variants */
+  .badge-verified {
+    @apply px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20;
+  }
+  .badge-pending {
+    @apply px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-amber-500/10 text-amber-400 border border-amber-500/20;
+  }
+  .badge-rejected {
+    @apply px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-rose-500/10 text-rose-400 border border-rose-500/20;
+  }
+
+  /* Page section label */
+  .section-label {
+    @apply text-xs font-bold text-gray-500 uppercase tracking-widest;
+  }
+}
+
+@keyframes float {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}

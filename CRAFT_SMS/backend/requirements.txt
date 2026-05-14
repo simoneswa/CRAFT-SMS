@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+supabase
+python-dotenv
+reportlab
+python-barcode
+python-multipart
+pydantic
+pydantic-settings
+httpx
+jinja2
+aiohttp
+cryptography
+python-jose[cryptography]

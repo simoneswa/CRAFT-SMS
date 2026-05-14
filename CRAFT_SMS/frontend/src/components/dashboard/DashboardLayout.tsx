@@ -1,0 +1,251 @@
+"use client"
+
+import React from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Sidebar } from './Sidebar'
+import { Bell, Search, Menu, Cloud, CloudOff, CloudAlert, Activity, ShieldCheck, X, HardDrive, RefreshCw, Globe } from 'lucide-react'
+import { useAuth } from '@/providers/AuthProvider'
+import { useRouter, usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useSyncStatus } from '@/hooks/useSyncStatus'
+
+import { NotificationBell } from './NotificationBell'
+import { useTenant } from '@/providers/TenantProvider'
+
+export function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const { profile, isLoading, user } = useAuth()
+  const { school } = useTenant()
+  const router = useRouter()
+  const pathname = usePathname()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false)
+  const { isOnline, hasConflicts, pendingCount } = useSyncStatus()
+
+  // Dynamic CSS Variables for branding
+  const brandingStyles = {
+    '--brand-primary': school?.branding?.primary_color || '#0D9488',
+    '--brand-secondary': school?.branding?.secondary_color || '#111827',
+  } as React.CSSProperties
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push('/login')
+    }
+  }, [user, isLoading, router])
+
+  if (isLoading || !user) {
+    return (
+      <div className="min-h-screen bg-[#030712] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
+      </div>
+    )
+  }
+  
+  return (
+    <div className="min-h-screen bg-[#030712] text-white flex overflow-hidden" style={brandingStyles}>
+      {/* Mobile overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Command Center Panel */}
+      <AnimatePresence>
+        {isCommandCenterOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]"
+              onClick={() => setIsCommandCenterOpen(false)}
+            />
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed right-0 top-0 h-full w-full max-w-sm bg-[#111827] border-l border-white/5 z-[70] p-8 shadow-2xl"
+            >
+              <div className="flex justify-between items-center mb-10">
+                <div>
+                   <h2 className="text-sm font-black uppercase tracking-[0.2em] text-white">Institutional <span className="text-[var(--accent)]">Command Center</span></h2>
+                   <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-1">Operational Observability Stream</p>
+                </div>
+                <button onClick={() => setIsCommandCenterOpen(false)} className="p-2 hover:bg-white/5 rounded-xl">
+                   <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                 {/* Sync Queue */}
+                 <div className="p-6 bg-white/[0.02] border border-white/5 rounded-2xl">
+                    <div className="flex justify-between items-center mb-6">
+                       <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-gray-400">
+                          <RefreshCw className={`w-4 h-4 ${pendingCount > 0 ? 'animate-spin' : ''}`} /> Sync Engine
+                       </div>
+                       <span className={`text-[10px] font-black px-2 py-0.5 rounded ${pendingCount > 0 ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
+                          {pendingCount > 0 ? 'SYNCHRONIZING' : 'STABLE'}
+                       </span>
+                    </div>
+                    <div className="space-y-2">
+                       <div className="flex justify-between text-[10px] uppercase font-bold text-gray-600">
+                          <span>Mutation Queue</span>
+                          <span className="text-white">{pendingCount} Pending</span>
+                       </div>
+                       <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                          <motion.div 
+                            className="h-full bg-[var(--accent)]" 
+                            initial={{ width: 0 }}
+                            animate={{ width: pendingCount > 0 ? '60%' : '100%' }} 
+                          />
+                       </div>
+                    </div>
+                 </div>
+
+                 {/* Connection State */}
+                 <div className="p-6 bg-white/[0.02] border border-white/5 rounded-2xl">
+                    <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">
+                       <Globe className="w-4 h-4" /> Realtime Link
+                    </div>
+                    <div className="flex items-center gap-2">
+                       <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-rose-500'} animate-pulse`} />
+                       <span className="text-[10px] font-black uppercase text-white tracking-widest">
+                          {isOnline ? 'Active Connection' : 'Link Disconnected'}
+                       </span>
+                    </div>
+                 </div>
+              </div>
+
+              <div className="absolute bottom-8 left-8 right-8 text-center">
+                 <p className="text-[8px] text-gray-700 font-black uppercase tracking-[0.3em]">CRAFT SMS AUDIT PROTOCOL v1.0</p>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      
+      <div className="flex-1 flex flex-col h-screen overflow-hidden w-full relative z-0">
+        {/* Top Header */}
+        <header className="h-20 border-b border-white/5 bg-black/20 backdrop-blur-md px-4 md:px-8 flex items-center justify-between sticky top-0 z-30">
+          <div className="flex items-center gap-4 flex-1">
+            <button 
+              className="md:hidden p-2 hover:bg-white/5 rounded-lg text-gray-400"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="relative max-w-md w-full hidden md:block">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input 
+                type="text" 
+                placeholder="Search everything..." 
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/40 transition-all"
+              />
+            </div>
+            {/* System Pulse Indicator - Interactive */}
+            <button 
+              onClick={() => setIsCommandCenterOpen(true)}
+              className="hidden lg:flex items-center gap-3 px-4 py-1.5 bg-white/[0.02] border border-white/5 rounded-full hover:bg-white/[0.04] transition-all group"
+            >
+               <div className={`w-2 h-2 rounded-full ${hasConflicts ? 'bg-rose-500' : isOnline ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse`} />
+               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 group-hover:text-white transition-colors">
+                  System Pulse: <span className="text-white">{isOnline ? 'Stable' : 'Restricted'}</span>
+               </span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+               {/* Cloud Sync Status */}
+               <div className="relative flex items-center group cursor-pointer" title={hasConflicts ? "Sync Conflicts Detected" : isOnline ? "Online & Synced" : "Offline - Changes queued"}>
+                 {!isOnline ? (
+                   <CloudOff className="w-5 h-5 text-amber-500" />
+                 ) : hasConflicts ? (
+                   <CloudAlert className="w-5 h-5 text-rose-500 animate-pulse" />
+                 ) : pendingCount > 0 ? (
+                   <Cloud className="w-5 h-5 text-teal-400 animate-pulse" />
+                 ) : (
+                   <Cloud className="w-5 h-5 text-emerald-500" />
+                 )}
+                 {pendingCount > 0 && !hasConflicts && (
+                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500"></span>
+                    </span>
+                 )}
+               </div>
+
+               <NotificationBell />
+            </div>
+            <div className="h-8 w-px bg-white/10 mx-2" />
+            <div className="flex items-center gap-3">
+              {/* DEBUG MENU FOR TESTING */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="relative group">
+                  <button className="px-2 py-1 text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded hover:bg-rose-500/20 uppercase tracking-widest">
+                    Debug
+                  </button>
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-black border border-white/10 rounded-xl p-2 hidden group-hover:block z-50 shadow-2xl">
+                    <p className="text-[10px] text-gray-500 font-bold uppercase mb-2 px-2">Offline Simulator</p>
+                    <button 
+                      onClick={() => {
+                        const queue = JSON.parse(localStorage.getItem('craft_sms_sync_queue') || '[]');
+                        queue.push({
+                          id: crypto.randomUUID(),
+                          endpoint: '/api/mock',
+                          method: 'POST',
+                          payload: { test: true },
+                          timestamp: new Date().toISOString(),
+                          status: 'CONFLICT',
+                          errorMessage: 'Mock Conflict: Timestamp mismatch detected by backend.'
+                        });
+                        localStorage.setItem('craft_sms_sync_queue', JSON.stringify(queue));
+                        window.dispatchEvent(new Event('sync-status-changed'));
+                      }}
+                      className="w-full text-left px-2 py-2 text-xs font-bold text-rose-400 hover:bg-white/5 rounded-lg"
+                    >
+                      Trigger Sync Conflict
+                    </button>
+                  </div>
+                </div>
+              )}
+              {/* END DEBUG MENU */}
+
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-bold leading-none">{profile?.full_name || 'Loading...'}</p>
+                <p className="text-[10px] text-teal-400 font-bold uppercase tracking-widest mt-1">
+                  {profile?.role?.replace('_', ' ') || 'Profile'}
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-500 to-blue-500 border border-white/20 flex items-center justify-center font-bold">
+                {profile?.full_name?.charAt(0) || 'U'}
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Content Area */}
+        <main className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+          <div className="max-w-7xl mx-auto">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </main>
+      </div>
+    </div>
+  )
+}
