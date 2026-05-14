@@ -4,7 +4,8 @@ import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
 import { useState, useEffect } from 'react'
 import { Bell, Clock, User, Megaphone } from 'lucide-react'
 import { useTenant } from '@/providers/TenantProvider'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/utils/supabase'
+
 
 export default function NewsFeedPage() {
   const { school } = useTenant()
@@ -13,9 +14,11 @@ export default function NewsFeedPage() {
 
   useEffect(() => {
     if (school?.id) {
+      const supabase = createClient()
       // Fetch school-specific news or global news
       supabase
         .from('news_feed')
+
         .select('*, profiles(full_name, role)')
         .or(`school_id.eq.${school.id},is_global.eq.true`)
         .order('created_at', { ascending: false })
