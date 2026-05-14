@@ -1,50 +1,56 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { SyncEngine, SyncTask } from '@/lib/syncEngine';
 
 export function useSyncStatus() {
-  const [isOnline, setIsOnline] = useState(true);
-  const [syncQueue, setSyncQueue] = useState<SyncTask[]>([]);
-  const [hasConflicts, setHasConflicts] = useState(false);
+  const [isOnline, setIsOnline] = useState(true)
+  const [syncQueue, setSyncQueue] = useState<SyncTask[]>([])
+  const [hasConflicts, setHasConflicts] = useState(false)
+
+  const updateQueueStatus = useCallback(() => {
+    const queue = SyncEngine.getQueue()
+    setSyncQueue(queue)
+    setHasConflicts(queue.some(t => t.status === 'CONFLICT'))
+  }, [])
 
   useEffect(() => {
-    // Check initial status
-    setIsOnline(navigator.onLine);
-    updateQueueStatus();
+    // Initial status + queue snapshot
+    const online = navigator.onLine
+    setIsOnline(online)
+    updateQueueStatus()
 
     const handleOnline = () => {
-      setIsOnline(true);
-      SyncEngine.autoSync();
-    };
+      setIsOnline(true)
+      SyncEngine.autoSync()
+    }
 
     const handleOffline = () => {
-      setIsOnline(false);
-    };
+      setIsOnline(false)
+    }
 
     const handleSyncStatusChanged = () => {
-      updateQueueStatus();
-    };
+      updateQueueStatus()
+    }
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    window.addEventListener('sync-status-changed', handleSyncStatusChanged);
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+    window.addEventListener('sync-status-changed', handleSyncStatusChanged)
 
-    // Initial sync check
-    if (navigator.onLine) {
-       SyncEngine.autoSync();
+    if (online) {
+      SyncEngine.autoSync()
     }
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('sync-status-changed', handleSyncStatusChanged);
-    };
-  }, []);
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+      window.removeEventListener('sync-status-changed', handleSyncStatusChanged)
+    }
+  }, [updateQueueStatus])
 
-  const updateQueueStatus = () => {
-    const queue = SyncEngine.getQueue();
-    setSyncQueue(queue);
-    setHasConflicts(queue.some(t => t.status === 'CONFLICT'));
-  };
-
-  return { isOnline, syncQueue, hasConflicts, pendingCount: syncQueue.filter(t => t.status === 'PENDING').length };
+  return {
+    isOnline,
+    syncQueue,
+    hasConflicts,
+    pendingCount: syncQueue.filter(t => t.status === 'PENDING').length,
+  }
 }
+

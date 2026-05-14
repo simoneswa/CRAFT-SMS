@@ -16,8 +16,9 @@ import {
 } from 'lucide-react'
 import { useTenant } from '@/providers/TenantProvider'
 import { useAuth } from '@/providers/AuthProvider'
-import { supabase} from '@/utils/supabase'
+import { createClient } from '@/utils/supabase'
 import { fetchAPI } from '@/lib/api'
+
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function AttendancePage() {
@@ -50,9 +51,12 @@ export default function AttendancePage() {
     }
   }
 
-  const loadRollCall = useCallback(async () => {
+const loadRollCall = useCallback(async () => {
     if (!selectedClass || !attendanceDate) return
     setIsLoading(true)
+
+    const supabase = createClient()
+
     try {
       // 1. Get enrolled students for current active term
       const { data: termData } = await supabase
@@ -61,7 +65,7 @@ export default function AttendancePage() {
         .eq('school_id', school?.id)
         .eq('is_current', true)
         .single()
-        
+
       if (!termData) throw new Error("No current academic term set.")
 
       const { data: enrollmentData } = await supabase
@@ -71,10 +75,11 @@ export default function AttendancePage() {
         .eq('academic_term_id', termData.id)
         .eq('school_id', school?.id)
 
-      const studentList = (enrollmentData?.map(e => 
-        Array.isArray(e.profiles) ? e.profiles[0] : e.profiles
-      ).filter(Boolean) as any[]) || []
-      
+      const studentList =
+        (enrollmentData?.map((e: any) =>
+          Array.isArray(e.profiles) ? e.profiles[0] : e.profiles
+        ).filter(Boolean) as any[]) || []
+
       setStudents(studentList)
 
       // 2. Get existing attendance for this date/class
@@ -83,10 +88,10 @@ export default function AttendancePage() {
         .select('*')
         .eq('school_id', school?.id)
         .eq('date', attendanceDate)
-        .in('student_id', studentList.map(s => s.id))
+        .in('student_id', studentList.map((s: any) => s.id))
 
       const attMap: Record<string, string> = {}
-      attData?.forEach(a => {
+      attData?.forEach((a: any) => {
         attMap[a.student_id] = a.status
       })
       setAttendance(attMap)
@@ -96,6 +101,7 @@ export default function AttendancePage() {
       setIsLoading(false)
     }
   }, [selectedClass, attendanceDate, school])
+
 
   useEffect(() => {
     if (view === 'ROLL_CALL') loadRollCall()
@@ -107,13 +113,16 @@ export default function AttendancePage() {
 
   const submitAttendance = async () => {
     setIsSaving(true)
+
+    const supabase = createClient()
+
     try {
       const entries = Object.entries(attendance).map(([studentId, status]) => ({
         school_id: school?.id,
         student_id: studentId,
         date: attendanceDate,
         status: status,
-        recorded_by: profile?.id
+        recorded_by: profile?.id,
       }))
 
       const { error } = await supabase
@@ -128,6 +137,7 @@ export default function AttendancePage() {
       setIsSaving(false)
     }
   }
+
 
   const stats = {
     present: Object.values(attendance).filter(s => s === 'PRESENT').length,
@@ -215,17 +225,21 @@ export default function AttendancePage() {
                         
                         <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
                           {[
-                            { id: 'PRESENT', label: 'P', color: 'emerald' },
-                            { id: 'LATE', label: 'L', color: 'amber' },
-                            { id: 'ABSENT', label: 'A', color: 'rose' },
-                            { id: 'EXCUSED', label: 'E', color: 'blue' }
+                            {
+                          id: 'PRESENT',
+                          label: 'P',
+                          activeClass: 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20'
+                           },
+                            { id: 'LATE', label: 'L', activeClass: 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' },
+                            { id: 'ABSENT', label: 'A', activeClass: 'bg-rose-500 text-black shadow-lg shadow-rose-500/20' },
+                            { id: 'EXCUSED', label: 'E', activeClass: 'bg-blue-500 text-black shadow-lg shadow-blue-500/20' }
                           ].map(opt => (
                             <button
                               key={opt.id}
                               onClick={() => markAttendance(student.id, opt.id)}
                               className={`w-10 h-10 rounded-lg text-xs font-black transition-all ${
                                 attendance[student.id] === opt.id 
-                                  ? `bg-${opt.color}-500 text-black shadow-lg shadow-${opt.color}-500/20` 
+                                  ? opt.activeClass 
                                   : 'text-gray-500 hover:text-white'
                               }`}
                               title={opt.id}
