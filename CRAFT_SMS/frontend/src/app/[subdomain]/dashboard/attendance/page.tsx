@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 import { useTenant } from '@/providers/TenantProvider'
 import { useAuth } from '@/providers/AuthProvider'
-import { supabase } from '@/lib/supabase'
+import { supabase} from '@/utils/supabase'
 import { fetchAPI } from '@/lib/api'
 import { motion, AnimatePresence } from 'framer-motion'
 
