@@ -42,34 +42,12 @@ function extractSubdomain(): string | null {
   // Strip port
   const host = hostname.split(':')[0]
 
-  // --- Vercel deployments ---
+  // --- Vercel deployments (Production & Preview) ---
+  // Exclude all .vercel.app hostnames from tenant resolution.
+  // This ensures that the root project URL and all previews load the landing page.
   if (host.endsWith('.vercel.app')) {
-    const projectPart = host.replace('.vercel.app', '')
-
-    // 1. Prefer explicit env var (set NEXT_PUBLIC_VERCEL_PROJECT_NAME=craft-sms in Vercel dashboard)
-    const envName = process.env.NEXT_PUBLIC_VERCEL_PROJECT_NAME
-    if (envName) {
-      console.log('[TenantProvider] vercel → using env NEXT_PUBLIC_VERCEL_PROJECT_NAME =', envName)
-      return envName
-    }
-
-    // 2. Git/PR preview pattern: {project}-git-{branch}-{user} or {project}-pr-{n}-{user}
-    const gitPrMatch = projectPart.match(/^(.+?)-(?:git|pr)-/)
-    if (gitPrMatch) {
-      console.log('[TenantProvider] vercel git/pr preview → project =', gitPrMatch[1])
-      return gitPrMatch[1]
-    }
-
-    // 3. Hash preview pattern: {project}-{9+alphanum}
-    const hashMatch = projectPart.match(/^(.+?)-([a-z0-9]{9,})$/)
-    if (hashMatch) {
-      console.log('[TenantProvider] vercel hash preview → project =', hashMatch[1])
-      return hashMatch[1]
-    }
-
-    // 4. Production URL: craft-sms.vercel.app → "craft-sms"
-    console.log('[TenantProvider] vercel production → subdomain =', projectPart)
-    return projectPart
+    console.log('[TenantProvider] vercel domain detected — bypassing tenant resolution')
+    return null
   }
 
   // --- Custom root domain ---

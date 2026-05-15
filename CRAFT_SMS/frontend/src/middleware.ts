@@ -12,34 +12,17 @@ import type { NextRequest } from 'next/server'
  *
  * Uses NEXT_PUBLIC_VERCEL_PROJECT_NAME env var as canonical fallback if set.
  */
-function extractVercelSubdomain(projectPart: string): string | null {
-  // 1. Prefer the explicitly configured project name (most reliable)
-  const envProjectName = process.env.NEXT_PUBLIC_VERCEL_PROJECT_NAME
-  if (envProjectName) {
-    console.log(`[middleware] using NEXT_PUBLIC_VERCEL_PROJECT_NAME="${envProjectName}"`)
-    return envProjectName
-  }
-
-  // 2. Detect Vercel preview patterns and strip suffixes
-  //    Pattern: {project-name}-git-{branch}-{username}
-  //             {project-name}-pr-{number}-{username}
-  //             {project-name}-{12+char-hash}
-  const gitPrMatch = projectPart.match(/^(.+?)-(?:git|pr)-/)
-  if (gitPrMatch) {
-    console.log(`[middleware] vercel git/pr preview, project="${gitPrMatch[1]}"`)
-    return gitPrMatch[1]
-  }
-
-  // Hash-based preview: ends with 9+ alphanumeric lowercase chars (Vercel deploy hash)
-  const hashMatch = projectPart.match(/^(.+?)-([a-z0-9]{9,})$/)
-  if (hashMatch) {
-    console.log(`[middleware] vercel hash preview, project="${hashMatch[1]}"`)
-    return hashMatch[1]
-  }
-
-  // 3. Plain production URL: craft-sms.vercel.app → "craft-sms"
-  console.log(`[middleware] vercel production URL, project="${projectPart}"`)
-  return projectPart
+/**
+ * Checks if a hostname is a Vercel deployment (production or preview).
+ *
+ * Tenant extraction is BYPASSED for these domains to ensure that:
+ * 1. The root production URL (e.g., craft-sms.vercel.app) loads the landing page.
+ * 2. Preview URLs (e.g., craft-sms-git-main...vercel.app) load the landing page.
+ *
+ * Tenants should use custom domains (school.craftsms.com) or local subdomains for testing.
+ */
+function isVercelDomain(hostname: string): boolean {
+  return hostname.includes('.vercel.app')
 }
 
 export function middleware(request: NextRequest) {
@@ -54,7 +37,6 @@ export function middleware(request: NextRequest) {
   // List of paths that should NEVER be rewritten (Global pages)
   const globalPaths = ['/login', '/signup', '/docs', '/api', '/_next', '/static', '/favicon.ico']
   if (globalPaths.some(path => url.pathname.startsWith(path)) || url.pathname.includes('.')) {
-    console.log(`[middleware] global path or file detected, skipping rewrite: ${url.pathname}`)
     return NextResponse.next()
   }
 
@@ -70,15 +52,12 @@ export function middleware(request: NextRequest) {
     console.log(`[middleware] root domain, passing through`)
     return NextResponse.next()
 
-  } else if (hostname.includes('.vercel.app')) {
+  } else if (isVercelDomain(hostname)) {
     // Vercel deployment (production or preview)
-    const projectPart = hostname.replace('.vercel.app', '').split(':')[0]
-    const extracted = extractVercelSubdomain(projectPart)
-    if (!extracted) {
-      console.log(`[middleware] could not extract vercel subdomain, passing through`)
-      return NextResponse.next()
-    }
-    subdomain = extracted
+    // EXCLUSION: Do not extract tenants from .vercel.app domains.
+    // This prevents preview hostnames from being treated as tenant slugs.
+    console.log(`[middleware] vercel domain detected, bypassing tenant extraction`)
+    return NextResponse.next()
 
   } else if (hostname.includes('localhost') || hostname.match(/^\d+\.\d+\.\d+\.\d+/)) {
     // Local dev: school.localhost:3000 → "school"
@@ -93,7 +72,6 @@ export function middleware(request: NextRequest) {
 
   // Reject empty, www, or root domain as subdomain
   if (!subdomain || subdomain === 'www' || subdomain === rootDomain) {
-    console.log(`[middleware] no valid subdomain detected for rewrite`)
     return NextResponse.next()
   }
 
