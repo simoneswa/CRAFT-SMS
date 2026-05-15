@@ -64,7 +64,9 @@ function extractSubdomain(): string | null {
 
   // --- Localhost with subdomain ---
   const parts = host.split('.')
-  if (parts.length >= 2) {
+  const isIp = host.match(/^\d+\.\d+\.\d+\.\d+$/)
+
+  if (parts.length >= 2 && !isIp) {
     const first = parts[0]
     if (!['www', 'localhost', 'api'].includes(first)) {
       console.log('[TenantProvider] localhost subdomain =', first)

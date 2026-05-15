@@ -63,10 +63,14 @@ export function middleware(request: NextRequest) {
     // Local dev: school.localhost:3000 → "school"
     const withoutPort = hostname.split(':')[0]
     const localParts = withoutPort.split('.')
-    // If it's school.localhost or school.127.0.0.1.nip.io etc.
-    if (localParts.length >= 2 && !['localhost', 'www'].includes(localParts[0])) {
+    
+    // If it's school.localhost (2 parts) or school.127.0.0.1.nip.io (multiple parts)
+    // But NOT just localhost (1 part) or 127.0.0.1 (4 parts of an IP)
+    const isIp = withoutPort.match(/^\d+\.\d+\.\d+\.\d+$/)
+    
+    if (localParts.length >= 2 && !isIp && !['localhost', 'www'].includes(localParts[0])) {
       subdomain = localParts[0]
-      console.log(`[middleware] localhost/ip subdomain → subdomain="${subdomain}"`)
+      console.log(`[middleware] local subdomain detected: ${subdomain}`)
     }
   }
 
