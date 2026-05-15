@@ -23,24 +23,25 @@ export default function SchoolDashboard() {
 
         <nav className="flex flex-col gap-2">
           {[
-            { icon: LayoutDashboard, label: 'Overview', active: true },
-            { icon: Users, label: 'Students' },
-            { icon: CreditCard, label: 'Financials' },
-            { icon: Trophy, label: 'Leaderboard' },
-            { icon: Bell, label: 'News Feed' },
-            { icon: Settings, label: 'Settings' },
+            { icon: LayoutDashboard, label: 'Overview', href: '/dashboard', active: true },
+            { icon: Users, label: 'Students', href: '/dashboard/students' },
+            { icon: CreditCard, label: 'Financials', href: '/dashboard/finance' },
+            { icon: Trophy, label: 'Leaderboard', href: '/dashboard/gamification' },
+            { icon: Bell, label: 'News Feed', href: '/dashboard/news' },
+            { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
           ].map((item, i) => (
-            <button
-              key={i}
-              className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all text-sm font-medium ${
-                item.active 
-                ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20' 
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              {item.label}
-            </button>
+            <Link key={i} href={item.href}>
+              <button
+                className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all text-sm font-medium ${
+                  item.active 
+                  ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20' 
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <item.icon className="w-5 h-5" />
+                {item.label}
+              </button>
+            </Link>
           ))}
         </nav>
 
