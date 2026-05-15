@@ -131,29 +131,40 @@ ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 
 -- 5. FUNCTIONS & RLS POLICIES
 
--- Helper Function to get current user's school_id
-CREATE OR REPLACE FUNCTION get_my_school_id() 
+-- Helper Function to get current user's school_id (Security Definer to avoid recursion)
+CREATE OR REPLACE FUNCTION public.get_my_school_id() 
 RETURNS UUID AS $$
   SELECT school_id FROM public.profiles WHERE id = auth.uid();
-$$ LANGUAGE sql STABLE;
+$$ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public;
+
+-- Helper Function to get current user's role (Security Definer to avoid recursion)
+CREATE OR REPLACE FUNCTION public.get_my_role() 
+RETURNS TEXT AS $$
+  SELECT role FROM public.profiles WHERE id = auth.uid();
+$$ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public;
 
 -- Schools: Only Super Admin or the school itself can see/edit
 CREATE POLICY "Public schools are viewable by all" ON public.schools FOR SELECT USING (true);
 CREATE POLICY "Super Admins can manage all schools" ON public.schools FOR ALL 
-    USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'SUPER_ADMIN'));
+    USING (public.get_my_role() = 'SUPER_ADMIN');
 
 -- Profiles: Users see their own profile, or admins see all in their school
 CREATE POLICY "Users can see their own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "School Admins can see all profiles in their school" ON public.profiles FOR SELECT 
-    USING (school_id = get_my_school_id());
+    USING (school_id = public.get_my_school_id() AND public.get_my_role() = 'SCHOOL_ADMIN');
 CREATE POLICY "Super Admins can see all profiles" ON public.profiles FOR SELECT 
-    USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'SUPER_ADMIN'));
+    USING (public.get_my_role() = 'SUPER_ADMIN');
+
+-- Users can update their own profile
+CREATE POLICY "Users can update their own profile" ON public.profiles FOR UPDATE
+    USING (auth.uid() = id)
+    WITH CHECK (auth.uid() = id);
 
 -- Slips: Students see their own, Business sees their school's, Parents see their student's
 CREATE POLICY "Students see their own slips" ON public.slips FOR SELECT 
     USING (student_id = auth.uid() OR EXISTS (SELECT 1 FROM public.parent_student_links WHERE parent_id = auth.uid() AND student_id = public.slips.student_id));
 CREATE POLICY "Business can manage their school slips" ON public.slips FOR ALL 
-    USING (school_id = get_my_school_id() AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'BUSINESS'));
+    USING (school_id = public.get_my_school_id() AND public.get_my_role() = 'BUSINESS');
 
 -- News Feed: Everyone sees global news, only school members see school news
 CREATE POLICY "Global news is public" ON public.news_feed FOR SELECT 
@@ -165,19 +176,19 @@ CREATE POLICY "School news is for school members" ON public.news_feed FOR SELECT
 CREATE POLICY "Students see their own attendance" ON public.attendance FOR SELECT 
     USING (student_id = auth.uid() OR EXISTS (SELECT 1 FROM public.parent_student_links WHERE parent_id = auth.uid() AND student_id = public.attendance.student_id));
 CREATE POLICY "Teachers can manage attendance in their school" ON public.attendance FOR ALL 
-    USING (school_id = get_my_school_id() AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('TEACHER', 'SCHOOL_ADMIN')));
+    USING (school_id = public.get_my_school_id() AND public.get_my_role() IN ('TEACHER', 'SCHOOL_ADMIN'));
 
 -- Grades RLS
 CREATE POLICY "Students see their own grades" ON public.grades FOR SELECT 
     USING (student_id = auth.uid() OR EXISTS (SELECT 1 FROM public.parent_student_links WHERE parent_id = auth.uid() AND student_id = public.grades.student_id));
 CREATE POLICY "Teachers can manage grades in their school" ON public.grades FOR ALL 
-    USING (school_id = get_my_school_id() AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('TEACHER', 'SCHOOL_ADMIN')));
+    USING (school_id = public.get_my_school_id() AND public.get_my_role() IN ('TEACHER', 'SCHOOL_ADMIN'));
 
 -- Audit Logs RLS
 CREATE POLICY "School Admins can see their school audit logs" ON public.audit_logs FOR SELECT 
-    USING (school_id = get_my_school_id() AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'SCHOOL_ADMIN'));
+    USING (school_id = public.get_my_school_id() AND public.get_my_role() = 'SCHOOL_ADMIN');
 CREATE POLICY "Super Admins can see all audit logs" ON public.audit_logs FOR SELECT 
-    USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'SUPER_ADMIN'));
+    USING (public.get_my_role() = 'SUPER_ADMIN');
 -- Inserts to audit_logs are handled by the backend using Service Key to ensure integrity
 
 -- 6. TRIGGERS
@@ -408,10 +419,10 @@ CREATE POLICY "Users can see their own notifications" ON public.notifications FO
 CREATE POLICY "Users can update their own notifications" ON public.notifications FOR UPDATE USING (user_id = auth.uid());
 
 -- Management Policies (Admin/Teacher)
-CREATE POLICY "Admins can manage academic structure" ON public.academic_terms FOR ALL USING (school_id = get_my_school_id() AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'SCHOOL_ADMIN'));
-CREATE POLICY "Admins can manage subjects" ON public.subjects FOR ALL USING (school_id = get_my_school_id() AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'SCHOOL_ADMIN'));
-CREATE POLICY "Admins can manage classes" ON public.classes FOR ALL USING (school_id = get_my_school_id() AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'SCHOOL_ADMIN'));
-CREATE POLICY "Teachers can manage grades" ON public.grades FOR ALL USING (school_id = get_my_school_id() AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('TEACHER', 'SCHOOL_ADMIN')));
+CREATE POLICY "Admins can manage academic structure" ON public.academic_terms FOR ALL USING (school_id = public.get_my_school_id() AND public.get_my_role() = 'SCHOOL_ADMIN');
+CREATE POLICY "Admins can manage subjects" ON public.subjects FOR ALL USING (school_id = public.get_my_school_id() AND public.get_my_role() = 'SCHOOL_ADMIN');
+CREATE POLICY "Admins can manage classes" ON public.classes FOR ALL USING (school_id = public.get_my_school_id() AND public.get_my_role() = 'SCHOOL_ADMIN');
+CREATE POLICY "Teachers can manage grades" ON public.grades FOR ALL USING (school_id = public.get_my_school_id() AND public.get_my_role() IN ('TEACHER', 'SCHOOL_ADMIN'));
 
 -- Parent-Student Links
 CREATE TABLE IF NOT EXISTS public.parent_student_links (
@@ -455,7 +466,7 @@ ALTER TABLE public.broadcasts ENABLE ROW LEVEL SECURITY;
 
 -- Parent-Student Links Policies
 CREATE POLICY "Parents see their own student links" ON public.parent_student_links FOR SELECT USING (parent_id = auth.uid());
-CREATE POLICY "Admins can manage student links" ON public.parent_student_links FOR ALL USING (school_id = get_my_school_id() AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'SCHOOL_ADMIN'));
+CREATE POLICY "Admins can manage student links" ON public.parent_student_links FOR ALL USING (school_id = public.get_my_school_id() AND public.get_my_role() = 'SCHOOL_ADMIN');
 
 -- Messages Policies
 CREATE POLICY "Users see their own sent/received messages" ON public.messages FOR SELECT 
@@ -465,6 +476,6 @@ CREATE POLICY "Users can send messages" ON public.messages FOR INSERT
 
 -- Broadcasts Policies
 CREATE POLICY "School members see relevant broadcasts" ON public.broadcasts FOR SELECT 
-    USING (school_id = get_my_school_id() AND (target_roles && ARRAY[(SELECT role FROM public.profiles WHERE id = auth.uid())]));
+    USING (school_id = public.get_my_school_id() AND (target_roles && ARRAY[public.get_my_role()]));
 CREATE POLICY "Admins/Teachers can create broadcasts" ON public.broadcasts FOR INSERT 
-    WITH CHECK (school_id = get_my_school_id() AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('SCHOOL_ADMIN', 'TEACHER')));
+    WITH CHECK (school_id = public.get_my_school_id() AND public.get_my_role() IN ('SCHOOL_ADMIN', 'TEACHER'));
