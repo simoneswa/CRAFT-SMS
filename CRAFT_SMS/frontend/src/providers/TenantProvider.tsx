@@ -26,40 +26,65 @@ const TenantContext = createContext<TenantContextType>({
 /**
  * Extracts the tenant subdomain from the current browser hostname.
  *
- * Supports:
- *   - craft-sms.vercel.app          → "craft-sms"
- *   - school.craftsms.com           → "school"
- *   - school.localhost:3000         → "school"
- *   - localhost:3000                → null  (root, no tenant)
- *   - craft-sms-abc.vercel.app      → "craft-sms-abc" (preview build, attempted lookup)
+ * Handles:
+ *   craft-sms.vercel.app                         → "craft-sms"   (production)
+ *   craft-sms-git-main-simoneswas-projects.vercel.app → "craft-sms"   (git preview)
+ *   craft-sms-pr-42-user.vercel.app              → "craft-sms"   (PR preview)
+ *   craft-sms-abc123def456.vercel.app            → "craft-sms"   (hash preview)
+ *   school.craftsms.com                          → "school"      (custom domain)
+ *   school.localhost:3000                        → "school"      (local dev)
+ *   localhost:3000                               → null          (root, no tenant)
  */
 function extractSubdomain(): string | null {
   const hostname = window.location.hostname
   console.log('[TenantProvider] window.location.hostname =', hostname)
 
-  // Strip port (e.g. localhost:3000 → localhost)
+  // Strip port
   const host = hostname.split(':')[0]
 
-  // Case 1: Vercel deployment — e.g. "craft-sms.vercel.app"
+  // --- Vercel deployments ---
   if (host.endsWith('.vercel.app')) {
-    const subdomain = host.replace('.vercel.app', '')
-    console.log('[TenantProvider] vercel.app subdomain =', subdomain)
-    return subdomain
+    const projectPart = host.replace('.vercel.app', '')
+
+    // 1. Prefer explicit env var (set NEXT_PUBLIC_VERCEL_PROJECT_NAME=craft-sms in Vercel dashboard)
+    const envName = process.env.NEXT_PUBLIC_VERCEL_PROJECT_NAME
+    if (envName) {
+      console.log('[TenantProvider] vercel → using env NEXT_PUBLIC_VERCEL_PROJECT_NAME =', envName)
+      return envName
+    }
+
+    // 2. Git/PR preview pattern: {project}-git-{branch}-{user} or {project}-pr-{n}-{user}
+    const gitPrMatch = projectPart.match(/^(.+?)-(?:git|pr)-/)
+    if (gitPrMatch) {
+      console.log('[TenantProvider] vercel git/pr preview → project =', gitPrMatch[1])
+      return gitPrMatch[1]
+    }
+
+    // 3. Hash preview pattern: {project}-{9+alphanum}
+    const hashMatch = projectPart.match(/^(.+?)-([a-z0-9]{9,})$/)
+    if (hashMatch) {
+      console.log('[TenantProvider] vercel hash preview → project =', hashMatch[1])
+      return hashMatch[1]
+    }
+
+    // 4. Production URL: craft-sms.vercel.app → "craft-sms"
+    console.log('[TenantProvider] vercel production → subdomain =', projectPart)
+    return projectPart
   }
 
-  // Case 2: Custom root domain — e.g. "craftsms.com" or "school.craftsms.com"
+  // --- Custom root domain ---
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'craftsms.com'
   if (host === rootDomain || host === `www.${rootDomain}`) {
-    console.log('[TenantProvider] root domain, no subdomain')
+    console.log('[TenantProvider] root domain — no tenant')
     return null
   }
   if (host.endsWith(`.${rootDomain}`)) {
-    const subdomain = host.slice(0, host.length - rootDomain.length - 1)
-    console.log('[TenantProvider] custom domain subdomain =', subdomain)
-    return subdomain
+    const sub = host.slice(0, host.length - rootDomain.length - 1)
+    console.log('[TenantProvider] custom domain → subdomain =', sub)
+    return sub
   }
 
-  // Case 3: localhost with subdomain — e.g. "school.localhost"
+  // --- Localhost with subdomain ---
   const parts = host.split('.')
   if (parts.length >= 2) {
     const first = parts[0]
@@ -69,8 +94,8 @@ function extractSubdomain(): string | null {
     }
   }
 
-  // Case 4: bare "localhost" — root, no tenant
-  console.log('[TenantProvider] no subdomain found for host =', host)
+  // Bare localhost — root, no tenant
+  console.log('[TenantProvider] bare localhost — no tenant')
   return null
 }
 
@@ -84,14 +109,16 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
     const detectedSubdomain = extractSubdomain()
     setSubdomain(detectedSubdomain)
 
-    // No subdomain = root domain access, not a tenant page
+    // No subdomain → root domain or preview bypass, not a tenant page
     if (!detectedSubdomain) {
       setIsLoading(false)
       return
     }
 
     const fetchSchool = async (attempt = 1) => {
-      console.log(`[TenantProvider] fetching school for subdomain="${detectedSubdomain}" (attempt ${attempt})`)
+      console.log(
+        `[TenantProvider] fetching school for subdomain="${detectedSubdomain}" (attempt ${attempt})`
+      )
       try {
         const { data, error: queryError } = await supabase
           .from('schools')
@@ -103,16 +130,16 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         console.log('[TenantProvider] Supabase result:', { data, queryError })
 
         if (queryError) {
-          // PGRST116 = no rows found (school doesn't exist or is inactive)
+          // PGRST116 = no rows → this subdomain doesn't exist in DB
           if (queryError.code === 'PGRST116') {
-            console.warn('[TenantProvider] School not found in DB for subdomain:', detectedSubdomain)
+            console.warn('[TenantProvider] No active school found for subdomain:', detectedSubdomain)
             setError(`No active school found for "${detectedSubdomain}"`)
             return
           }
 
-          // Network/transient error — retry once after 1.5s
+          // Transient error → retry once after 1.5s
           if (attempt < 2) {
-            console.warn('[TenantProvider] Transient error, retrying in 1.5s...', queryError.message)
+            console.warn('[TenantProvider] Transient error, retrying in 1.5s…', queryError.message)
             setTimeout(() => fetchSchool(2), 1500)
             return
           }
@@ -120,16 +147,16 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
           throw queryError
         }
 
-        // ✅ Success — school found
-        console.log('[TenantProvider] School loaded:', data)
+        // ✅ School found
+        console.log('[TenantProvider] School loaded successfully:', data?.name)
         setSchool(data)
         setError(null)
       } catch (err: any) {
         console.error('[TenantProvider] Fatal error fetching school:', err)
-        // Only set error if we don't already have valid school data
+        // Never wipe an already-loaded school due to a subsequent error
         setSchool(prev => {
           if (prev) {
-            console.warn('[TenantProvider] Keeping existing school state despite fetch error')
+            console.warn('[TenantProvider] Keeping existing school state despite error')
             return prev
           }
           setError(err.message || 'Failed to load school')
@@ -143,11 +170,12 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
     fetchSchool()
   }, [])
 
-  // Show "School Not Found" only when:
-  // - We have a subdomain (user intended to access a tenant)
-  // - Loading is done
-  // - There is an error OR school is null after a completed fetch
-  const showNotFound = !isLoading && subdomain && !school && error
+  // Only show "School Not Found" when ALL of these are true:
+  //   1. A subdomain was detected (user intended to access a tenant)
+  //   2. Loading finished
+  //   3. School is still null (not found or error)
+  //   4. An error is set (not just a null-school on root domain)
+  const showNotFound = !isLoading && !!subdomain && !school && !!error
 
   if (showNotFound) {
     return (
@@ -161,9 +189,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         <p className="text-gray-400 text-center max-w-md mb-2">
           The subdomain <code className="text-teal-400 font-mono">"{subdomain}"</code> doesn't match an active school.
         </p>
-        <p className="text-gray-600 text-center text-sm max-w-md mb-8">
-          {error}
-        </p>
+        <p className="text-gray-600 text-center text-sm max-w-md mb-8">{error}</p>
         <button
           onClick={() => window.location.href = '/'}
           className="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-black font-bold transition-all shadow-lg shadow-teal-500/20"

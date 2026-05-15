@@ -1,6 +1,47 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+/**
+ * Extracts the tenant subdomain from a Vercel hostname.
+ *
+ * Vercel URL patterns:
+ *   Production:  craft-sms.vercel.app              → "craft-sms"
+ *   Git preview: craft-sms-git-main-user.vercel.app → "craft-sms"  (strip git suffix)
+ *   PR preview:  craft-sms-pr-42-user.vercel.app    → "craft-sms"  (strip pr suffix)
+ *   Hash deploy: craft-sms-abc123def.vercel.app     → "craft-sms"  (strip hash suffix)
+ *
+ * Uses NEXT_PUBLIC_VERCEL_PROJECT_NAME env var as canonical fallback if set.
+ */
+function extractVercelSubdomain(projectPart: string): string | null {
+  // 1. Prefer the explicitly configured project name (most reliable)
+  const envProjectName = process.env.NEXT_PUBLIC_VERCEL_PROJECT_NAME
+  if (envProjectName) {
+    console.log(`[middleware] using NEXT_PUBLIC_VERCEL_PROJECT_NAME="${envProjectName}"`)
+    return envProjectName
+  }
+
+  // 2. Detect Vercel preview patterns and strip suffixes
+  //    Pattern: {project-name}-git-{branch}-{username}
+  //             {project-name}-pr-{number}-{username}
+  //             {project-name}-{12+char-hash}
+  const gitPrMatch = projectPart.match(/^(.+?)-(?:git|pr)-/)
+  if (gitPrMatch) {
+    console.log(`[middleware] vercel git/pr preview, project="${gitPrMatch[1]}"`)
+    return gitPrMatch[1]
+  }
+
+  // Hash-based preview: ends with 9+ alphanumeric lowercase chars (Vercel deploy hash)
+  const hashMatch = projectPart.match(/^(.+?)-([a-z0-9]{9,})$/)
+  if (hashMatch) {
+    console.log(`[middleware] vercel hash preview, project="${hashMatch[1]}"`)
+    return hashMatch[1]
+  }
+
+  // 3. Plain production URL: craft-sms.vercel.app → "craft-sms"
+  console.log(`[middleware] vercel production URL, project="${projectPart}"`)
+  return projectPart
+}
+
 export function middleware(request: NextRequest) {
   const url = request.nextUrl
   const hostname = request.headers.get('host') || ''
@@ -10,42 +51,43 @@ export function middleware(request: NextRequest) {
   // Define the institutional root domain
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'craftsms.com'
 
-  // Extract subdomain — support three deployment environments:
-  // 1. Custom domain:    school.craftsms.com       → subdomain = "school"
-  // 2. Vercel preview:  craft-sms.vercel.app       → subdomain = "craft-sms"
-  // 3. Localhost:       school.localhost:3000      → subdomain = "school"
   let subdomain = ''
 
   if (hostname.endsWith(`.${rootDomain}`)) {
-    // Custom production domain
+    // Custom production domain: school.craftsms.com → "school"
     subdomain = hostname.slice(0, hostname.length - rootDomain.length - 1)
     console.log(`[middleware] custom domain → subdomain="${subdomain}"`)
 
+  } else if (hostname === rootDomain || hostname.startsWith(`www.${rootDomain}`)) {
+    // Root domain — no subdomain
+    console.log(`[middleware] root domain, passing through`)
+    return NextResponse.next()
+
   } else if (hostname.includes('.vercel.app')) {
-    // Vercel deployment: the first segment before ".vercel.app" IS the subdomain
-    // e.g. "craft-sms.vercel.app" → "craft-sms"
-    // e.g. "craft-sms-git-main-simoneswa.vercel.app" → skip (preview build, not a tenant)
-    const vercelPart = hostname.replace('.vercel.app', '')
-    // Only treat as a tenant if the vercel project name itself is the subdomain
-    // (single segment with no extra git-branch suffix that has known patterns)
-    subdomain = vercelPart
-    console.log(`[middleware] vercel.app deployment → subdomain="${subdomain}"`)
+    // Vercel deployment (production or preview)
+    const projectPart = hostname.replace('.vercel.app', '').split(':')[0]
+    const extracted = extractVercelSubdomain(projectPart)
+    if (!extracted) {
+      console.log(`[middleware] could not extract vercel subdomain, passing through`)
+      return NextResponse.next()
+    }
+    subdomain = extracted
 
   } else if (hostname.includes('localhost')) {
     // Local dev: school.localhost:3000 → "school"
-    const withoutPort = hostname.split(':')[0]  // strip port
+    const withoutPort = hostname.split(':')[0]
     const localParts = withoutPort.split('.')
     subdomain = localParts.length >= 2 ? localParts[0] : ''
     console.log(`[middleware] localhost → subdomain="${subdomain}"`)
   }
 
-  // Reject empty, 'www', or the root domain itself as subdomain
+  // Reject empty, www, or root domain as subdomain
   if (!subdomain || subdomain === 'www' || subdomain === rootDomain) {
     console.log(`[middleware] no valid subdomain — passing through`)
     return NextResponse.next()
   }
 
-  // Exclude internal Next.js paths, static files, API routes
+  // Skip internal Next.js paths, static assets, API routes
   if (
     url.pathname.startsWith('/_next') ||
     url.pathname.startsWith('/api') ||
@@ -55,21 +97,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Rewrite to the [subdomain] dynamic route folder
+  // Rewrite to [subdomain] dynamic route
   const rewriteTarget = new URL(`/${subdomain}${url.pathname}`, request.url)
-  console.log(`[middleware] rewriting to ${rewriteTarget.pathname}`)
+  console.log(`[middleware] rewriting → ${rewriteTarget.pathname}`)
   return NextResponse.rewrite(rewriteTarget)
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 }
