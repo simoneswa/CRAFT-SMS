@@ -28,78 +28,65 @@ function isVercelDomain(hostname: string): boolean {
 export function middleware(request: NextRequest) {
   const url = request.nextUrl
   const hostname = request.headers.get('host') || ''
-
-  console.log(`[middleware] hostname="${hostname}" pathname="${url.pathname}"`)
-
-  // Define the institutional root domain
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'craftsms.com'
 
-  // List of paths that should NEVER be rewritten (Global pages)
+  // 1. Pathname Exclusions (Run FIRST)
   const globalPaths = ['/login', '/signup', '/docs', '/api', '/_next', '/static', '/favicon.ico']
   if (globalPaths.some(path => url.pathname.startsWith(path)) || url.pathname.includes('.')) {
     return NextResponse.next()
   }
 
+  console.log(`[MIDDLEWARE_AUDIT] Host: ${hostname} | Path: ${url.pathname}`)
+
+  // 2. Hostname Exclusions (Bypass Tenant Rewriting COMPLETELY)
+  const isVercel = hostname.includes('.vercel.app')
+  const isRoot = hostname === rootDomain || hostname === `www.${rootDomain}`
+  const isLocalRoot = hostname === 'localhost:3000' || hostname === '127.0.0.1:3000' || hostname === 'localhost' || hostname === '127.0.0.1'
+
+  if (isVercel || isRoot || isLocalRoot) {
+    console.log(`[MIDDLEWARE_BYPASS] Reason: System/Root Host | Host: ${hostname}`)
+    return NextResponse.next()
+  }
+
+  // 3. Tenant Extraction (Only for custom domains or prefixed local domains)
   let subdomain = ''
 
   if (hostname.endsWith(`.${rootDomain}`)) {
-    // Custom production domain: school.craftsms.com → "school"
+    // custom-school.craftsms.com -> "custom-school"
     subdomain = hostname.slice(0, hostname.length - rootDomain.length - 1)
-    console.log(`[middleware] custom domain → subdomain="${subdomain}"`)
-
-  } else if (hostname === rootDomain || hostname.startsWith(`www.${rootDomain}`)) {
-    // Root domain — no subdomain
-    console.log(`[middleware] root domain, passing through`)
-    return NextResponse.next()
-
-  } else if (isVercelDomain(hostname)) {
-    // Vercel deployment (production or preview)
-    // EXCLUSION: Do not extract tenants from .vercel.app domains.
-    // This prevents preview hostnames from being treated as tenant slugs.
-    console.log(`[middleware] vercel domain detected, bypassing tenant extraction`)
-    return NextResponse.next()
-
   } else if (hostname.includes('localhost') || hostname.match(/^\d+\.\d+\.\d+\.\d+/)) {
-    // Local dev: school.localhost:3000 → "school"
+    // school.localhost:3000 -> "school"
     const withoutPort = hostname.split(':')[0]
-    const localParts = withoutPort.split('.')
-    
-    // If it's school.localhost (2 parts) or school.127.0.0.1.nip.io (multiple parts)
-    // But NOT just localhost (1 part) or 127.0.0.1 (4 parts of an IP)
+    const parts = withoutPort.split('.')
     const isIp = withoutPort.match(/^\d+\.\d+\.\d+\.\d+$/)
-    
-    if (localParts.length >= 2 && !isIp && !['localhost', 'www'].includes(localParts[0])) {
-      subdomain = localParts[0]
-      console.log(`[middleware] local subdomain detected: ${subdomain}`)
+
+    if (parts.length >= 2 && !isIp && !['localhost', 'www'].includes(parts[0])) {
+      subdomain = parts[0]
     }
   }
 
-  // Reject empty, www, or root domain as subdomain
-  if (!subdomain || subdomain === 'www' || subdomain === rootDomain) {
+  // 4. Final Validation Bypass
+  if (!subdomain || subdomain === 'www' || subdomain === 'api') {
+    console.log(`[MIDDLEWARE_BYPASS] Reason: Invalid Subdomain | Subdomain: "${subdomain}"`)
     return NextResponse.next()
   }
 
-  // --- Smart Mapping for Tenant Routes ---
-  // The current app structure is app/[subdomain]/dashboard/...
-  // But users might navigate to /students, /grades, etc.
-  
+  // 5. Smart Mapping for Tenant Modules
   let targetPath = url.pathname
-  const tenantDashboardRoutes = [
+  const tenantModules = [
     '/students', '/grades', '/gradebook', '/attendance', 
     '/finance', '/gamification', '/news', '/settings', 
     '/academic', '/analytics', '/report-card'
   ]
 
-  // If the path is a known tenant route but doesn't have /dashboard prefix, add it.
-  // This ensures /students maps to /school/dashboard/students
-  if (tenantDashboardRoutes.some(r => url.pathname.startsWith(r)) && !url.pathname.startsWith('/dashboard')) {
+  if (tenantModules.some(m => url.pathname.startsWith(m)) && !url.pathname.startsWith('/dashboard')) {
     targetPath = `/dashboard${url.pathname}`
-    console.log(`[middleware] smart mapping: ${url.pathname} -> ${targetPath}`)
   }
 
-  // Final Rewrite to [subdomain] dynamic route
+  // 6. Execute Rewrite
   const rewriteTarget = new URL(`/${subdomain}${targetPath}`, request.url)
-  console.log(`[middleware] rewriting → ${rewriteTarget.pathname}`)
+  console.log(`[MIDDLEWARE_REWRITE] Subdomain: ${subdomain} | From: ${url.pathname} | To: ${rewriteTarget.pathname}`)
+  
   return NextResponse.rewrite(rewriteTarget)
 }
 
