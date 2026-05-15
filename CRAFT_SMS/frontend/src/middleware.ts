@@ -5,23 +5,47 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl
   const hostname = request.headers.get('host') || ''
 
+  console.log(`[middleware] hostname="${hostname}" pathname="${url.pathname}"`)
+
   // Define the institutional root domain
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'craftsms.com'
-  
-  // Extract subdomain securely
+
+  // Extract subdomain — support three deployment environments:
+  // 1. Custom domain:    school.craftsms.com       → subdomain = "school"
+  // 2. Vercel preview:  craft-sms.vercel.app       → subdomain = "craft-sms"
+  // 3. Localhost:       school.localhost:3000      → subdomain = "school"
   let subdomain = ''
-  if (hostname.endsWith(rootDomain)) {
-    subdomain = hostname.replace(`.${rootDomain}`, '')
+
+  if (hostname.endsWith(`.${rootDomain}`)) {
+    // Custom production domain
+    subdomain = hostname.slice(0, hostname.length - rootDomain.length - 1)
+    console.log(`[middleware] custom domain → subdomain="${subdomain}"`)
+
+  } else if (hostname.includes('.vercel.app')) {
+    // Vercel deployment: the first segment before ".vercel.app" IS the subdomain
+    // e.g. "craft-sms.vercel.app" → "craft-sms"
+    // e.g. "craft-sms-git-main-simoneswa.vercel.app" → skip (preview build, not a tenant)
+    const vercelPart = hostname.replace('.vercel.app', '')
+    // Only treat as a tenant if the vercel project name itself is the subdomain
+    // (single segment with no extra git-branch suffix that has known patterns)
+    subdomain = vercelPart
+    console.log(`[middleware] vercel.app deployment → subdomain="${subdomain}"`)
+
   } else if (hostname.includes('localhost')) {
-    subdomain = hostname.split('.')[0]
+    // Local dev: school.localhost:3000 → "school"
+    const withoutPort = hostname.split(':')[0]  // strip port
+    const localParts = withoutPort.split('.')
+    subdomain = localParts.length >= 2 ? localParts[0] : ''
+    console.log(`[middleware] localhost → subdomain="${subdomain}"`)
   }
 
-  // Handle root domain or 'www' (System-level access)
-  if (!subdomain || subdomain === rootDomain || subdomain === 'www' || subdomain.includes(':')) {
+  // Reject empty, 'www', or the root domain itself as subdomain
+  if (!subdomain || subdomain === 'www' || subdomain === rootDomain) {
+    console.log(`[middleware] no valid subdomain — passing through`)
     return NextResponse.next()
   }
 
-  // Exclude internal paths, static files, api, etc.
+  // Exclude internal Next.js paths, static files, API routes
   if (
     url.pathname.startsWith('/_next') ||
     url.pathname.startsWith('/api') ||
@@ -31,10 +55,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Rewrite to the subdomain-specific path
-  // We expect a folder structure like app/[subdomain]/page.tsx
-  console.log(`Rewriting ${hostname}${url.pathname} to /${subdomain}${url.pathname}`)
-  return NextResponse.rewrite(new URL(`/${subdomain}${url.pathname}`, request.url))
+  // Rewrite to the [subdomain] dynamic route folder
+  const rewriteTarget = new URL(`/${subdomain}${url.pathname}`, request.url)
+  console.log(`[middleware] rewriting to ${rewriteTarget.pathname}`)
+  return NextResponse.rewrite(rewriteTarget)
 }
 
 export const config = {

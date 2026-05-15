@@ -23,46 +23,118 @@ const TenantContext = createContext<TenantContextType>({
   error: null,
 })
 
+/**
+ * Extracts the tenant subdomain from the current browser hostname.
+ *
+ * Supports:
+ *   - craft-sms.vercel.app          → "craft-sms"
+ *   - school.craftsms.com           → "school"
+ *   - school.localhost:3000         → "school"
+ *   - localhost:3000                → null  (root, no tenant)
+ *   - craft-sms-abc.vercel.app      → "craft-sms-abc" (preview build, attempted lookup)
+ */
+function extractSubdomain(): string | null {
+  const hostname = window.location.hostname
+  console.log('[TenantProvider] window.location.hostname =', hostname)
+
+  // Strip port (e.g. localhost:3000 → localhost)
+  const host = hostname.split(':')[0]
+
+  // Case 1: Vercel deployment — e.g. "craft-sms.vercel.app"
+  if (host.endsWith('.vercel.app')) {
+    const subdomain = host.replace('.vercel.app', '')
+    console.log('[TenantProvider] vercel.app subdomain =', subdomain)
+    return subdomain
+  }
+
+  // Case 2: Custom root domain — e.g. "craftsms.com" or "school.craftsms.com"
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'craftsms.com'
+  if (host === rootDomain || host === `www.${rootDomain}`) {
+    console.log('[TenantProvider] root domain, no subdomain')
+    return null
+  }
+  if (host.endsWith(`.${rootDomain}`)) {
+    const subdomain = host.slice(0, host.length - rootDomain.length - 1)
+    console.log('[TenantProvider] custom domain subdomain =', subdomain)
+    return subdomain
+  }
+
+  // Case 3: localhost with subdomain — e.g. "school.localhost"
+  const parts = host.split('.')
+  if (parts.length >= 2) {
+    const first = parts[0]
+    if (!['www', 'localhost', 'api'].includes(first)) {
+      console.log('[TenantProvider] localhost subdomain =', first)
+      return first
+    }
+  }
+
+  // Case 4: bare "localhost" — root, no tenant
+  console.log('[TenantProvider] no subdomain found for host =', host)
+  return null
+}
+
 export function TenantProvider({ children }: { children: React.ReactNode }) {
   const [school, setSchool] = useState<School | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [currentSubdomain, setCurrentSubdomain] = useState<string | null>(null)
+  const [subdomain, setSubdomain] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchSchool = async () => {
-      const hostname = window.location.hostname
-      const parts = hostname.split('.')
-      
-      // Extract subdomain
-      let subdomain = null
-      if (parts.length >= 2) {
-        const first = parts[0]
-        if (!['www', 'localhost', 'api'].includes(first)) {
-          subdomain = first
-        }
-      }
+    const detectedSubdomain = extractSubdomain()
+    setSubdomain(detectedSubdomain)
 
-      if (!subdomain) {
-        setIsLoading(false)
-        return
-      }
-      
-      setCurrentSubdomain(subdomain)
+    // No subdomain = root domain access, not a tenant page
+    if (!detectedSubdomain) {
+      setIsLoading(false)
+      return
+    }
 
+    const fetchSchool = async (attempt = 1) => {
+      console.log(`[TenantProvider] fetching school for subdomain="${detectedSubdomain}" (attempt ${attempt})`)
       try {
-        const { data, error } = await supabase
+        const { data, error: queryError } = await supabase
           .from('schools')
           .select('*')
-          .eq('subdomain', subdomain)
+          .eq('subdomain', detectedSubdomain)
           .eq('is_active', true)
           .single()
 
-        if (error) throw error
+        console.log('[TenantProvider] Supabase result:', { data, queryError })
+
+        if (queryError) {
+          // PGRST116 = no rows found (school doesn't exist or is inactive)
+          if (queryError.code === 'PGRST116') {
+            console.warn('[TenantProvider] School not found in DB for subdomain:', detectedSubdomain)
+            setError(`No active school found for "${detectedSubdomain}"`)
+            return
+          }
+
+          // Network/transient error — retry once after 1.5s
+          if (attempt < 2) {
+            console.warn('[TenantProvider] Transient error, retrying in 1.5s...', queryError.message)
+            setTimeout(() => fetchSchool(2), 1500)
+            return
+          }
+
+          throw queryError
+        }
+
+        // ✅ Success — school found
+        console.log('[TenantProvider] School loaded:', data)
         setSchool(data)
+        setError(null)
       } catch (err: any) {
-        console.error('Error fetching school:', err)
-        setError(err.message)
+        console.error('[TenantProvider] Fatal error fetching school:', err)
+        // Only set error if we don't already have valid school data
+        setSchool(prev => {
+          if (prev) {
+            console.warn('[TenantProvider] Keeping existing school state despite fetch error')
+            return prev
+          }
+          setError(err.message || 'Failed to load school')
+          return null
+        })
       } finally {
         setIsLoading(false)
       }
@@ -71,7 +143,13 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
     fetchSchool()
   }, [])
 
-  if (!isLoading && error && currentSubdomain) {
+  // Show "School Not Found" only when:
+  // - We have a subdomain (user intended to access a tenant)
+  // - Loading is done
+  // - There is an error OR school is null after a completed fetch
+  const showNotFound = !isLoading && subdomain && !school && error
+
+  if (showNotFound) {
     return (
       <div className="min-h-screen bg-[#030712] text-white flex flex-col items-center justify-center p-4">
         <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center mb-6">
@@ -80,10 +158,13 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
           </svg>
         </div>
         <h1 className="text-4xl font-bold mb-4 text-center">School Not Found</h1>
-        <p className="text-gray-400 text-center max-w-md mb-8">
-          The subdomain you're trying to access doesn't exist or has been deactivated. Please check the URL and try again.
+        <p className="text-gray-400 text-center max-w-md mb-2">
+          The subdomain <code className="text-teal-400 font-mono">"{subdomain}"</code> doesn't match an active school.
         </p>
-        <button 
+        <p className="text-gray-600 text-center text-sm max-w-md mb-8">
+          {error}
+        </p>
+        <button
           onClick={() => window.location.href = '/'}
           className="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-black font-bold transition-all shadow-lg shadow-teal-500/20"
         >
