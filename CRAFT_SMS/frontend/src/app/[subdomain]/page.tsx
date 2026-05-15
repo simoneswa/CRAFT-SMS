@@ -3,6 +3,7 @@
 import React from 'react'
 import { useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import { LayoutDashboard, Users, CreditCard, Bell, Trophy, Settings, Zap } from 'lucide-react'
 
 export default function SchoolDashboard() {
