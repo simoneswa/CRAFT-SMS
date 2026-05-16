@@ -1,0 +1,17 @@
+{
+  "name": "@craft-sms/database",
+  "version": "1.0.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.21.1"
+  },
+  "devDependencies": {
+    "prisma": "^5.21.1"
+  }
+}
