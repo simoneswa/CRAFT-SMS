@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@craft-sms/database": "workspace:*",
     "@supabase/supabase-js": "^2.105.4",
     "dexie": "^4.4.2",
     "dexie-react-hooks": "^4.4.0",
