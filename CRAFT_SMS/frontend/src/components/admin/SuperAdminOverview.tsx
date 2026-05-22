@@ -23,7 +23,7 @@ export function SuperAdminOverview() {
   const [logs, setLogs] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { addToast } = useToast()
+  const { showToast } = useToast()
 
   useEffect(() => {
     loadData()
@@ -99,7 +99,7 @@ export function SuperAdminOverview() {
   ]
 
   const handleAction = (actionName: string) => {
-    addToast(`${actionName} triggered securely.`, 'success')
+    showToast(`${actionName} triggered securely.`, 'SUCCESS')
   }
 
   return (
@@ -142,7 +142,7 @@ export function SuperAdminOverview() {
                 <ShieldAlert className="text-teal-400 w-6 h-6" />
                 Security & Activity Logs
               </h3>
-              <button onClick={() => { loadData(); addToast('Refreshing logs...', 'success') }} className="text-teal-400 text-sm font-bold hover:underline flex items-center gap-2">
+              <button onClick={() => { loadData(); showToast('Refreshing logs...', 'INFO') }} className="text-teal-400 text-sm font-bold hover:underline flex items-center gap-2">
                 Refresh <ArrowUpRight className="w-4 h-4" />
               </button>
             </div>

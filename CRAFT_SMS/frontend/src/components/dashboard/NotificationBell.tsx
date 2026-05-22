@@ -5,6 +5,7 @@ import { Bell, X, CheckCircle2, AlertCircle, CreditCard, BookOpen } from 'lucide
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/providers/AuthProvider'
 import { motion, AnimatePresence } from 'framer-motion'
+import Link from 'next/link'
 
 export function NotificationBell() {
   const { profile } = useAuth()
@@ -122,7 +123,7 @@ export function NotificationBell() {
               </div>
               
               <div className="p-3 bg-white/5 border-t border-white/10 text-center">
-                 <button className="text-xs font-bold text-teal-400 hover:text-teal-300 transition-all">View All Activity</button>
+                 <Link href="/dashboard/news" onClick={() => setIsOpen(false)} className="text-xs font-bold text-teal-400 hover:text-teal-300 transition-all">View All Activity</Link>
               </div>
             </motion.div>
           </>

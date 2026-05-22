@@ -162,8 +162,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-               {/* Cloud Sync Status */}
-               <div className="relative flex items-center group cursor-pointer" title={hasConflicts ? "Sync Conflicts Detected" : isOnline ? "Online & Synced" : "Offline - Changes queued"}>
+               {/* Cloud Sync Status — opens Command Center on click */}
+               <button onClick={() => setIsCommandCenterOpen(true)} className="relative flex items-center group cursor-pointer" title={hasConflicts ? "Sync Conflicts Detected" : isOnline ? "Online & Synced" : "Offline - Changes queued"}>
                  {!isOnline ? (
                    <CloudOff className="w-5 h-5 text-amber-500" />
                  ) : hasConflicts ? (
@@ -179,7 +179,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500"></span>
                     </span>
                  )}
-               </div>
+               </button>
 
                <NotificationBell />
             </div>

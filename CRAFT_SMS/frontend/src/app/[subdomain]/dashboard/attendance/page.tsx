@@ -19,6 +19,7 @@ import { useAuth } from '@/providers/AuthProvider'
 import { createClient } from '@/utils/supabase'
 import { fetchAPI } from '@/lib/api'
 import { SyncEngine } from '@/lib/syncEngine'
+import { generatePDFFromElement } from '@/lib/pdfGenerator'
 
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -34,6 +35,10 @@ export default function AttendancePage() {
   const [attendance, setAttendance] = useState<Record<string, string>>({}) // studentId -> status
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [historyStats, setHistoryStats] = useState({ avgPresence: 0, chronicAbsentees: 0, daysTracked: 0 })
+  const [historyRows, setHistoryRows] = useState<any[]>([])
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false)
+  const [isExportingPdf, setIsExportingPdf] = useState(false)
   const [view, setView] = useState<'ROLL_CALL' | 'HISTORY'>('ROLL_CALL')
 
   useEffect(() => {
@@ -106,7 +111,66 @@ const loadRollCall = useCallback(async () => {
 
   useEffect(() => {
     if (view === 'ROLL_CALL') loadRollCall()
-  }, [loadRollCall, view])
+    if (view === 'HISTORY') loadHistory()
+  }, [loadRollCall, view, selectedClass])
+
+  // Load aggregate history stats when switching to HISTORY view
+  const loadHistory = async () => {
+    if (!school?.id || !selectedClass) return
+    setIsLoadingHistory(true)
+    const supabase = createClient()
+    try {
+      const { data } = await supabase
+        .from('attendance')
+        .select('student_id, status, profiles!student_id(full_name, custom_id)')
+        .eq('school_id', school.id)
+      
+      const rows: Record<string, any> = {}
+      ;(data || []).forEach((r: any) => {
+        const id = r.student_id
+        const name = Array.isArray(r.profiles) ? r.profiles[0]?.full_name : r.profiles?.full_name
+        const customId = Array.isArray(r.profiles) ? r.profiles[0]?.custom_id : r.profiles?.custom_id
+        if (!rows[id]) rows[id] = { name, customId, present: 0, late: 0, absent: 0, excused: 0 }
+        if (r.status === 'PRESENT') rows[id].present++
+        else if (r.status === 'LATE') rows[id].late++
+        else if (r.status === 'ABSENT') rows[id].absent++
+        else if (r.status === 'EXCUSED') rows[id].excused++
+      })
+
+      const rowList = Object.values(rows)
+      const totalDays = rowList.length > 0 ? Math.max(...rowList.map((r: any) => r.present + r.late + r.absent + r.excused)) : 0
+      const avgPct = rowList.length > 0 ? rowList.reduce((acc: number, r: any) => {
+        const total = r.present + r.late + r.absent + r.excused
+        return acc + (total > 0 ? (r.present / total) * 100 : 0)
+      }, 0) / rowList.length : 0
+      const chronic = rowList.filter((r: any) => {
+        const total = r.present + r.late + r.absent + r.excused
+        return total > 0 && r.absent / total > 0.2
+      }).length
+
+      setHistoryRows(rowList.map((r: any) => ({
+        ...r,
+        pct: (() => {
+          const total = r.present + r.late + r.absent + r.excused
+          return total > 0 ? Math.round((r.present / total) * 100 * 10) / 10 : 0
+        })(),
+      })))
+      setHistoryStats({ avgPresence: Math.round(avgPct * 10) / 10, chronicAbsentees: chronic, daysTracked: totalDays })
+    } catch (err) {
+      console.error('Failed to load history:', err)
+    } finally {
+      setIsLoadingHistory(false)
+    }
+  }
+
+  const handleExportPdf = async () => {
+    setIsExportingPdf(true)
+    try {
+      await generatePDFFromElement('attendance-history-table', `Attendance-Report-${selectedClass}`)
+    } finally {
+      setIsExportingPdf(false)
+    }
+  }
 
   const markAttendance = (studentId: string, status: string) => {
     setAttendance(prev => ({ ...prev, [studentId]: status }))
@@ -346,27 +410,33 @@ const loadRollCall = useCallback(async () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                <div className="premium-card bg-emerald-500/5 border-emerald-500/10">
                   <p className="section-label text-emerald-400 mb-1">Average Presence</p>
-                  <h3 className="text-3xl font-bold text-white">94.2%</h3>
+                  <h3 className="text-3xl font-bold text-white">{isLoadingHistory ? '…' : `${historyStats.avgPresence}%`}</h3>
                </div>
                <div className="premium-card bg-rose-500/5 border-rose-500/10">
                   <p className="section-label text-rose-400 mb-1">Chronic Absentees</p>
-                  <h3 className="text-3xl font-bold text-white">3</h3>
+                  <h3 className="text-3xl font-bold text-white">{isLoadingHistory ? '…' : historyStats.chronicAbsentees}</h3>
                </div>
                <div className="premium-card bg-blue-500/5 border-blue-500/10">
                   <p className="section-label text-blue-400 mb-1">Days Tracked</p>
-                  <h3 className="text-3xl font-bold text-white">42</h3>
+                  <h3 className="text-3xl font-bold text-white">{isLoadingHistory ? '…' : historyStats.daysTracked}</h3>
                </div>
-            </div>
+             </div>
 
             <div className="premium-card overflow-hidden">
                <div className="p-6 border-b border-white/5 flex items-center justify-between">
                   <h3 className="font-bold text-white">Student Attendance Ranking</h3>
-                  <button className="text-xs font-bold text-teal-400 hover:underline">Export Report (PDF)</button>
+                  <button
+                    onClick={handleExportPdf}
+                    disabled={isExportingPdf}
+                    className="text-xs font-bold text-teal-400 hover:underline disabled:opacity-50"
+                  >
+                    {isExportingPdf ? 'Generating...' : 'Export Report (PDF)'}
+                  </button>
                </div>
-               <div className="overflow-x-auto custom-scrollbar">
+               <div className="overflow-x-auto custom-scrollbar" id="attendance-history-table">
                   <table className="w-full text-left">
                     <thead>
                       <tr className="bg-white/5 border-b border-white/10">
@@ -378,17 +448,15 @@ const loadRollCall = useCallback(async () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {/* Sample Data - would be replaced by real analytics state */}
-                      {[
-                        { name: 'Sarah Johnson', present: 40, late: 2, absent: 0, pct: 100 },
-                        { name: 'Michael Chen', present: 38, late: 1, absent: 3, pct: 92.8 },
-                        { name: 'David Smith', present: 32, late: 5, absent: 5, pct: 88.1 },
-                        { name: 'Emma Wilson', present: 28, late: 2, absent: 12, pct: 71.4 },
-                      ].map((s, i) => (
+                     {isLoadingHistory ? (
+                      <tr><td colSpan={5} className="p-8 text-center text-gray-500">Loading history...</td></tr>
+                     ) : historyRows.length === 0 ? (
+                      <tr><td colSpan={5} className="p-8 text-center text-gray-500">No attendance records found.</td></tr>
+                     ) : historyRows.map((s: any, i: number) => (
                         <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                           <td className="p-4">
-                             <p className="font-bold text-sm text-white">{s.name}</p>
-                             <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">STU_00{i+1}</p>
+                             <p className="font-bold text-sm text-white">{s.name || 'Unknown'}</p>
+                             <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">{s.customId || `STU_00${i+1}`}</p>
                           </td>
                           <td className="p-4 text-center text-sm font-bold text-gray-300">{s.present}</td>
                           <td className="p-4 text-center text-sm font-bold text-amber-400">{s.late}</td>
@@ -404,7 +472,7 @@ const loadRollCall = useCallback(async () => {
                              </div>
                           </td>
                         </tr>
-                      ))}
+                     ))}
                     </tbody>
                   </table>
                </div>

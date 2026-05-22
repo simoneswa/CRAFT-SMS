@@ -102,50 +102,60 @@ export default function SchoolDashboard() {
         {role === 'STUDENT' ? (
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { label: 'Current GPA', value: '3.8', change: 'Top 10%', color: 'teal' },
-                { label: 'Attendance', value: '98%', change: 'Excellent', color: 'blue' },
-                { label: 'Unpaid Fees', value: '$0.00', change: 'Cleared', color: 'emerald' },
-              ].map((stat, i) => (
-                <div key={i} className="premium-card">
-                  <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">{stat.label}</p>
-                  <h3 className="text-2xl font-bold mb-2">{stat.value}</h3>
-                  <span className="text-xs font-bold text-emerald-400">{stat.change}</span>
-                </div>
-              ))}
+              <Link href={`/${subdomain}/dashboard/grades`} className="premium-card hover:border-teal-500/40 transition-all cursor-pointer">
+                <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">Academic Record</p>
+                <h3 className="text-lg font-bold mb-1 text-teal-400">View Grades &rarr;</h3>
+                <span className="text-xs text-gray-500">GPA and subject scores</span>
+              </Link>
+              <Link href={`/${subdomain}/dashboard/attendance`} className="premium-card hover:border-blue-500/40 transition-all cursor-pointer">
+                <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">Attendance</p>
+                <h3 className="text-lg font-bold mb-1 text-blue-400">View Record &rarr;</h3>
+                <span className="text-xs text-gray-500">Presence and absence history</span>
+              </Link>
+              <Link href={`/${subdomain}/dashboard/finance`} className="premium-card hover:border-emerald-500/40 transition-all cursor-pointer">
+                <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">Financial Status</p>
+                <h3 className="text-lg font-bold mb-1 text-emerald-400">View Slips &rarr;</h3>
+                <span className="text-xs text-gray-500">Payment slips and balances</span>
+              </Link>
             </div>
-            
+
             <div className="premium-card">
-              <h3 className="text-lg font-bold mb-6">My Recent Classes</h3>
+              <h3 className="text-lg font-bold mb-6">My Courses</h3>
               <div className="flex flex-col gap-4">
-                {['Mathematics', 'Physics', 'History'].map((course, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5">
-                    <span className="font-bold">{course}</span>
-                    <button onClick={() => alert('Opening course material...')} className="text-teal-400 text-sm font-bold hover:underline">View</button>
-                  </div>
-                ))}
+                <Link href={`/${subdomain}/dashboard/grades`} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                  <span className="font-bold">View All Grades & Courses</span>
+                  <span className="text-teal-400 text-sm font-bold">&rarr;</span>
+                </Link>
+                <Link href={`/${subdomain}/dashboard/gamification`} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                  <span className="font-bold">Leaderboard Ranking</span>
+                  <span className="text-teal-400 text-sm font-bold">&rarr;</span>
+                </Link>
               </div>
             </div>
           </div>
         ) : role === 'BUSINESS' ? (
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { label: 'Pending Slips', value: '14', change: 'Needs Review', color: 'amber' },
-                { label: 'Verified Today', value: '42', change: '+12%', color: 'emerald' },
-                { label: 'Total Revenue (MTD)', value: '$12,450', change: 'On Track', color: 'teal' },
-              ].map((stat, i) => (
-                <div key={i} className="premium-card">
-                  <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">{stat.label}</p>
-                  <h3 className="text-2xl font-bold mb-2">{stat.value}</h3>
-                  <span className="text-xs font-bold text-amber-400">{stat.change}</span>
-                </div>
-              ))}
+              <Link href={`/${subdomain}/dashboard/finance?filter=PENDING`} className="premium-card hover:border-amber-500/40 transition-all cursor-pointer">
+                <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">Pending Slips</p>
+                <h3 className="text-lg font-bold mb-1 text-amber-400">Review Pending &rarr;</h3>
+                <span className="text-xs text-gray-500">Awaiting your verification</span>
+              </Link>
+              <Link href={`/${subdomain}/dashboard/finance?filter=VERIFIED`} className="premium-card hover:border-emerald-500/40 transition-all cursor-pointer">
+                <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">Verified Today</p>
+                <h3 className="text-lg font-bold mb-1 text-emerald-400">View Verified &rarr;</h3>
+                <span className="text-xs text-gray-500">Recently approved payments</span>
+              </Link>
+              <Link href={`/${subdomain}/dashboard/students`} className="premium-card hover:border-teal-500/40 transition-all cursor-pointer">
+                <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">Student Balances</p>
+                <h3 className="text-lg font-bold mb-1 text-teal-400">View Directory &rarr;</h3>
+                <span className="text-xs text-gray-500">Track per-student accounts</span>
+              </Link>
             </div>
 
             <div className="premium-card border-amber-500/20 bg-amber-500/5">
               <h3 className="text-lg font-bold mb-4">Pending Financial Actions</h3>
-              <p className="text-sm text-gray-400 mb-4">You have 14 unverified payment slips from students.</p>
+              <p className="text-sm text-gray-400 mb-4">Navigate to the Finance page to review and verify pending student payment slips.</p>
               <Link href={`/${subdomain}/dashboard/finance`}>
                 <button className="px-6 py-3 bg-amber-500 text-black font-bold rounded-xl transition-all hover:bg-amber-400">
                   Review Slips
@@ -156,20 +166,22 @@ export default function SchoolDashboard() {
         ) : (
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {[
-                { label: 'Total Students', value: '1,240', change: '+12%', color: 'teal' },
-                { label: 'Pending Slips', value: '42', change: '-5%', color: 'blue' },
-                { label: 'Active Teachers', value: '86', change: '0%', color: 'purple' },
-                { label: 'Revenue (MTD)', value: '$12.4k', change: '+18%', color: 'emerald' },
-              ].map((stat, i) => (
-                <div key={i} className="premium-card">
-                  <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">{stat.label}</p>
-                  <h3 className="text-2xl font-bold mb-2">{stat.value}</h3>
-                  <span className={`text-xs font-bold ${stat.change.startsWith('+') ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    {stat.change}
-                  </span>
-                </div>
-              ))}
+              <Link href={`/${subdomain}/dashboard/students`} className="premium-card hover:border-teal-500/40 transition-all cursor-pointer">
+                <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">Total Students</p>
+                <h3 className="text-lg font-bold mb-1 text-teal-400">View Directory &rarr;</h3>
+              </Link>
+              <Link href={`/${subdomain}/dashboard/finance?filter=PENDING`} className="premium-card hover:border-blue-500/40 transition-all cursor-pointer">
+                <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">Pending Slips</p>
+                <h3 className="text-lg font-bold mb-1 text-blue-400">Review &rarr;</h3>
+              </Link>
+              <Link href={`/${subdomain}/dashboard/attendance`} className="premium-card hover:border-purple-500/40 transition-all cursor-pointer">
+                <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">Attendance</p>
+                <h3 className="text-lg font-bold mb-1 text-purple-400">Take Roll Call &rarr;</h3>
+              </Link>
+              <Link href={`/${subdomain}/dashboard/finance`} className="premium-card hover:border-emerald-500/40 transition-all cursor-pointer">
+                <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">Financials</p>
+                <h3 className="text-lg font-bold mb-1 text-emerald-400">View Finance &rarr;</h3>
+              </Link>
             </div>
           </div>
         )}
