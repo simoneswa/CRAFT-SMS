@@ -38,7 +38,7 @@ export default function DocsPage() {
               <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Getting Started</h3>
               <ul className="space-y-3">
                 {['Introduction', 'Quickstart', 'Architecture'].map((item) => (
-                  <li key={item}><Link href="#" className="text-sm text-teal-400 font-medium hover:text-teal-300">{item}</Link></li>
+                  <li key={item}><span className="text-sm text-teal-400 font-medium opacity-80">{item}</span></li>
                 ))}
               </ul>
             </div>
@@ -46,7 +46,9 @@ export default function DocsPage() {
               <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Core Concepts</h3>
               <ul className="space-y-3">
                 {['Multi-Tenancy', 'Row Level Security', 'Offline Sync'].map((item) => (
-                  <li key={item}><Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">{item}</Link></li>
+                  <li key={item}>
+                    <span className="text-sm text-gray-400 opacity-80">{item}</span>
+                  </li>
                 ))}
               </ul>
             </div>
