@@ -19,6 +19,12 @@ export default function LoginPage() {
     setIsLoading(true)
     setError(null)
 
+    if (!navigator.onLine) {
+      setError("You are currently offline. An active internet connection is required to log in.")
+      setIsLoading(false)
+      return
+    }
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -30,7 +36,11 @@ export default function LoginPage() {
       // Successfully logged in
       router.push('/dashboard')
     } catch (err: any) {
-      setError(err.message)
+      if (err.message === 'Failed to fetch' || err.message?.includes('Network Error')) {
+        setError("Network error: Unable to connect to the authentication server. Please check your internet connection.")
+      } else {
+        setError(err.message)
+      }
     } finally {
       setIsLoading(false)
     }
