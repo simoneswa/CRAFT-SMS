@@ -108,7 +108,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ user, profile, isLoading, signOut }}>
-      {children}
+      {typeof window !== 'undefined' && window.localStorage.getItem('maintenanceMode') === 'true' && profile?.role !== 'SUPER_ADMIN' && window.location.pathname !== '/maintenance' ? (
+         <div className="min-h-screen bg-[#030712] flex flex-col items-center justify-center p-6 text-white text-center">
+            <h1 className="text-2xl font-bold mb-2">System Maintenance</h1>
+            <p className="text-gray-400 mb-6">The system is currently undergoing scheduled maintenance.</p>
+            <button onClick={() => window.location.href = '/maintenance'} className="px-6 py-3 bg-rose-500 rounded-xl font-bold text-black">
+               View Status
+            </button>
+         </div>
+      ) : children}
     </AuthContext.Provider>
   )
 }

@@ -25,6 +25,9 @@ import { fetchAPI } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 
 import { ParentDashboardWidget } from '@/components/dashboard/ParentDashboardWidget'
+import { StudentWidget } from '@/components/dashboard/StudentWidget'
+import { FinanceWidget } from '@/components/dashboard/FinanceWidget'
+import { AdminWidget } from '@/components/dashboard/AdminWidget'
 
 function StatCard({ stat, index }: { stat: any, index: number }) {
   return (
@@ -150,37 +153,7 @@ export default function TenantDashboard() {
               
               {/* Contextual Widget */}
               {profile?.role === 'STUDENT' ? (
-                 <div className="premium-card bg-white/[0.01] border-white/5">
-                    <div className="flex items-center justify-between mb-8">
-                       <h3 className="text-lg font-bold text-white">Recent Performance</h3>
-                       <button className="text-teal-400 text-xs font-bold hover:text-teal-300 transition-all flex items-center gap-1">
-                          Full Academic Report <ChevronRight className="w-3 h-3" />
-                       </button>
-                    </div>
-                    <div className="space-y-4">
-                       {[
-                         { subject: 'Advanced Mathematics', score: 94, trend: '+2%' },
-                         { subject: 'Quantum Physics', score: 88, trend: 'Stable' },
-                         { subject: 'World History', score: 91, trend: '+5%' },
-                       ].map((item, i) => (
-                         <div key={i} className="flex items-center justify-between p-5 bg-white/[0.03] border border-white/5 rounded-2xl">
-                            <div className="flex items-center gap-4">
-                               <div className="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center font-black text-teal-400 text-xs">
-                                 {item.subject[0]}
-                               </div>
-                               <div>
-                                  <p className="font-bold text-sm text-white">{item.subject}</p>
-                                  <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">Term 1 Assessment</p>
-                               </div>
-                            </div>
-                            <div className="text-right">
-                               <p className="text-lg font-bold text-emerald-400">{item.score}%</p>
-                               <p className="text-[9px] text-gray-600 font-bold uppercase">{item.trend}</p>
-                            </div>
-                         </div>
-                       ))}
-                    </div>
-                 </div>
+                 <StudentWidget />
               ) : profile?.role === 'TEACHER' ? (
                  <div className="premium-card">
                     <div className="flex items-center justify-between mb-8">
@@ -221,33 +194,10 @@ export default function TenantDashboard() {
                  </div>
               ) : profile?.role === 'PARENT' ? (
                   <ParentDashboardWidget />
-               ) : (
-                 <div className="premium-card">
-                    <div className="flex items-center justify-between mb-8">
-                       <h3 className="text-lg font-bold text-white">System Activity Monitor</h3>
-                       <button className="text-teal-400 text-xs font-bold hover:text-teal-300 transition-all flex items-center gap-1">
-                          Full Audit Log <ChevronRight className="w-3 h-3" />
-                       </button>
-                    </div>
-                    <div className="space-y-6">
-                       <div className="p-8 bg-white/[0.01] border border-white/5 rounded-3xl text-center">
-                          <TrendingUp className="w-12 h-12 text-teal-400 mx-auto mb-4 opacity-20" />
-                          <p className="text-sm text-gray-500 leading-relaxed max-w-sm mx-auto">
-                            Institutional health and operational activity tracking is being compiled from across all modules.
-                          </p>
-                       </div>
-                       <div className="grid grid-cols-2 gap-4">
-                          <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
-                             <p className="text-[10px] font-bold text-gray-600 uppercase tracking-[0.2em] mb-1">Server Health</p>
-                             <p className="text-xl font-bold text-emerald-400">99.9%</p>
-                          </div>
-                          <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
-                             <p className="text-[10px] font-bold text-gray-600 uppercase tracking-[0.2em] mb-1">Sync Latency</p>
-                             <p className="text-xl font-bold text-teal-400">12ms</p>
-                          </div>
-                       </div>
-                    </div>
-                 </div>
+              ) : profile?.role === 'BUSINESS' ? (
+                  <FinanceWidget />
+              ) : (
+                  <AdminWidget />
               )}
            </div>
 

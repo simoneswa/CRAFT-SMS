@@ -16,7 +16,10 @@ export default function SystemSettingsPage() {
 
   const handleSave = () => {
     setIsSaving(true)
-    // Simulate API call
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('maintenanceMode', settings.maintenanceMode.toString())
+    }
+    // Simulate API call for other settings
     setTimeout(() => setIsSaving(false), 1000)
   }
 
