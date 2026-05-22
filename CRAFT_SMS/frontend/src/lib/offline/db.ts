@@ -34,6 +34,7 @@ export class CraftOfflineDB extends Dexie {
   grades!: Table<LocalGrade>;
   mutations!: Table<Mutation>;
   profiles!: Table<any>;
+  schools!: Table<any>;
 
   constructor() {
     super('CraftSMS_Offline');
@@ -41,7 +42,8 @@ export class CraftOfflineDB extends Dexie {
       attendance: '++id, student_id, date, syncStatus',
       grades: '++id, student_id, class_subject_id, syncStatus',
       mutations: '++id, table, timestamp',
-      profiles: 'id, full_name, role'
+      profiles: 'id, full_name, role',
+      schools: 'id, subdomain'
     });
   }
 }

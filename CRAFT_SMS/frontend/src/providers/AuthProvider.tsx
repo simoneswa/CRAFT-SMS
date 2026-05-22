@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
+import { db } from '@/lib/offline/db'
 
 interface AuthContextType {
   user: User | null
@@ -73,8 +74,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       setProfile(data)
+      
+      // Cache for offline use
+      try {
+        await db.profiles.put(data)
+      } catch (cacheErr) {
+        console.error('[AuthProvider] Failed to cache profile:', cacheErr)
+      }
     } catch (err) {
       console.error('[AuthProvider] Profile fetch error:', err)
+      
+      // Offline fallback: try to load from local cache
+      try {
+        const cachedProfile = await db.profiles.get(userId)
+        if (cachedProfile) {
+          console.log('[AuthProvider] Loaded profile from offline cache')
+          setProfile(cachedProfile)
+          return
+        }
+      } catch (dbErr) {
+        console.error('[AuthProvider] Failed to read profile from cache:', dbErr)
+      }
+      
       // Do NOT sign out automatically — keep user logged in but with null profile
       setProfile(null)
     }

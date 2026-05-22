@@ -3,6 +3,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { db } from '@/lib/offline/db'
 
 interface School {
   id: string
@@ -132,8 +133,29 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         console.log('[TenantProvider] School loaded successfully:', data?.name)
         setSchool(data)
         setError(null)
+        
+        // Cache for offline use
+        try {
+          await db.schools.put(data)
+        } catch (cacheErr) {
+          console.error('[TenantProvider] Failed to cache school:', cacheErr)
+        }
       } catch (err: any) {
         console.error('[TenantProvider] Fatal error fetching school:', err)
+        
+        // Offline fallback: check local DB
+        try {
+          const cachedSchool = await db.schools.where('subdomain').equals(detectedSubdomain).first()
+          if (cachedSchool) {
+            console.log('[TenantProvider] Loaded school from local offline cache:', cachedSchool.name)
+            setSchool(cachedSchool)
+            setError(null)
+            return
+          }
+        } catch (dbErr) {
+          console.error('[TenantProvider] Failed to read school from cache:', dbErr)
+        }
+
         // Never wipe an already-loaded school due to a subsequent error
         setSchool(prev => {
           if (prev) {
