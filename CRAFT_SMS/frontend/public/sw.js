@@ -27,13 +27,24 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Network-first for API calls
+  // 1. Bypass all cross-origin requests (e.g. Supabase auth, external APIs)
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
+  // 2. Bypass non-GET requests (POST, PUT, DELETE shouldn't be handled by Cache API)
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
+  // Network-first for internal API calls
   if (event.request.url.includes('/api/')) {
     event.respondWith(
       fetch(event.request).catch(() => caches.match(event.request))
     );
     return;
   }
+
   // Cache-first for static assets
   event.respondWith(
     caches.match(event.request).then((response) => response || fetch(event.request))
