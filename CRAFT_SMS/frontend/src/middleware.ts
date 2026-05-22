@@ -84,7 +84,9 @@ export function middleware(request: NextRequest) {
   }
 
   // 6. Execute Rewrite
-  const rewriteTarget = new URL(`/${subdomain}${targetPath}`, request.url)
+  const rewriteTarget = request.nextUrl.clone()
+  rewriteTarget.pathname = `/${subdomain}${targetPath}`
+  
   console.log(`[MIDDLEWARE_REWRITE] Subdomain: ${subdomain} | From: ${url.pathname} | To: ${rewriteTarget.pathname}`)
   
   return NextResponse.rewrite(rewriteTarget)

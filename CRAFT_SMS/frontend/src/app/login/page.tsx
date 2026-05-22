@@ -33,8 +33,30 @@ export default function LoginPage() {
 
       if (error) throw error
       
-      // Successfully logged in
-      router.push('/dashboard')
+      // Fetch profile to determine correct redirect target
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role, schools(subdomain)')
+        .eq('id', data.user.id)
+        .single()
+
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.warn('[Login] Profile fetch error (non-blocking):', profileError.message)
+      }
+
+      const role = profile?.role
+      const subdomain = (profile?.schools as any)?.subdomain
+
+      if (role === 'SUPER_ADMIN') {
+        // SuperAdmin goes to the root control center
+        router.push('/dashboard')
+      } else if (subdomain) {
+        // All school users go to their tenant dashboard
+        router.push(`/${subdomain}/dashboard`)
+      } else {
+        // Fallback: no school linked yet — go to the directory
+        router.push('/dashboard')
+      }
     } catch (err: any) {
       if (err.message === 'Failed to fetch' || err.message?.includes('Network Error')) {
         setError("Network error: Unable to connect to the authentication server. Please check your internet connection.")
