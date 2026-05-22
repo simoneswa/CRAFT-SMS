@@ -1,6 +1,16 @@
 import { supabase } from './supabase'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
+
+// Log prominently if missing so deployment sync issues are obvious
+if (!API_BASE_URL) {
+  console.error(`
+[CRAFT SMS] CRITICAL: NEXT_PUBLIC_API_URL is missing!
+  API calls will likely fail. Ensure your Vercel deployment has 
+  NEXT_PUBLIC_API_URL set to your Railway backend URL.
+  (e.g., https://craft-backend.up.railway.app/api)
+`)
+}
 
 export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
   const { data: { session } } = await supabase.auth.getSession()

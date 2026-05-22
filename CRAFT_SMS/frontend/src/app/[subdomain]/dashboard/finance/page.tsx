@@ -105,12 +105,12 @@ export default function FinancePage() {
       const fileExt = newSlip.file.name.split('.').pop()
       const fileName = `${profile?.id}/${Date.now()}.${fileExt}`
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('slips')
+        .from('payment-slips')
         .upload(fileName, newSlip.file)
 
       if (uploadError) throw uploadError
 
-      const { data: { publicUrl } } = supabase.storage.from('slips').getPublicUrl(fileName)
+      const { data: { publicUrl } } = supabase.storage.from('payment-slips').getPublicUrl(fileName)
 
       // 2. Insert Record
       const { error: insertError } = await supabase.from('slips').insert({

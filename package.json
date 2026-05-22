@@ -1,0 +1,16 @@
+{
+  "name": "craft-sms",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.5.1",
+    "tsx": "^4.22.0",
+    "turbo": "^2.9.14"
+  },
+  "packageManager": "pnpm@11.1.2"
+}
