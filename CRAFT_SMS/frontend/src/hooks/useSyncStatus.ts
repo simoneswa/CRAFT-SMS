@@ -1,56 +1,64 @@
-import { useState, useEffect, useCallback } from 'react';
-import { SyncEngine, SyncTask } from '@/lib/syncEngine';
+import { useState, useEffect } from 'react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '@/lib/offline/db';
+import { SyncEngine } from '@/lib/syncEngine';
+
+export interface SyncTask {
+  id: string;
+  endpoint: string;
+  method: string;
+  payload: any;
+  timestamp: string;
+  status: 'PENDING' | 'CONFLICT' | 'FAILED';
+  errorMessage?: string;
+}
 
 export function useSyncStatus() {
-  const [isOnline, setIsOnline] = useState(true)
-  const [syncQueue, setSyncQueue] = useState<SyncTask[]>([])
-  const [hasConflicts, setHasConflicts] = useState(false)
+  const [isOnline, setIsOnline] = useState(
+    typeof window !== 'undefined' ? navigator.onLine : true
+  );
 
-  const updateQueueStatus = useCallback(() => {
-    const queue = SyncEngine.getQueue()
-    setSyncQueue(queue)
-    setHasConflicts(queue.some(t => t.status === 'CONFLICT'))
-  }, [])
+  // Reactively watch the Dexie mutations table — updates automatically on any change
+  const mutations = useLiveQuery(() => db.mutations.toArray(), []) ?? [];
+
+  const pendingCount = mutations.filter(m => !m.lastError?.startsWith('CONFLICT')).length;
+  const hasConflicts = mutations.some(m => m.lastError?.startsWith('CONFLICT'));
+
+  const syncQueue: SyncTask[] = mutations.map(m => ({
+    id: String(m.id ?? ''),
+    endpoint: m.data?._endpoint ?? m.table,
+    method: m.data?._method ?? 'POST',
+    payload: m.data,
+    timestamp: m.data?._timestamp ?? new Date(m.timestamp).toISOString(),
+    status: m.lastError?.startsWith('CONFLICT') ? 'CONFLICT' : 'PENDING',
+    errorMessage: m.lastError,
+  }));
 
   useEffect(() => {
-    // Initial status + queue snapshot
-    const online = navigator.onLine
-    setIsOnline(online)
-    updateQueueStatus()
-
     const handleOnline = () => {
-      setIsOnline(true)
-      SyncEngine.autoSync()
-    }
+      setIsOnline(true);
+      SyncEngine.autoSync();
+    };
+    const handleOffline = () => setIsOnline(false);
 
-    const handleOffline = () => {
-      setIsOnline(false)
-    }
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
 
-    const handleSyncStatusChanged = () => {
-      updateQueueStatus()
-    }
-
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-    window.addEventListener('sync-status-changed', handleSyncStatusChanged)
-
-    if (online) {
-      SyncEngine.autoSync()
+    // Attempt sync on mount if already online
+    if (navigator.onLine) {
+      SyncEngine.autoSync();
     }
 
     return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-      window.removeEventListener('sync-status-changed', handleSyncStatusChanged)
-    }
-  }, [updateQueueStatus])
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   return {
     isOnline,
     syncQueue,
     hasConflicts,
-    pendingCount: syncQueue.filter(t => t.status === 'PENDING').length,
-  }
+    pendingCount,
+  };
 }
-

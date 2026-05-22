@@ -8,6 +8,7 @@ import { useAuth } from '@/providers/AuthProvider'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useSyncStatus } from '@/hooks/useSyncStatus'
+import { SyncEngine } from '@/lib/syncEngine'
 
 import { NotificationBell } from './NotificationBell'
 import { useTenant } from '@/providers/TenantProvider'
@@ -193,20 +194,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   <div className="absolute right-0 top-full mt-2 w-48 bg-black border border-white/10 rounded-xl p-2 hidden group-hover:block z-50 shadow-2xl">
                     <p className="text-[10px] text-gray-500 font-bold uppercase mb-2 px-2">Offline Simulator</p>
                     <button 
-                      onClick={() => {
-                        const queue = JSON.parse(localStorage.getItem('craft_sms_sync_queue') || '[]');
-                        queue.push({
-                          id: crypto.randomUUID(),
-                          endpoint: '/api/mock',
-                          method: 'POST',
-                          payload: { test: true },
-                          timestamp: new Date().toISOString(),
-                          status: 'CONFLICT',
-                          errorMessage: 'Mock Conflict: Timestamp mismatch detected by backend.'
-                        });
-                        localStorage.setItem('craft_sms_sync_queue', JSON.stringify(queue));
-                        window.dispatchEvent(new Event('sync-status-changed'));
-                      }}
+                      onClick={() => SyncEngine.debugAddConflict()}
                       className="w-full text-left px-2 py-2 text-xs font-bold text-rose-400 hover:bg-white/5 rounded-lg"
                     >
                       Trigger Sync Conflict

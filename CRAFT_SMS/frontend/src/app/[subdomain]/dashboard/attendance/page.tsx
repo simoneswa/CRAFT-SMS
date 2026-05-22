@@ -18,6 +18,7 @@ import { useTenant } from '@/providers/TenantProvider'
 import { useAuth } from '@/providers/AuthProvider'
 import { createClient } from '@/utils/supabase'
 import { fetchAPI } from '@/lib/api'
+import { SyncEngine } from '@/lib/syncEngine'
 
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -114,17 +115,30 @@ const loadRollCall = useCallback(async () => {
   const submitAttendance = async () => {
     setIsSaving(true)
 
+    const entries = Object.entries(attendance).map(([studentId, status]) => ({
+      school_id: school?.id,
+      student_id: studentId,
+      date: attendanceDate,
+      status,
+      recorded_by: profile?.id,
+    }))
+
+    // Offline-first: queue to IndexedDB if no connection
+    if (!navigator.onLine) {
+      try {
+        await SyncEngine.queueRequest('/academic/attendance/batch', 'POST', { entries })
+        alert(`Offline — ${entries.length} attendance record(s) queued and will sync automatically when reconnected.`)
+      } catch (queueErr: any) {
+        alert('Failed to queue attendance for offline sync: ' + queueErr.message)
+      } finally {
+        setIsSaving(false)
+      }
+      return
+    }
+
+    // Online path: direct Supabase upsert
     const supabase = createClient()
-
     try {
-      const entries = Object.entries(attendance).map(([studentId, status]) => ({
-        school_id: school?.id,
-        student_id: studentId,
-        date: attendanceDate,
-        status: status,
-        recorded_by: profile?.id,
-      }))
-
       const { error } = await supabase
         .from('attendance')
         .upsert(entries, { onConflict: 'school_id,student_id,date' })
@@ -132,7 +146,13 @@ const loadRollCall = useCallback(async () => {
       if (error) throw error
       alert('Attendance saved successfully.')
     } catch (err: any) {
-      alert(err.message || 'Failed to save attendance.')
+      // Network failure despite onLine flag — fall back to queue
+      if (err.message?.toLowerCase().includes('fetch') || err.message?.toLowerCase().includes('network')) {
+        await SyncEngine.queueRequest('/academic/attendance/batch', 'POST', { entries })
+        alert(`Network error — attendance queued for automatic sync.`)
+      } else {
+        alert(err.message || 'Failed to save attendance.')
+      }
     } finally {
       setIsSaving(false)
     }
