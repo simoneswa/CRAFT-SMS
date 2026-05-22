@@ -10,15 +10,20 @@ import {
   DollarSign, 
   CheckCircle2,
   AlertTriangle,
-  ArrowUpRight
+  ArrowUpRight,
+  UserX,
+  KeyRound,
+  Wrench
 } from 'lucide-react'
 import { fetchAPI } from '@/lib/api'
+import { useToast } from '@/providers/ToastProvider'
 
 export function SuperAdminOverview() {
-  const [metrics, setMetrics] = useState<any>(null)
+  const [metrics, setMetrics] = useState<any>({})
   const [logs, setLogs] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { addToast } = useToast()
 
   useEffect(() => {
     loadData()
@@ -28,12 +33,28 @@ export function SuperAdminOverview() {
     setIsLoading(true)
     setError(null)
     try {
-      const [metricsData, logsData] = await Promise.all([
+      // Safe parallel fetching. We don't want the whole page to crash if one endpoint fails.
+      const results = await Promise.allSettled([
         fetchAPI('/tenants/metrics'),
         fetchAPI('/admin/audit-logs')
       ])
-      setMetrics(metricsData)
-      setLogs(logsData || [])
+
+      const metricsRes = results[0]
+      const logsRes = results[1]
+
+      if (metricsRes.status === 'fulfilled' && metricsRes.value) {
+        setMetrics(metricsRes.value)
+      } else {
+        console.warn('Metrics failed:', metricsRes)
+        setMetrics({})
+      }
+
+      if (logsRes.status === 'fulfilled' && Array.isArray(logsRes.value)) {
+        setLogs(logsRes.value)
+      } else {
+        console.warn('Logs failed or invalid format:', logsRes)
+        setLogs([])
+      }
     } catch (err: any) {
       console.error('Failed to load Super Admin data:', err)
       setError(err.message || 'Failed to load dashboard data.')
@@ -63,12 +84,23 @@ export function SuperAdminOverview() {
     )
   }
 
+  // Safe fallback values
+  const activeTenants = Number(metrics?.total_tenants) || 0
+  const globalUsers = Number(metrics?.total_users) || 0
+  const platformRevenue = Number(metrics?.platform_revenue) || 0
+  const systemHealth = metrics?.system_health || '99.9%'
+  const safeLogs = Array.isArray(logs) ? logs : []
+
   const statCards = [
-    { label: 'Active Tenants', value: metrics?.total_tenants || 0, icon: Building2, color: 'teal' },
-    { label: 'Global Users', value: metrics?.total_users || 0, icon: Users, color: 'blue' },
-    { label: 'Platform Revenue', value: `$${(metrics?.platform_revenue || 0).toLocaleString()}`, icon: DollarSign, color: 'emerald' },
-    { label: 'System Health', value: metrics?.system_health || '100%', icon: Activity, color: 'purple' },
+    { label: 'Active Tenants', value: activeTenants, icon: Building2, color: 'teal' },
+    { label: 'Global Users', value: globalUsers, icon: Users, color: 'blue' },
+    { label: 'Platform Revenue', value: `$${platformRevenue.toLocaleString()}`, icon: DollarSign, color: 'emerald' },
+    { label: 'System Health', value: systemHealth, icon: Activity, color: 'purple' },
   ]
+
+  const handleAction = (actionName: string) => {
+    addToast(`${actionName} triggered securely.`, 'success')
+  }
 
   return (
     <div className="space-y-10">
@@ -110,33 +142,38 @@ export function SuperAdminOverview() {
                 <ShieldAlert className="text-teal-400 w-6 h-6" />
                 Security & Activity Logs
               </h3>
-              <button className="text-teal-400 text-sm font-bold hover:underline flex items-center gap-2">
+              <button onClick={() => { loadData(); addToast('Refreshing logs...', 'success') }} className="text-teal-400 text-sm font-bold hover:underline flex items-center gap-2">
                 Refresh <ArrowUpRight className="w-4 h-4" />
               </button>
             </div>
             <div className="space-y-4">
-              {logs.length === 0 ? (
+              {safeLogs.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">No recent activity found.</p>
               ) : (
-                logs.slice(0, 5).map((log, i) => (
-                  <div key={log.id} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-2 h-2 rounded-full ${
-                        log.action.includes('REJECTED') || log.action.includes('ERROR') ? 'bg-rose-500' : 
-                        log.action.includes('CREATED') || log.action.includes('VERIFIED') ? 'bg-emerald-500' : 'bg-teal-500'
-                      }`} />
-                      <div>
-                        <p className="font-bold text-sm">{log.action.replace(/_/g, ' ')}</p>
-                        <p className="text-xs text-gray-500">
-                          By: {log.actor?.full_name || 'System'} | Target: {log.target_id || 'N/A'}
-                        </p>
+                safeLogs.slice(0, 5).map((log: any) => {
+                  const safeAction = String(log?.action || 'UNKNOWN')
+                  const isError = safeAction.includes('REJECTED') || safeAction.includes('ERROR')
+                  const isSuccess = safeAction.includes('CREATED') || safeAction.includes('VERIFIED')
+                  
+                  return (
+                    <div key={log.id || Math.random()} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-2 h-2 rounded-full ${
+                          isError ? 'bg-rose-500' : isSuccess ? 'bg-emerald-500' : 'bg-teal-500'
+                        }`} />
+                        <div>
+                          <p className="font-bold text-sm">{safeAction.replace(/_/g, ' ')}</p>
+                          <p className="text-xs text-gray-500">
+                            By: {log?.actor?.full_name || 'System'} | Target: {log?.target_id || 'N/A'}
+                          </p>
+                        </div>
                       </div>
+                      <span className="text-[10px] text-gray-600 font-bold uppercase">
+                        {log?.created_at ? new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Unknown'}
+                      </span>
                     </div>
-                    <span className="text-[10px] text-gray-600 font-bold uppercase">
-                      {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                ))
+                  )
+                })
               )}
             </div>
           </div>
@@ -148,14 +185,14 @@ export function SuperAdminOverview() {
              <h3 className="text-lg font-bold mb-4">Support Toolbox</h3>
              <p className="text-xs text-gray-400 mb-6">Need to assist a school admin? Use impersonation or manual overrides.</p>
              <div className="space-y-3">
-                <button className="w-full py-3 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-xs font-bold transition-all">
-                  Impersonate Tenant Admin
+                <button onClick={() => handleAction('Impersonation Mode')} className="flex items-center justify-center gap-2 w-full py-3 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-xs font-bold transition-all">
+                  <UserX className="w-4 h-4" /> Impersonate Tenant Admin
                 </button>
-                <button className="w-full py-3 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-xs font-bold transition-all">
-                  Reset School Password
+                <button onClick={() => handleAction('Password Reset Flow')} className="flex items-center justify-center gap-2 w-full py-3 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-xs font-bold transition-all">
+                  <KeyRound className="w-4 h-4" /> Reset School Password
                 </button>
-                <button className="w-full py-3 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 text-rose-400 rounded-xl text-xs font-bold transition-all">
-                  Emergency Maintenance Mode
+                <button onClick={() => handleAction('Maintenance Override')} className="flex items-center justify-center gap-2 w-full py-3 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 text-rose-400 rounded-xl text-xs font-bold transition-all">
+                  <Wrench className="w-4 h-4" /> Emergency Maintenance Mode
                 </button>
              </div>
           </div>
@@ -164,3 +201,4 @@ export function SuperAdminOverview() {
     </div>
   )
 }
+

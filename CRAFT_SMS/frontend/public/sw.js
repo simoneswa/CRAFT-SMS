@@ -1,4 +1,4 @@
-const CACHE_NAME = 'craft-sms-cache-v3';
+const CACHE_NAME = 'craft-sms-cache-v4';
 
 const ASSETS_TO_CACHE = [
   '/',
@@ -52,9 +52,44 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first for static assets
+  // Cache-first for static assets, with offline fallback for navigation
   event.respondWith(
-    caches.match(event.request).then((response) => response || fetch(event.request))
+    caches.match(event.request).then((response) => {
+      if (response) return response;
+      
+      return fetch(event.request).catch(() => {
+        // If it's a navigation request (HTML), serve an offline fallback
+        if (event.request.mode === 'navigate') {
+          return new Response(`
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Offline | CRAFT SMS</title>
+              <style>
+                body { background-color: #030712; color: white; font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+                .card { background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 1rem; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+                h1 { color: #2DD4BF; margin-bottom: 0.5rem; }
+                p { color: #9CA3AF; margin-bottom: 1.5rem; max-width: 300px; }
+                button { background: #2DD4BF; color: black; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: bold; cursor: pointer; }
+              </style>
+            </head>
+            <body>
+              <div class="card">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2DD4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem;"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c-1.38 0-2.5 1.12-2.5 2.5z"></path><path d="M19.22 19.22A10 10 0 1 1 4.78 4.78"></path><line x1="2" y1="2" x2="22" y2="22"></line></svg>
+                <h1>You're Offline</h1>
+                <p>The network connection was lost. CRAFT SMS background sync will resume when you reconnect.</p>
+                <button onclick="window.location.reload()">Try Again</button>
+              </div>
+            </body>
+            </html>
+          `, { headers: { 'Content-Type': 'text/html' } });
+        }
+        
+        return Response.error();
+      });
+    })
   );
 });
 

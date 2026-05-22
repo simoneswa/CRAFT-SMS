@@ -56,11 +56,15 @@ export default function DashboardPage() {
             Access your school's dedicated portal. View grades, attendance, and pay fees through your specific subdomain.
           </p>
           <div className="flex flex-col gap-3">
-             {['St. Edwards High', 'Monrovia Academy', 'Liberia Int. School'].map((school, i) => (
-               <Link key={i} href={`#`} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+              {['St. Edwards High', 'Monrovia Academy', 'Liberia Int. School'].map((school, i) => (
+               <button 
+                 key={i} 
+                 onClick={() => alert(`Access to ${school} is currently restricted. Please use your direct school link.`)}
+                 className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors w-full text-left"
+               >
                   <span className="font-medium">{school}</span>
                   <ArrowRight className="w-4 h-4 text-gray-500" />
-               </Link>
+               </button>
              ))}
           </div>
         </div>
@@ -74,7 +78,10 @@ export default function DashboardPage() {
           <p className="text-gray-400 leading-relaxed mb-8">
             Global monitoring, tenant management, and system-wide overrides for CRAFT SMS operators.
           </p>
-          <button className="w-full py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-2xl font-bold transition-all flex items-center justify-center gap-3">
+          <button 
+            onClick={() => alert('You do not have Super Admin privileges on this account.')}
+            className="w-full py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-2xl font-bold transition-all flex items-center justify-center gap-3"
+          >
             Enter Command Center
             <ArrowRight className="w-5 h-5" />
           </button>
