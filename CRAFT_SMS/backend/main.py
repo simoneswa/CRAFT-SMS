@@ -13,7 +13,6 @@ async def health_check():
     return {"status": "healthy", "mode": "minimal"}
 
 if __name__ == "__main__":
-    # Force Railway's PORT environment variable or default to 8080
-    port = int(os.environ.get("PORT", 8080))
+    port = 8080
     print(f"--- STARTING UVICORN ON 0.0.0.0:{port} ---")
     uvicorn.run(app, host="0.0.0.0", port=port)
