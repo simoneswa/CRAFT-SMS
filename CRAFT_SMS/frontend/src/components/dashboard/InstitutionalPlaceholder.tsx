@@ -48,24 +48,20 @@ export function InstitutionalPlaceholder({ title, subtitle, iconKey }: Placehold
 }
 
 
-// Reusable Page Wrappers
+// Reusable Page Wrappers — NOTE: DashboardLayout is provided by dashboard/layout.tsx
+// Do NOT wrap with DashboardLayout here or it will double-nest and crash the route.
 export function PlaceholderPage({ title, subtitle, icon }: { title: string; subtitle: string; icon: any }) {
-
-
   return (
-    <DashboardLayout>
-      <InstitutionalPlaceholder
-        title={title}
-        subtitle={subtitle}
-        // normalize prop name for the placeholder component
-        iconKey={(() => {
-          if (icon === 'history') return 'history'
-          if (icon === 'security') return 'security'
-          if (icon === 'settings') return 'settings'
-          return 'default'
-        })()}
-      />
-    </DashboardLayout>
+    <InstitutionalPlaceholder
+      title={title}
+      subtitle={subtitle}
+      iconKey={(() => {
+        if (icon === 'history') return 'history'
+        if (icon === 'security') return 'security'
+        if (icon === 'settings') return 'settings'
+        return 'default'
+      })()}
+    />
   )
 }
 
