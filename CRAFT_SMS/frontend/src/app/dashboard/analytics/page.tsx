@@ -25,7 +25,7 @@ export default function AnalyticsPage() {
   }, [])
 
   return (
-    <DashboardLayout>
+    <>
       <div className="space-y-8">
         <header>
           <h1 className="text-3xl font-bold mb-2">Global <span className="gradient-text">Analytics</span></h1>
@@ -58,6 +58,6 @@ export default function AnalyticsPage() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </>
   )
 }

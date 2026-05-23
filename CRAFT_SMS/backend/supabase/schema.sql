@@ -254,10 +254,10 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Trigger for new user creation
--- DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
--- CREATE TRIGGER on_auth_user_created
---   AFTER INSERT ON auth.users
---   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 -- Automatically generate role-based custom IDs (e.g., STU_2024_0001)
 CREATE OR REPLACE FUNCTION generate_custom_id() 
 RETURNS TRIGGER AS $$

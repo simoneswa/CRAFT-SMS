@@ -75,7 +75,7 @@ export default function TenantsPage() {
   )
 
   return (
-    <DashboardLayout>
+    <>
       <div className="space-y-10">
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
@@ -240,7 +240,7 @@ export default function TenantsPage() {
           )}
         </div>
       </div>
-    </DashboardLayout>
+    </>
   )
 }
 

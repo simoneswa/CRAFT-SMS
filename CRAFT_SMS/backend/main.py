@@ -14,7 +14,7 @@ app = FastAPI(title="CRAFT SMS API", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], # In production, restrict this to your domains
-    allow_credentials=True,
+    allow_credentials=False, # Must be False if allow_origins is ["*"] to prevent CORS errors
     allow_methods=["*"],
     allow_headers=["*"],
 )

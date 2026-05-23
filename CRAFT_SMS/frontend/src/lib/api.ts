@@ -24,7 +24,12 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
     headers['Authorization'] = `Bearer ${session.access_token}`
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  // Ensure robust base URL format (remove trailing slash or /v1 suffix if misconfigured)
+  let baseUrl = API_BASE_URL || ''
+  if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1)
+  if (baseUrl.endsWith('/v1')) baseUrl = baseUrl.slice(0, -3)
+
+  const response = await fetch(`${baseUrl}${endpoint}`, {
     ...options,
     headers,
   })

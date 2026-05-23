@@ -26,7 +26,7 @@ export default function SchoolStatusPage() {
   }
 
   return (
-    <DashboardLayout>
+    <>
       <div className="space-y-8">
         <header>
           <h1 className="text-3xl font-bold mb-2">School <span className="gradient-text">Status</span></h1>
@@ -83,6 +83,6 @@ export default function SchoolStatusPage() {
           )}
         </div>
       </div>
-    </DashboardLayout>
+    </>
   )
 }

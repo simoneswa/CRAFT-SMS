@@ -36,7 +36,7 @@ export default function SystemHealthPage() {
   }
 
   return (
-    <DashboardLayout>
+    <>
       <div className="space-y-12">
         <header className="flex items-center justify-between">
           <div>
@@ -129,6 +129,6 @@ export default function SystemHealthPage() {
           </div>
         )}
       </div>
-    </DashboardLayout>
+    </>
   )
 }

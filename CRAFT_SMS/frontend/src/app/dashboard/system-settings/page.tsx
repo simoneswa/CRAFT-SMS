@@ -24,7 +24,7 @@ export default function SystemSettingsPage() {
   }
 
   return (
-    <DashboardLayout>
+    <>
       <div className="space-y-8">
         <header>
           <h1 className="text-3xl font-bold mb-2 text-white">System <span className="gradient-text">Settings</span></h1>
@@ -135,6 +135,6 @@ export default function SystemSettingsPage() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </>
   )
 }
