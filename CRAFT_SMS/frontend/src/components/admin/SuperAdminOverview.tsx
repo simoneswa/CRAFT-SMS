@@ -40,7 +40,7 @@ export function SuperAdminOverview() {
         supabase.from('slips').select('amount').eq('status', 'VERIFIED'),
         supabase
           .from('audit_logs')
-          .select('*, actor:profiles!actor_id(full_name, role)')
+          .select('*, actor:profiles(full_name, role)')
           .order('created_at', { ascending: false })
           .limit(10),
       ])
