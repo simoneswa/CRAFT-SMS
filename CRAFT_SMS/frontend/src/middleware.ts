@@ -30,8 +30,8 @@ export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'craftsms.com'
 
-  // 1. Pathname Exclusions (Run FIRST)
-  const globalPaths = ['/login', '/signup', '/docs', '/api', '/_next', '/static', '/favicon.ico']
+  // 1. Pathname Exclusions (Run FIRST — protect ALL static/system paths)
+  const globalPaths = ['/login', '/signup', '/docs', '/api', '/_next', '/favicon.ico', '/public']
   if (globalPaths.some(path => url.pathname.startsWith(path)) || url.pathname.includes('.')) {
     return NextResponse.next()
   }
@@ -94,6 +94,14 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    /*
+     * Match all paths EXCEPT:
+     * - _next/static (static files)
+     * - _next/image (image optimization)
+     * - _next/data (Next.js data routes)
+     * - favicon.ico, public assets
+     * - Any path with a file extension (.js, .css, .png, etc)
+     */
+    '/((?!_next/static|_next/image|_next/data|favicon\.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp|ico|js|css|woff|woff2|ttf|map)$).*)',
   ],
 }
