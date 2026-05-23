@@ -44,7 +44,7 @@ export default function OnboardingWizard() {
     setIsSubmitting(true)
     try {
       // 1. Create School
-      const school = await fetchAPI('/admin/schools', {
+      const school = await fetchAPI('/tenants/schools', {
         method: 'POST',
         body: JSON.stringify({
           name: formData.name,
@@ -55,6 +55,7 @@ export default function OnboardingWizard() {
           }
         })
       })
+
 
       // 2. Create Initial Term
       await fetchAPI('/academic/terms', {
