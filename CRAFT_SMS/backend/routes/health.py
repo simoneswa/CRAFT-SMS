@@ -6,9 +6,9 @@ import time
 router = APIRouter()
 
 @router.get("/status")
-async def get_system_health(user=Depends(RoleChecker(["SUPER_ADMIN"]))):
+async def get_system_health():
     """
-    Comprehensive system health check for Super Admins.
+    Comprehensive system health check. Publicly accessible for infrastructure health checkers.
     """
     start_time = time.time()
     health_report = {
@@ -18,7 +18,7 @@ async def get_system_health(user=Depends(RoleChecker(["SUPER_ADMIN"]))):
         "latency": {}
     }
     
-    client = get_user_client(user)
+    from core.db import supabase as client
 
     # 1. Database Check
     try:
