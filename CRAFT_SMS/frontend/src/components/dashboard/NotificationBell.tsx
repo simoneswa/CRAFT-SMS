@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/providers/AuthProvider'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
+import { fetchAPI } from '@/lib/api'
 
 export function NotificationBell() {
   const { profile } = useAuth()
@@ -34,18 +35,21 @@ export function NotificationBell() {
   }, [profile])
 
   const fetchNotifications = async () => {
-    const { data } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', profile?.id)
-      .order('created_at', { ascending: false })
-      .limit(20)
-    setNotifications(data || [])
+    try {
+      const data = await fetchAPI('/notifications')
+      setNotifications(data || [])
+    } catch (err) {
+      console.error('Failed to fetch notifications', err)
+    }
   }
 
   const markAsRead = async (id: string) => {
-    await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', id)
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
+    try {
+      await fetchAPI(`/notifications/${id}/read`, { method: 'POST' })
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
+    } catch (err) {
+      console.error('Failed to mark notification as read', err)
+    }
   }
 
   const unreadCount = notifications.filter(n => !n.read_at).length

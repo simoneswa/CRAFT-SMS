@@ -10,20 +10,24 @@ load_dotenv()
 
 app = FastAPI(title="CRAFT SMS API", version="1.0.0")
 
-# CORS configuration
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], # In production, restrict this to your domains
-    allow_credentials=False, # Must be False if allow_origins is ["*"] to prevent CORS errors
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Multi-Tenant Middleware
+app.add_middleware(TenantMiddleware)
 
 # Security & Rate Limiting
 app.add_middleware(RateLimitMiddleware, limit=60, window=60) # 60 reqs/min for critical paths
 
-# Multi-Tenant Middleware
-app.add_middleware(TenantMiddleware)
+# CORS configuration - MUST be added last to run FIRST
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://craft-sms.vercel.app",
+        "http://localhost:3000",
+        "http://localhost:3001",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 async def root():

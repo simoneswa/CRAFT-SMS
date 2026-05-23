@@ -42,7 +42,7 @@ async def get_global_metrics(user=Depends(RoleChecker(["SUPER_ADMIN"]))):
         
         # Aggregate revenue
         slips_resp = supabase_admin.table("slips").select("amount").eq("status", "VERIFIED").execute()
-        revenue = sum(slip["amount"] for slip in slips_resp.data) if slips_resp.data else 0
+        revenue = sum(float(slip["amount"]) for slip in slips_resp.data) if slips_resp.data else 0
 
         return {
             "total_tenants": schools_count.count,
@@ -69,7 +69,7 @@ async def get_school_metrics(school_id: str, user=Depends(RoleChecker(["SUPER_AD
         from datetime import datetime
         start_of_month = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0).isoformat()
         revenue_resp = supabase_admin.table("slips").select("amount").eq("school_id", school_id).eq("status", "VERIFIED").gte("verified_at", start_of_month).execute()
-        monthly_revenue = sum(slip["amount"] for slip in revenue_resp.data) if revenue_resp.data else 0
+        monthly_revenue = sum(float(slip["amount"]) for slip in revenue_resp.data) if revenue_resp.data else 0
 
         # 4. Teacher count
         teachers_count = supabase_admin.table("profiles").select("id", count="exact").eq("school_id", school_id).eq("role", "TEACHER").execute()

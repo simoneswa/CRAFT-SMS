@@ -54,7 +54,7 @@ async def invite_user(req: InviteUserReq, user=Depends(RoleChecker(["SUPER_ADMIN
 @router.get("/audit-logs")
 async def get_audit_logs(user=Depends(RoleChecker(["SUPER_ADMIN", "SCHOOL_ADMIN"]))):
     try:
-        query = supabase_admin.table("audit_logs").select("*, actor:profiles!actor_id(full_name, role)").order("created_at", desc=True)
+        query = supabase_admin.table("audit_logs").select("*, actor:profiles(full_name, role)").order("created_at", desc=True)
         
         if user["profile"]["role"] == "SCHOOL_ADMIN":
             query = query.eq("school_id", user["profile"]["school_id"])

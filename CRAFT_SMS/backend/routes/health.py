@@ -23,7 +23,7 @@ async def get_system_health(user=Depends(RoleChecker(["SUPER_ADMIN"]))):
     # 1. Database Check
     try:
         db_start = time.time()
-        client.table("schools").select("count", count="exact").execute()
+        client.table("schools").select("id", count="exact").execute()
         health_report["services"]["database"] = "CONNECTED"
         health_report["latency"]["database_ms"] = round((time.time() - db_start) * 1000, 2)
     except Exception as e:
