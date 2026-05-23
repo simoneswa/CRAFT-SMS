@@ -11,10 +11,10 @@ load_dotenv()
 app = FastAPI(title="CRAFT SMS API", version="1.0.0")
 
 # Multi-Tenant Middleware
-app.add_middleware(TenantMiddleware)
+# app.add_middleware(TenantMiddleware)
 
 # Security & Rate Limiting
-app.add_middleware(RateLimitMiddleware, limit=60, window=60) # 60 reqs/min for critical paths
+# app.add_middleware(RateLimitMiddleware, limit=60, window=60) # 60 reqs/min for critical paths
 
 # CORS configuration - MUST be added last to run FIRST
 app.add_middleware(
