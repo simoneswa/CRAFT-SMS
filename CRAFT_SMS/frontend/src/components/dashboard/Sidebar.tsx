@@ -69,13 +69,13 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { school } = useTenant()
   const { profile, signOut } = useAuth()
   const [isMounted, setIsMounted] = React.useState(false)
+  const isSuperAdmin = profile?.role === 'SUPER_ADMIN'
 
   React.useEffect(() => {
     setIsMounted(true)
   }, [])
 
   // Determine which sidebar items to show
-  const isSuperAdmin = profile?.role === 'SUPER_ADMIN'
   const isRootDomain = !school
   
   const activeSidebarItems = (isSuperAdmin && isRootDomain) 
@@ -92,7 +92,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   return (
     <aside 
-      className={`fixed md:sticky top-0 left-0 z-50 w-72 border-r border-white/5 bg-[#0B1120] flex flex-col h-screen overflow-hidden transition-transform duration-300 ease-in-out ${
+      className={`fixed md:sticky top-0 left-0 z-50 w-72 ${isSuperAdmin ? 'border-r border-white/5 bg-[#0B1120] text-white' : 'border-r border-[var(--brand-border)] bg-[var(--brand-card)] text-[var(--brand-heading)]'} flex flex-col h-screen overflow-hidden transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}
     >
@@ -102,8 +102,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
            <CraftLogo className="w-16 h-16" />
         </div>
         <div>
-          <span className="text-2xl font-black tracking-tighter block leading-none text-white uppercase">CRAFT <span className="text-[var(--accent)]">SMS</span></span>
-          <span className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] block mt-3 truncate max-w-[180px]">
+          <span className={`text-2xl font-black tracking-tighter block leading-none uppercase ${isSuperAdmin ? 'text-white' : 'text-[var(--brand-heading)]'}`}>CRAFT <span className={`${isSuperAdmin ? 'text-[var(--accent)]' : 'text-[var(--brand-primary)]'}`}>SMS</span></span>
+          <span className={`text-[10px] ${isSuperAdmin ? 'text-gray-500' : 'text-[var(--brand-muted)]'} font-bold uppercase tracking-[0.2em] block mt-3 truncate max-w-[180px]`}>
              {school?.name || 'Unified Platform'}
           </span>
         </div>
@@ -119,14 +119,18 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <div
                 className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all text-xs font-bold uppercase tracking-widest relative group ${
                   isActive 
-                  ? 'text-[var(--accent)]' 
-                  : 'text-gray-500 hover:text-white hover:bg-white/[0.03]'
+                  ? isSuperAdmin 
+                    ? 'text-[var(--accent)]' 
+                    : 'text-[var(--brand-primary)]' 
+                  : isSuperAdmin 
+                    ? 'text-gray-500 hover:text-white hover:bg-white/[0.03]' 
+                    : 'text-[var(--brand-body)] hover:text-[var(--brand-heading)] hover:bg-[var(--brand-surface)]'
                 }`}
               >
                 {isActive && (
                   <motion.div 
                     layoutId="active-bg"
-                    className="absolute inset-0 bg-white/[0.03] border-l-4 border-[var(--accent)] rounded-r-xl -z-10"
+                    className={`absolute inset-0 ${isSuperAdmin ? 'bg-white/[0.03] border-l-4 border-[var(--accent)]' : 'bg-[var(--brand-primary)]/10 border-l-4 border-[var(--brand-primary)]'} rounded-r-xl -z-10`}
                   />
                 )}
                 <item.icon className={`w-4 h-4 ${isActive ? 'text-[var(--accent)]' : 'text-gray-600 group-hover:text-gray-400'}`} />
@@ -138,20 +142,20 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       </nav>
 
       {/* Footer / User Profile */}
-      <div className="p-4 border-t border-white/5">
-        <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-teal-500 to-blue-500 border-2 border-white/10 flex items-center justify-center text-xs font-bold">
+      <div className={`p-4 ${isSuperAdmin ? 'border-t border-white/5' : 'border-t border-[var(--brand-border)]'}`}>
+        <div className={`p-4 rounded-2xl ${isSuperAdmin ? 'bg-white/5 border border-white/10 text-white' : 'bg-[var(--brand-card)] border border-[var(--brand-border)] text-[var(--brand-heading)]'} flex items-center gap-3`}>
+          <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center text-xs font-bold ${isSuperAdmin ? 'bg-gradient-to-tr from-teal-500 to-blue-500 border-white/10 text-white' : 'bg-[var(--brand-primary)]/10 border-[var(--brand-primary)] text-[var(--brand-primary)]'}`}>
             {profile?.full_name?.charAt(0) || 'U'}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold truncate">{profile?.full_name || 'Loading...'}</p>
-            <p className="text-[10px] text-teal-400 font-bold uppercase tracking-wider truncate">
+            <p className={`text-[10px] font-bold uppercase tracking-wider truncate ${isSuperAdmin ? 'text-teal-400' : 'text-[var(--brand-primary)]'}`}>
               {profile?.role?.replace('_', ' ') || 'Guest'}
             </p>
           </div>
           <button 
             onClick={signOut}
-            className="p-2 hover:bg-white/10 rounded-lg text-gray-400 transition-colors"
+            className={`p-2 rounded-lg transition-colors ${isSuperAdmin ? 'hover:bg-white/10 text-gray-400' : 'hover:bg-slate-100 text-[var(--brand-body)]'}`}
           >
             <LogOut className="w-4 h-4" />
           </button>

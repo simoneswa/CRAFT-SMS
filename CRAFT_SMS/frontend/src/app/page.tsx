@@ -7,25 +7,25 @@ import { GraduationCap, Shield, Zap, Globe, ArrowRight } from 'lucide-react'
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-[#030712] text-white selection:bg-teal-500/30">
+    <main className="min-h-screen bg-[var(--brand-surface)] text-[var(--brand-heading)] selection:bg-[var(--brand-primary)]/30">
       {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-black/20 backdrop-blur-xl">
+      <nav className="fixed top-0 w-full z-50 border-b border-[var(--brand-border)] bg-white/90 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-tr from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/20">
+            <div className="w-10 h-10 bg-[var(--brand-primary)] rounded-xl flex items-center justify-center shadow-lg shadow-[var(--brand-primary)/20]">
               <GraduationCap className="text-white w-6 h-6" />
             </div>
-            <span className="text-2xl font-bold tracking-tight">CRAFT <span className="text-teal-400">SMS</span></span>
+            <span className="text-2xl font-bold tracking-tight text-[var(--brand-heading)]">CRAFT <span className="text-[var(--brand-primary)]">SMS</span></span>
           </div>
 
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
-            <a href="#features" className="hover:text-white transition-colors">Features</a>
-            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-            <a href="#contact" className="hover:text-white transition-colors">Contact</a>
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-[var(--brand-body)]">
+            <a href="#features" className="hover:text-[var(--brand-primary)] transition-colors">Features</a>
+            <a href="#pricing" className="hover:text-[var(--brand-primary)] transition-colors">Pricing</a>
+            <a href="#contact" className="hover:text-[var(--brand-primary)] transition-colors">Contact</a>
           </div>
 
           <Link href="/signup">
-            <button className="px-6 py-2.5 rounded-full bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm transition-all shadow-lg shadow-teal-500/20">
+            <button className="px-6 py-2.5 rounded-full bg-[var(--brand-primary)] hover:bg-[#006b48] text-white font-semibold text-sm transition-all shadow-lg shadow-[var(--brand-primary)/20]">
               Request Demo
             </button>
           </Link>
@@ -33,11 +33,11 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-40 pb-24 px-6 overflow-hidden">
+      <section className="relative pt-40 pb-24 px-6 overflow-hidden bg-[var(--brand-surface)]">
         {/* Background Gradients */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-teal-500/10 blur-[120px] rounded-full" />
-          <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-[var(--brand-primary)]/10 blur-[120px] rounded-full" />
+          <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-[var(--brand-primary)]/5 blur-[120px] rounded-full" />
         </div>
 
         <div className="max-w-7xl mx-auto text-center">
@@ -46,14 +46,14 @@ export default function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="inline-block px-4 py-1.5 rounded-full border border-teal-500/30 bg-teal-500/5 text-teal-400 text-xs font-bold uppercase tracking-widest mb-6">
+            <span className="inline-block px-4 py-1.5 rounded-full border border-[var(--brand-primary)]/30 bg-[var(--brand-primary)]/5 text-[var(--brand-primary)] text-xs font-bold uppercase tracking-widest mb-6">
               Now Available in Liberia
             </span>
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1]">
+            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1] text-[var(--brand-heading)]">
               Unified Educational <br />
               <span className="gradient-text">Management Platform</span>
             </h1>
-            <p className="max-w-2xl mx-auto text-gray-400 text-lg md:text-xl mb-12 leading-relaxed">
+            <p className="max-w-2xl mx-auto text-[var(--brand-body)] text-lg md:text-xl mb-12 leading-relaxed">
               A high-security, multi-tenant SaaS tailored for low-bandwidth environments.
               Empowering schools with offline-first capabilities and gamified learning.
             </p>
@@ -63,7 +63,7 @@ export default function LandingPage() {
                 href="/dashboard"
                 className="w-full sm:w-auto"
               >
-                <button className="w-full px-8 py-4 rounded-2xl bg-white text-black font-bold hover:bg-gray-200 transition-all duration-300 flex items-center justify-center gap-2 shadow-xl">
+                <button className="w-full px-8 py-4 rounded-3xl bg-[var(--brand-primary)] text-white font-bold hover:bg-[#006b48] transition-all duration-300 flex items-center justify-center gap-2 shadow-xl shadow-[var(--brand-primary)/20]">
                   Get Started
                   <ArrowRight className="w-5 h-5" />
                 </button>
@@ -73,7 +73,7 @@ export default function LandingPage() {
                 href="/docs"
                 className="w-full sm:w-auto"
               >
-                <button className="w-full px-8 py-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all duration-300 font-bold text-white">
+                <button className="w-full px-8 py-4 rounded-3xl border border-[var(--brand-border)] bg-white text-[var(--brand-heading)] hover:bg-[var(--brand-surface)] transition-all duration-300 font-bold">
                   View Documentation
                 </button>
               </Link>
@@ -108,11 +108,11 @@ export default function LandingPage() {
                 viewport={{ once: true }}
                 className="premium-card text-left"
               >
-                <div className="w-12 h-12 rounded-xl bg-teal-500/10 flex items-center justify-center mb-6">
-                  <feature.icon className="text-teal-400 w-6 h-6" />
+                <div className="w-12 h-12 rounded-xl bg-[var(--brand-primary)]/10 flex items-center justify-center mb-6">
+                  <feature.icon className="text-[var(--brand-primary)] w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">
+                <h3 className="text-xl font-bold mb-3 text-[var(--brand-heading)]">{feature.title}</h3>
+                <p className="text-[var(--brand-body)] leading-relaxed text-sm">
                   {feature.desc}
                 </p>
               </motion.div>
@@ -122,12 +122,12 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 py-12 px-6">
+      <footer className="border-t border-[var(--brand-border)] py-12 px-6 bg-[var(--brand-surface)]">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-3">
-            <span className="text-xl font-bold tracking-tight text-gray-300">CRAFT SMS</span>
+            <span className="text-xl font-bold tracking-tight text-[var(--brand-heading)]">CRAFT SMS</span>
           </div>
-          <p className="text-gray-500 text-sm">
+          <p className="text-[var(--brand-muted)] text-sm">
             © 2026 CRAFT SMS. All rights reserved. Built for Liberia.
           </p>
         </div>

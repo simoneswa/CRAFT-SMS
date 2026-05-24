@@ -22,6 +22,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false)
   const { isOnline, hasConflicts, pendingCount } = useSyncStatus()
   const [isMounted, setIsMounted] = useState(false)
+  const isSuperAdmin = profile?.role === 'SUPER_ADMIN'
 
   // Dynamic CSS Variables for branding
   const brandingStyles = {
@@ -54,8 +55,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   if (!isMounted || isLoading) {
     return (
-      <div className="min-h-screen bg-[#030712] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
+      <div className={`min-h-screen ${isSuperAdmin ? 'bg-[#030712] text-white' : 'bg-[var(--brand-surface)] text-[var(--brand-heading)]'} flex items-center justify-center`}>
+        <div className="w-12 h-12 border-4 border-[var(--brand-primary)]/20 border-t-[var(--brand-primary)] rounded-full animate-spin" />
       </div>
     )
   }
@@ -63,14 +64,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   if (!user) {
     // Show spinner briefly while redirect timer is pending
     return (
-      <div className="min-h-screen bg-[#030712] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
+      <div className={`min-h-screen ${isSuperAdmin ? 'bg-[#030712] text-white' : 'bg-[var(--brand-surface)] text-[var(--brand-heading)]'} flex items-center justify-center`}>
+        <div className="w-12 h-12 border-4 border-[var(--brand-primary)]/20 border-t-[var(--brand-primary)] rounded-full animate-spin" />
       </div>
     )
   }
   
   return (
-    <div className="min-h-screen bg-[#030712] text-white flex overflow-hidden" style={brandingStyles}>
+    <div className={`min-h-screen flex overflow-hidden ${isSuperAdmin ? 'bg-[#030712] text-white' : 'bg-[var(--brand-surface)] text-[var(--brand-heading)]'}`} style={brandingStyles}>
       {/* Mobile overlay */}
       {isSidebarOpen && (
         <div 
@@ -159,30 +160,30 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       
       <div className="flex-1 flex flex-col h-screen overflow-hidden w-full relative z-0">
         {/* Top Header */}
-        <header className="h-20 border-b border-white/5 bg-black/20 backdrop-blur-md px-4 md:px-8 flex items-center justify-between sticky top-0 z-30">
+        <header className={`${isSuperAdmin ? 'border-b border-white/5 bg-black/20 text-white' : 'border-b border-[var(--brand-border)] bg-white/95 text-[var(--brand-heading)]'} backdrop-blur-md px-4 md:px-8 h-20 flex items-center justify-between sticky top-0 z-30`}>
           <div className="flex items-center gap-4 flex-1">
             <button 
-              className="md:hidden p-2 hover:bg-white/5 rounded-lg text-gray-400"
+              className={`${isSuperAdmin ? 'text-gray-400 hover:bg-white/5' : 'text-[var(--brand-body)] hover:bg-[var(--brand-surface)]'} md:hidden p-2 rounded-lg`}
               onClick={() => setIsSidebarOpen(true)}
             >
               <Menu className="w-5 h-5" />
             </button>
             <div className="relative max-w-md w-full hidden md:block">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--brand-body)]" />
               <input 
                 type="text" 
                 placeholder="Search everything..." 
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/40 transition-all"
+                className="w-full bg-white border border-[var(--brand-border)] rounded-3xl py-2.5 pl-11 pr-4 text-sm text-[var(--brand-heading)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/40 transition-all"
               />
             </div>
             {/* System Pulse Indicator - Interactive */}
             <button 
               onClick={() => setIsCommandCenterOpen(true)}
-              className="hidden lg:flex items-center gap-3 px-4 py-1.5 bg-white/[0.02] border border-white/5 rounded-full hover:bg-white/[0.04] transition-all group"
+              className="hidden lg:flex items-center gap-3 px-4 py-1.5 bg-[var(--brand-primary)]/5 border border-[var(--brand-primary)]/20 rounded-full hover:bg-[var(--brand-primary)]/10 transition-all group"
             >
-               <div className={`w-2 h-2 rounded-full ${hasConflicts ? 'bg-rose-500' : isOnline ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse`} />
-               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 group-hover:text-white transition-colors">
-                  System Pulse: <span className="text-white">{isOnline ? 'Stable' : 'Restricted'}</span>
+               <div className={`w-2 h-2 rounded-full ${hasConflicts ? 'bg-rose-500' : isOnline ? 'bg-[var(--brand-primary)]' : 'bg-amber-500'} animate-pulse`} />
+               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--brand-muted)] group-hover:text-[var(--brand-primary)] transition-colors">
+                  System Pulse: <span className="text-[var(--brand-heading)]">{isOnline ? 'Stable' : 'Restricted'}</span>
                </span>
             </button>
           </div>
@@ -245,7 +246,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* Content Area */}
-        <main className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+        <main className={`flex-1 overflow-y-auto p-8 custom-scrollbar ${isSuperAdmin ? 'bg-[#030712]' : 'bg-[var(--brand-surface)]'}`}>
           <div className="max-w-7xl mx-auto">
             <AnimatePresence mode="wait">
               <motion.div
