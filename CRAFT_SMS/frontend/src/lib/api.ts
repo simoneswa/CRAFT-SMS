@@ -35,8 +35,14 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
   })
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}))
-    throw new Error(errorData.detail || 'API Request Failed')
+    let errorData: any = {}
+    try {
+      errorData = await response.json()
+    } catch (e) {
+      // Non-JSON error body (network proxy, html error page, etc.)
+      console.warn('[fetchAPI] Non-JSON error response', e)
+    }
+    throw new Error((errorData && errorData.detail) || response.statusText || 'API Request Failed')
   }
 
   return response.json()
