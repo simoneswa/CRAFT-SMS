@@ -12,42 +12,84 @@ export function NotificationBell() {
   const { profile } = useAuth()
   const [notifications, setNotifications] = useState<any[]>([])
   const [isOpen, setIsOpen] = useState(false)
-  
-  useEffect(() => {
-    if (profile?.id) {
-      fetchNotifications()
-      
-      // Subscribe to new notifications
-      const channel = supabase
-        .channel('realtime:notifications')
-        .on('postgres_changes', { 
-          event: 'INSERT', 
-          schema: 'public', 
-          table: 'notifications', 
-          filter: `user_id=eq.${profile.id}` 
-        }, (payload) => {
-          setNotifications(prev => [payload.new, ...prev])
-        })
-        .subscribe()
-        
-      return () => { supabase.removeChannel(channel) }
-    }
-  }, [profile])
 
-  const fetchNotifications = async () => {
-    try {
-      const data = await fetchAPI('/notifications')
-      setNotifications(data || [])
-    } catch (err) {
-      console.error('Failed to fetch notifications', err)
+  useEffect(() => {
+    if (!profile?.id) return
+
+    let isMounted = true
+    let channel: any
+
+    const safeSetNotifications = (next: any[]) => {
+      if (!isMounted) return
+      setNotifications(Array.isArray(next) ? next : [])
     }
-  }
+
+    const fetchNotifications = async () => {
+      try {
+        const data = await fetchAPI('/notifications')
+        safeSetNotifications(data || [])
+      } catch (err) {
+        // Non-fatal: keep dashboard interactive even if notifications endpoint fails
+        console.warn('Failed to fetch notifications. The table might be missing or restricted.', err)
+        safeSetNotifications([])
+      }
+    }
+
+    fetchNotifications()
+
+    try {
+      // Subscribe to new notifications (non-fatal if table/RLS/network fails)
+      channel = supabase
+        .channel(`realtime:notifications:${profile.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'notifications',
+            filter: `user_id=eq.${profile.id}`,
+          },
+          (payload) => {
+            // payload handling must not crash render tree
+            if (!isMounted) return
+            setNotifications((prev) => [payload?.new, ...prev].filter(Boolean))
+          }
+        )
+        .subscribe((status, err) => {
+          if (err) {
+            console.warn(
+              'Supabase Realtime subscription error (likely missing table or RLS):',
+              err
+            )
+            // Safe fallback: keep an empty list rather than crashing the UI
+            safeSetNotifications([])
+          }
+        })
+    } catch (err) {
+      console.warn('Failed to initialize realtime subscription cleanly:', err)
+      safeSetNotifications([])
+    }
+
+    return () => {
+      isMounted = false
+      if (channel) {
+        try {
+          supabase.removeChannel(channel)
+        } catch (e) {
+          console.warn('Failed to remove channel:', e)
+        }
+      }
+    }
+  }, [profile?.id])
 
   const markAsRead = async (id: string) => {
     try {
       await fetchAPI(`/notifications/${id}/read`, { method: 'POST' })
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
+      setNotifications(prev =>
+        prev.map(n => n.id === id ? { ...n, read_at: new Date().toISOString() } : n)
+      )
     } catch (err) {
+      // Non-fatal: allow user to continue using dashboard
       console.error('Failed to mark notification as read', err)
     }
   }

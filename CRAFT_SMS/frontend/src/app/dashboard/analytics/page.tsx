@@ -12,16 +12,51 @@ export default function AnalyticsPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    let isMounted = true
+
     const fetch = async () => {
-      const [{ count: schools }, { count: students }, { count: slips }] = await Promise.all([
-        supabase.from('schools').select('*', { count: 'exact', head: true }),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'STUDENT'),
-        supabase.from('slips').select('*', { count: 'exact', head: true }),
-      ])
-      setStats({ schools: schools || 0, students: students || 0, slips: slips || 0 })
-      setIsLoading(false)
+      try {
+        setIsLoading(true)
+
+        const results = await Promise.allSettled([
+          supabase.from('schools').select('*', { count: 'exact', head: true }),
+          supabase
+            .from('profiles')
+            .select('*', { count: 'exact', head: true })
+            .eq('role', 'STUDENT'),
+          supabase.from('slips').select('*', { count: 'exact', head: true }),
+        ])
+
+        const schoolsCount =
+          results[0].status === 'fulfilled' ? results[0].value?.count : undefined
+        const studentsCount =
+          results[1].status === 'fulfilled' ? results[1].value?.count : undefined
+        const slipsCount =
+          results[2].status === 'fulfilled' ? results[2].value?.count : undefined
+
+        if (!isMounted) return
+
+        setStats({
+          schools: typeof schoolsCount === 'number' ? schoolsCount : 0,
+          students: typeof studentsCount === 'number' ? studentsCount : 0,
+          slips: typeof slipsCount === 'number' ? slipsCount : 0,
+        })
+      } catch (err) {
+        // Non-fatal: keep dashboard interactive even if some tables are missing/unmigrated
+        console.warn('Analytics fetch failed; falling back to zeroed stats.', err)
+        if (!isMounted) return
+        setStats({ schools: 0, students: 0, slips: 0 })
+      } finally {
+        if (!isMounted) return
+        setIsLoading(false)
+      }
     }
+
     fetch()
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   return (
