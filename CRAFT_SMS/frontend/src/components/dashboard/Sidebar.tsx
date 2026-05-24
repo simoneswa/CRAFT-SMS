@@ -68,6 +68,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname()
   const { school } = useTenant()
   const { profile, signOut } = useAuth()
+  const [isMounted, setIsMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // Determine which sidebar items to show
   const isSuperAdmin = profile?.role === 'SUPER_ADMIN'
@@ -82,6 +87,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     if (!item.roles) return true
     return item.roles.includes(profile?.role)
   })
+
+  if (!isMounted) return null
 
   return (
     <aside 
@@ -108,8 +115,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
           
           return (
-            <Link key={i} href={item.href} onClick={onClose}>
-              <button
+            <Link key={i} href={item.href} onClick={onClose} className="block w-full">
+              <div
                 className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all text-xs font-bold uppercase tracking-widest relative group ${
                   isActive 
                   ? 'text-[var(--accent)]' 
@@ -124,7 +131,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 )}
                 <item.icon className={`w-4 h-4 ${isActive ? 'text-[var(--accent)]' : 'text-gray-600 group-hover:text-gray-400'}`} />
                 {item.label}
-              </button>
+              </div>
             </Link>
           )
         })}

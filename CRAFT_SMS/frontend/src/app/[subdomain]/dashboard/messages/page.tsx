@@ -62,17 +62,17 @@ export default function CommunicationCenter() {
   }
 
   useEffect(() => {
-    if (selectedContact) {
+    if (selectedContact && profile?.id) {
       loadMessages(selectedContact.id)
       
       // Subscribe to real-time messages
       const channel = supabase
-        .channel(`chat:${selectedContact.id}`)
+        .channel(`chat:${selectedContact.id}:${profile.id}`)
         .on('postgres_changes', { 
             event: 'INSERT', 
             schema: 'public', 
             table: 'messages',
-            filter: `sender_id=eq.${selectedContact.id},receiver_id=eq.${profile?.id}`
+            filter: `sender_id=eq.${selectedContact.id},receiver_id=eq.${profile.id}`
         }, (payload) => {
             setMessages(prev => [...prev, payload.new])
         })
@@ -80,7 +80,7 @@ export default function CommunicationCenter() {
 
       return () => { supabase.removeChannel(channel) }
     }
-  }, [selectedContact])
+  }, [selectedContact?.id, profile?.id])
 
   const loadMessages = async (contactId: string) => {
     try {

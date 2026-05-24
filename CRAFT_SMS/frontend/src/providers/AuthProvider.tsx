@@ -24,30 +24,61 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<any | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
+  const [isMaintenance, setIsMaintenance] = useState(false)
+
   useEffect(() => {
     // 1. Get initial session
     const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user) {
-        setUser(session.user)
-        await fetchProfile(session.user.id)
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          setUser(session.user)
+          await fetchProfile(session.user.id)
+        } else {
+          setUser(null)
+          setProfile(null)
+        }
+      } catch (err) {
+        console.warn('Auth session check failed:', err)
+        // Keep user/profile as-is; never block the app bootstrap
+      } finally {
+        setIsLoading(false)
       }
-      setIsLoading(false)
     }
 
     initAuth()
 
+    // Check maintenance mode on client (must never block auth bootstrap)
+    try {
+      setIsMaintenance(
+        window.localStorage.getItem('maintenanceMode') === 'true' &&
+          window.location.pathname !== '/maintenance'
+      )
+    } catch (err) {
+      setIsMaintenance(false)
+    }
+
     // 2. Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        setUser(session.user)
-        await fetchProfile(session.user.id)
-      } else {
-        setUser(null)
-        setProfile(null)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        try {
+          if (session?.user) {
+            setUser(session.user)
+            await fetchProfile(session.user.id)
+          } else {
+            setUser(null)
+            setProfile(null)
+          }
+        } catch (err) {
+          // Never let listener errors trap isLoading
+          console.warn('[AuthProvider] Auth state change handler failed:', err)
+          setUser(session?.user ?? null)
+          setProfile(null)
+        } finally {
+          setIsLoading(false)
+        }
       }
-      setIsLoading(false)
-    })
+    )
 
     return () => {
       subscription.unsubscribe()
@@ -108,7 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ user, profile, isLoading, signOut }}>
-      {typeof window !== 'undefined' && window.localStorage.getItem('maintenanceMode') === 'true' && profile?.role !== 'SUPER_ADMIN' && window.location.pathname !== '/maintenance' ? (
+      {isMaintenance && profile?.role !== 'SUPER_ADMIN' ? (
          <div className="min-h-screen bg-[#030712] flex flex-col items-center justify-center p-6 text-white text-center">
             <h1 className="text-2xl font-bold mb-2">System Maintenance</h1>
             <p className="text-gray-400 mb-6">The system is currently undergoing scheduled maintenance.</p>

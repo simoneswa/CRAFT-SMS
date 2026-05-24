@@ -77,6 +77,17 @@ CREATE TABLE IF NOT EXISTS public.task_completions (
     points_awarded INTEGER
 );
 
+-- Parent-Student Links
+CREATE TABLE IF NOT EXISTS public.parent_student_links (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    school_id UUID NOT NULL REFERENCES public.schools(id),
+    parent_id UUID NOT NULL REFERENCES public.profiles(id),
+    student_id UUID NOT NULL REFERENCES public.profiles(id),
+    relationship TEXT, -- e.g., 'Father', 'Mother', 'Guardian'
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(parent_id, student_id)
+);
+
 -- 3. ROW LEVEL SECURITY (RLS)
 
 -- Enable RLS
@@ -424,16 +435,6 @@ CREATE POLICY "Admins can manage subjects" ON public.subjects FOR ALL USING (sch
 CREATE POLICY "Admins can manage classes" ON public.classes FOR ALL USING (school_id = public.get_my_school_id() AND public.get_my_role() = 'SCHOOL_ADMIN');
 CREATE POLICY "Teachers can manage grades" ON public.grades FOR ALL USING (school_id = public.get_my_school_id() AND public.get_my_role() IN ('TEACHER', 'SCHOOL_ADMIN'));
 
--- Parent-Student Links
-CREATE TABLE IF NOT EXISTS public.parent_student_links (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    school_id UUID NOT NULL REFERENCES public.schools(id),
-    parent_id UUID NOT NULL REFERENCES public.profiles(id),
-    student_id UUID NOT NULL REFERENCES public.profiles(id),
-    relationship TEXT, -- e.g., 'Father', 'Mother', 'Guardian'
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE(parent_id, student_id)
-);
 
 -- Institutional Messaging
 CREATE TABLE IF NOT EXISTS public.messages (
