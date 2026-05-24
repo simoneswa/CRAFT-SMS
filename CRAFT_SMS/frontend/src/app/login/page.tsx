@@ -9,14 +9,15 @@ import {
   CloudLightning,
   Eye,
   EyeOff,
-  GraduationCap,
   Lock,
   Mail,
   ShieldCheck,
   Smartphone,
 } from 'lucide-react'
+import { FcGoogle } from 'react-icons/fc'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { CraftLogo } from '@/components/ui/CraftLogo'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -71,6 +72,20 @@ export default function LoginPage() {
     }
   }
 
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsLoading(true)
+      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' })
+      if (error) throw error
+      // Supabase will redirect the browser to the provider
+    } catch (err: any) {
+      console.error('[Google SignIn] ', err)
+      setError(err?.message || 'Google sign-in failed')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <main className="min-h-screen bg-[var(--brand-surface)] text-[var(--brand-heading)]">
       <div className="mx-auto flex min-h-screen max-w-[1480px] flex-col px-4 py-8 md:px-8">
@@ -78,16 +93,16 @@ export default function LoginPage() {
           {/* LEFT COLUMN: Student Hero with Phone Overlay */}
           <section className="relative hidden overflow-hidden rounded-[44px] border border-[var(--brand-border)] bg-[var(--brand-surface)] p-8 shadow-sm md:flex md:min-h-[600px]">
             {/* Main Student Image */}
-            <div className="absolute inset-0">
+            <div className="absolute inset-0 w-full h-full">
               <img
-                src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80"
+                src="https://unsplash.com"
                 alt="Student working on a laptop"
-                className="h-full w-full object-cover object-right"
+                className="absolute inset-0 w-full h-full object-cover"
               />
               {/* Dark Overlay Base */}
               <div className="absolute inset-0 bg-[var(--brand-surface)]/95" />
               {/* Soft Gradient Mask - Left to Right Fade */}
-              <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/45 to-transparent" />
+              <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/70 to-transparent" />
             </div>
 
             {/* Laptop Branding Badge (Absolutely Positioned) */}
@@ -148,7 +163,7 @@ export default function LoginPage() {
               <div className="space-y-10 max-w-xl">
                 <div className="flex items-center gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-[var(--brand-primary)] text-white shadow-lg shadow-[var(--brand-primary)/20]">
-                    <GraduationCap className="h-6 w-6" />
+                    <CraftLogo className="h-6 w-6" />
                   </div>
                   <div>
                     <p className="text-lg font-semibold text-[var(--brand-heading)]">
@@ -317,16 +332,10 @@ export default function LoginPage() {
               {/* Google Auth Button - Official Branding */}
               <button
                 type="button"
+                onClick={handleGoogleSignIn}
                 className="mt-6 flex w-full items-center justify-center gap-3 rounded-3xl border border-[var(--brand-border)] bg-white px-4 py-3 text-sm font-semibold text-[var(--brand-heading)] transition hover:bg-slate-50 shadow-sm"
               >
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white">
-                  <svg viewBox="0 0 533.5 544.3" className="h-4 w-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="#4285F4" d="M533.5 278.4c0-17.7-1.6-34.8-4.6-51.3H272.1v97h146.9c-6.3 34-25.3 62.8-54.2 82l87.7 68c51.1-47 80.9-116.5 80.9-195.7z"/>
-                    <path fill="#34A853" d="M272.1 544.3c73.1 0 134.6-24.1 179.4-65.4l-87.7-68c-24.4 16.4-55.4 26-91.7 26-70.6 0-130.4-47.7-151.8-111.8l-89.4 69c43.7 86.5 132 149.2 241.2 149.2z"/>
-                    <path fill="#FBBC05" d="M120.3 326.1c-10.4-30.6-10.4-63.6 0-94.2l-89.4-69c-39.4 78.6-39.4 170.8 0 249.4l89.4-69z"/>
-                    <path fill="#EA4335" d="M272.1 213.8c38.8-.6 76.1 14 104.5 40.4l78.3-78.3C405.3 124 343.7 96 272.1 96 163.1 96 74.7 158.3 31 244.8l89.4 69c21.4-64.1 81.2-111.8 151.7-111.8z"/>
-                  </svg>
-                </span>
+                <FcGoogle size={20} aria-hidden="true" />
                 <span>Sign in with Google</span>
               </button>
 
