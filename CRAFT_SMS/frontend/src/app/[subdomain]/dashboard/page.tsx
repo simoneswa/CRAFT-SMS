@@ -59,25 +59,33 @@ export default function TenantDashboard() {
   const { school, isLoading: tenantLoading } = useTenant()
   const { profile, isLoading: authLoading } = useAuth()
   const [metrics, setMetrics] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isMetricsLoading, setIsMetricsLoading] = useState(false)
+
+  // Use stable primitive values as dependencies to prevent infinite re-fire loops.
+  // Object references (school, profile) change identity on every context re-render,
+  // which caused loadDashboardData → setIsLoading(true) → re-render → effect re-fire → infinite loop.
+  const schoolId = school?.id
+  const profileId = profile?.id
 
   useEffect(() => {
-    if (school?.id && profile) {
-      loadDashboardData()
-    }
-  }, [school, profile])
+    if (!schoolId || !profileId) return
 
-  const loadDashboardData = async () => {
-    setIsLoading(true)
-    try {
-      const data = await fetchAPI(`/tenants/schools/${school?.id}/metrics`)
-      setMetrics(data)
-    } catch (err) {
-      console.error('Failed to load dashboard data:', err)
-    } finally {
-      setIsLoading(false)
+    let cancelled = false
+    const loadDashboardData = async () => {
+      setIsMetricsLoading(true)
+      try {
+        const data = await fetchAPI(`/tenants/schools/${schoolId}/metrics`)
+        if (!cancelled) setMetrics(data)
+      } catch (err) {
+        console.error('Failed to load dashboard data:', err)
+      } finally {
+        if (!cancelled) setIsMetricsLoading(false)
+      }
     }
-  }
+
+    loadDashboardData()
+    return () => { cancelled = true }
+  }, [schoolId, profileId])
 
   if (tenantLoading || authLoading) return (
     <div className="flex items-center justify-center h-[60vh]">

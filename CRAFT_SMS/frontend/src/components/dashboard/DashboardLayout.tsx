@@ -21,6 +21,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false)
   const { isOnline, hasConflicts, pendingCount } = useSyncStatus()
+  const [isMounted, setIsMounted] = useState(false)
 
   // Dynamic CSS Variables for branding
   const brandingStyles = {
@@ -29,12 +30,38 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   } as React.CSSProperties
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.push('/login')
-    }
-  }, [user, isLoading, router])
+    setIsMounted(true)
+  }, [])
 
-  if (isLoading || !user) {
+  useEffect(() => {
+    // Guard: only redirect to /login after a stabilization delay.
+    // This prevents redirect loops during the brief window when Supabase
+    // auth state is still propagating after a router.push from the login page.
+    if (!isMounted || isLoading || user) return
+
+    // Already on login — don't push again
+    if (pathname === '/login') return
+
+    const timer = setTimeout(() => {
+      // Re-check: user may have been set during the delay
+      if (!user) {
+        router.push('/login')
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [user, isLoading, router, isMounted, pathname])
+
+  if (!isMounted || isLoading) {
+    return (
+      <div className="min-h-screen bg-[#030712] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  if (!user) {
+    // Show spinner briefly while redirect timer is pending
     return (
       <div className="min-h-screen bg-[#030712] flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
