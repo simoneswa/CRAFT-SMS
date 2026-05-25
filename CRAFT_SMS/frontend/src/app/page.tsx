@@ -3,8 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { GraduationCap, Shield, Zap, Globe, ArrowRight, Mail, Phone } from 'lucide-react'
-import { FaInstagram, FaFacebookF, FaWhatsapp } from 'react-icons/fa'
+import { GraduationCap, Shield, Zap, Globe, ArrowRight, Mail, Phone, MessageCircle } from 'lucide-react'
 
 const BRAND = {
   primary: '#007A53',
@@ -247,14 +246,14 @@ export default function LandingPage() {
           <div>
             <p className="font-semibold text-slate-900 mb-3">Ikuti Craft SMS</p>
             <div className="flex flex-col gap-3">
-              <a href="https://www.instagram.com/craf.tsms?igsh=MTB6M3UzenRwemlzYg%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-[#007A53]">
-                <FaInstagram className="text-pink-500 w-5 h-5" /> <span className="text-sm">Instagram</span>
+                <a href="https://www.instagram.com/craf.tsms?igsh=MTB6M3UzenRwemlzYg%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-[#007A53]">
+                <Globe className="text-pink-500 w-5 h-5" /> <span className="text-sm">Instagram</span>
               </a>
               <a href="https://www.facebook.com/profile.php?id=61590187690022&mibextid=wwXIfr&mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-[#007A53]">
-                <FaFacebookF className="text-blue-600 w-5 h-5" /> <span className="text-sm">Facebook</span>
+                <MessageCircle className="text-blue-600 w-5 h-5" /> <span className="text-sm">Facebook</span>
               </a>
               <a href="https://wa.me" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-[#007A53]">
-                <FaWhatsapp className="text-green-500 w-5 h-5" /> <span className="text-sm">WhatsApp</span>
+                <Phone className="text-green-500 w-5 h-5" /> <span className="text-sm">WhatsApp</span>
               </a>
             </div>
           </div>
