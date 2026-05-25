@@ -74,13 +74,17 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async () => {
     try {
+      setError(null)
       setIsLoading(true)
-      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' })
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + '/dashboard' },
+      })
       if (error) throw error
       // Supabase will redirect the browser to the provider
     } catch (err: any) {
-      console.error('[Google SignIn] ', err)
-      setError(err?.message || 'Google sign-in failed')
+      console.error('Auth Error:', err)
+      setError('Invalid credentials. Please try again or request access.')
     } finally {
       setIsLoading(false)
     }
@@ -92,133 +96,113 @@ export default function LoginPage() {
         <div className="grid flex-1 gap-10 md:grid-cols-[1.1fr_0.9fr] md:items-center">
           {/* LEFT COLUMN: Student Hero with Phone Overlay */}
           <section className="relative hidden overflow-hidden rounded-[44px] border border-[var(--brand-border)] bg-[var(--brand-surface)] p-8 shadow-sm md:flex md:min-h-[600px]">
-            {/* Main Student Image */}
-            <div className="absolute inset-0 w-full h-full">
+            {/* Student Image Backdrop */}
+            <div className="absolute inset-y-0 right-0 w-1/2 h-full">
               <img
-                src="https://unsplash.com"
+                src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1200&q=80"
                 alt="Student working on a laptop"
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-y-0 right-0 w-full h-full object-cover opacity-80 rounded-l-none rounded-r-2xl"
               />
-              {/* Dark Overlay Base */}
-              <div className="absolute inset-0 bg-[var(--brand-surface)]/95" />
-              {/* Soft Gradient Mask - Left to Right Fade */}
-              <div className="absolute inset-y-0 right-0 w-2/3 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/70 to-transparent" />
             </div>
+            <div className="absolute inset-0 z-5 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/90 to-transparent" />
 
-            {/* Laptop Branding Badge (Absolutely Positioned) */}
-            <div className="absolute bottom-32 right-20 z-20 flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-xl">
-              <div className="flex items-center gap-1">
-                <div className="h-4 w-1 rounded-full bg-gradient-to-b from-blue-500 to-teal-500" />
-                <div className="h-4 w-1 rounded-full bg-gradient-to-b from-teal-500 to-green-500" />
-              </div>
-            </div>
-
-            {/* Phone Mockup Overlay - Absolutely Positioned on Left */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-              className="absolute bottom-20 left-12 z-20 w-[240px] drop-shadow-2xl"
-            >
-              <div className="rounded-[32px] border-8 border-black bg-white overflow-hidden">
-                {/* Phone Status Bar */}
-                <div className="bg-gradient-to-r from-[var(--brand-primary)] to-teal-600 px-4 py-2 text-white text-[10px] font-bold flex justify-between">
-                  <span>9:41</span>
-                  <span>📶</span>
-                </div>
-
-                {/* Phone Content */}
-                <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 space-y-3 h-80">
-                  {/* User Greeting Card */}
-                  <div className="bg-gradient-to-r from-[var(--brand-primary)] to-emerald-600 rounded-2xl px-4 py-3 text-white">
-                    <p className="text-[11px] font-semibold">Good morning,</p>
-                    <p className="text-[13px] font-bold">John Doe</p>
-                  </div>
-
-                  {/* Recent Announcements */}
-                  <div className="space-y-2">
-                    <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Recent</p>
-                    <div className="bg-white rounded-lg px-3 py-2 border border-slate-200">
-                      <p className="text-[10px] font-semibold text-slate-900">Assembly Today</p>
-                      <p className="text-[8px] text-slate-600 mt-1">2:00 PM Hall</p>
+            <div className="relative z-10 flex h-full w-full items-center">
+              <div className="w-full md:w-1/2 pr-8">
+                <div className="space-y-10 max-w-xl">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-[var(--brand-primary)] text-white shadow-lg shadow-[var(--brand-primary)/20]">
+                      <CraftLogo className="h-6 w-6" />
                     </div>
-                    <div className="bg-white rounded-lg px-3 py-2 border border-slate-200">
-                      <p className="text-[10px] font-semibold text-slate-900">Exam Results</p>
-                      <p className="text-[8px] text-slate-600 mt-1">Check portal</p>
+                    <div>
+                      <p className="text-lg font-semibold text-[var(--brand-heading)]">
+                        CRAFT <span className="text-[var(--brand-primary)]">SMS</span>
+                      </p>
+                      <p className="text-sm font-medium text-[var(--brand-primary)]">Unified Educational Platform</p>
                     </div>
                   </div>
 
-                  {/* Action Button */}
-                  <button className="w-full bg-[var(--brand-primary)] text-white text-[9px] font-bold rounded-lg py-2 mt-auto">
-                    VIEW DASHBOARD
-                  </button>
-                </div>
-
-                {/* Phone Home Indicator */}
-                <div className="h-6 bg-black rounded-t-3xl" />
-              </div>
-            </motion.div>
-            {/* Content Overlay - Text & Features */}
-            <div className="relative z-10 flex h-full flex-col justify-between gap-10 pointer-events-none">
-              <div className="space-y-10 max-w-xl">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-[var(--brand-primary)] text-white shadow-lg shadow-[var(--brand-primary)/20]">
-                    <CraftLogo className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <p className="text-lg font-semibold text-[var(--brand-heading)]">
-                      CRAFT <span className="text-[var(--brand-primary)]">SMS</span>
+                  <div className="space-y-5">
+                    <h1 className="text-4xl font-semibold leading-tight text-slate-950 sm:text-5xl">
+                      Empowering Schools. Inspiring Futures.
+                    </h1>
+                    <p className="text-base leading-8 text-slate-600">
+                      CRAFT SMS is the all-in-one platform for school management, finance, attendance, and communication.
                     </p>
-                    <p className="text-sm font-medium text-[var(--brand-primary)]">Unified Educational Platform</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex gap-4 rounded-[28px] bg-white px-5 py-4 shadow-sm">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-emerald-100 text-emerald-700 flex-shrink-0">
+                        <CloudLightning className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-950">Offline Ready</p>
+                        <p className="mt-1 text-sm text-slate-600">Continue working even when connectivity is limited.</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-4 rounded-[28px] bg-white px-5 py-4 shadow-sm">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-emerald-100 text-emerald-700 flex-shrink-0">
+                        <ShieldCheck className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-950">Secure by Design</p>
+                        <p className="mt-1 text-sm text-slate-600">Protect sensitive school data with modern security controls.</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-4 rounded-[28px] bg-white px-5 py-4 shadow-sm">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-emerald-100 text-emerald-700 flex-shrink-0">
+                        <BarChart3 className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-950">Actionable Insights</p>
+                        <p className="mt-1 text-sm text-slate-600">Monitor school performance with fast, visual analytics.</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-5">
-                  <h1 className="text-4xl font-semibold leading-tight text-slate-950 sm:text-5xl">
-                    Empowering Schools. Inspiring Futures.
-                  </h1>
-                  <p className="text-base leading-8 text-slate-600">
-                    CRAFT SMS is the all-in-one platform for school management, finance, attendance, and communication.
+                <div className="mt-auto rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
+                  <p className="text-base italic leading-8 text-slate-700">
+                    "CRAFT SMS helps us run school operations faster and keeps our staff aligned."
                   </p>
-                </div>
-
-                <div className="space-y-4 pointer-events-auto">
-                  <div className="flex gap-4 rounded-[28px] bg-white px-5 py-4 shadow-sm">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-emerald-100 text-emerald-700 flex-shrink-0">
-                      <CloudLightning className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-slate-950">Offline Ready</p>
-                      <p className="mt-1 text-sm text-slate-600">Continue working even when connectivity is limited.</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4 rounded-[28px] bg-white px-5 py-4 shadow-sm">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-emerald-100 text-emerald-700 flex-shrink-0">
-                      <ShieldCheck className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-slate-950">Secure by Design</p>
-                      <p className="mt-1 text-sm text-slate-600">Protect sensitive school data with modern security controls.</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4 rounded-[28px] bg-white px-5 py-4 shadow-sm">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-emerald-100 text-emerald-700 flex-shrink-0">
-                      <BarChart3 className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-slate-950">Actionable Insights</p>
-                      <p className="mt-1 text-sm text-slate-600">Monitor school performance with fast, visual analytics.</p>
-                    </div>
-                  </div>
+                  <p className="mt-4 text-sm font-semibold text-slate-950">- Mary J. Johnson, Principal</p>
                 </div>
               </div>
 
-              <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm pointer-events-auto">
-                <p className="text-base italic leading-8 text-slate-700">
-                  "CRAFT SMS helps us run school operations faster and keeps our staff aligned."
-                </p>
-                <p className="mt-4 text-sm font-semibold text-slate-950">- Mary J. Johnson, Principal</p>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="absolute right-4 bottom-4 z-20 w-[220px] md:w-[260px] drop-shadow-2xl"
+              >
+                <div className="rounded-[32px] border-8 border-black bg-white overflow-hidden">
+                  <div className="bg-gradient-to-r from-[var(--brand-primary)] to-teal-600 px-4 py-2 text-white text-[10px] font-bold flex justify-between">
+                    <span>9:41</span>
+                    <span>📶</span>
+                  </div>
+                  <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 space-y-3 h-80">
+                    <div className="bg-gradient-to-r from-[var(--brand-primary)] to-emerald-600 rounded-2xl px-4 py-3 text-white">
+                      <p className="text-[11px] font-semibold">Good morning,</p>
+                      <p className="text-[13px] font-bold">John Doe</p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Recent</p>
+                      <div className="bg-white rounded-lg px-3 py-2 border border-slate-200">
+                        <p className="text-[10px] font-semibold text-slate-900">Assembly Today</p>
+                        <p className="text-[8px] text-slate-600 mt-1">2:00 PM Hall</p>
+                      </div>
+                      <div className="bg-white rounded-lg px-3 py-2 border border-slate-200">
+                        <p className="text-[10px] font-semibold text-slate-900">Exam Results</p>
+                        <p className="text-[8px] text-slate-600 mt-1">Check portal</p>
+                      </div>
+                    </div>
+                    <button className="w-full bg-[var(--brand-primary)] text-white text-[9px] font-bold rounded-lg py-2 mt-auto">
+                      VIEW DASHBOARD
+                    </button>
+                  </div>
+                  <div className="h-6 bg-black rounded-t-3xl" />
+                </div>
+              </motion.div>
             </div>
           </section>
 
