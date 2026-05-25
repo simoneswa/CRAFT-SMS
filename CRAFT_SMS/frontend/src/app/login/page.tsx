@@ -98,11 +98,11 @@ export default function LoginPage() {
           {/* LEFT COLUMN: Student Hero with Phone Overlay */}
           <section className="relative hidden overflow-hidden rounded-[44px] border border-[var(--brand-border)] bg-[var(--brand-surface)] p-8 shadow-sm md:flex md:min-h-[600px]">
             {/* Student Image Backdrop */}
-            <div className="absolute inset-y-0 right-0 w-1/2 h-full z-0 overflow-hidden rounded-l-none rounded-r-2xl">
+            <div className="absolute inset-0 w-full h-full overflow-hidden rounded-l-none rounded-r-2xl">
               <img
-                src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1200&q=80"
+                src="/hero-student.jpg"
                 alt="Student working on a laptop"
-                className="absolute inset-y-0 right-0 w-full h-full object-cover opacity-80 rounded-l-none rounded-r-2xl"
+                className="absolute inset-0 w-full h-full object-cover object-center z-0"
               />
             </div>
             <div className="absolute inset-0 z-5 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/90 to-transparent" />
