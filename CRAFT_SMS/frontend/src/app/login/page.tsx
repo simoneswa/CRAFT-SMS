@@ -85,6 +85,7 @@ export default function LoginPage() {
     } catch (err: any) {
       console.error('Auth Error:', err)
       setError('Invalid credentials. Please try again or request access.')
+      router.push('/login')
     } finally {
       setIsLoading(false)
     }
@@ -97,16 +98,16 @@ export default function LoginPage() {
           {/* LEFT COLUMN: Student Hero with Phone Overlay */}
           <section className="relative hidden overflow-hidden rounded-[44px] border border-[var(--brand-border)] bg-[var(--brand-surface)] p-8 shadow-sm md:flex md:min-h-[600px]">
             {/* Student Image Backdrop */}
-            <div className="absolute inset-y-0 right-0 w-1/2 h-full z-0">
+            <div className="absolute inset-y-0 right-0 w-1/2 h-full z-0 overflow-hidden rounded-l-none rounded-r-2xl">
               <img
                 src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1200&q=80"
                 alt="Student working on a laptop"
                 className="absolute inset-y-0 right-0 w-full h-full object-cover opacity-80 rounded-l-none rounded-r-2xl"
               />
             </div>
-            <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/90 to-transparent" />
+            <div className="absolute inset-0 z-5 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/90 to-transparent" />
 
-            <div className="relative z-20 flex h-full w-full items-start">
+            <div className="relative z-10 flex h-full w-full items-start">
               <div className="w-full md:w-1/2 pr-8">
                 <div className="space-y-10 max-w-xl">
                   <div className="flex items-center gap-4">
@@ -173,7 +174,7 @@ export default function LoginPage() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
-                className="absolute right-4 bottom-4 z-30 w-[220px] md:w-[260px] drop-shadow-2xl"
+                className="absolute right-4 bottom-4 z-20 w-[220px] md:w-[260px] drop-shadow-2xl"
               >
                 <div className="rounded-[32px] border-8 border-black bg-white overflow-hidden">
                   <div className="bg-gradient-to-r from-[var(--brand-primary)] to-teal-600 px-4 py-2 text-white text-[10px] font-bold flex justify-between">
