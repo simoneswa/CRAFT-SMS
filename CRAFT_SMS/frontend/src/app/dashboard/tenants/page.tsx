@@ -200,9 +200,9 @@ export default function TenantsPage() {
             filteredSchools.map((school) => (
               <div key={school.id} className="premium-card flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-teal-500/30 transition-all">
                 <div className="flex items-center gap-5">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
                     {school.logo_url ? (
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={school.logo_url} alt={school.name} className="w-10 h-10 object-contain" />
                     ) : (
                       <Building2 className="text-gray-400 w-7 h-7" />
