@@ -26,6 +26,7 @@ export default function LoginPage() {
   const [remember, setRemember] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [googleWarning, setGoogleWarning] = useState(false)
   const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -72,25 +73,12 @@ export default function LoginPage() {
     }
   }
 
-  const handleGoogleSignIn = async () => {
-    try {
-      setError(null)
-      setIsLoading(true)
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin + '/dashboard' },
-      })
-      if (error) throw error
-      // Supabase will redirect the browser to the provider
-    } catch (err: any) {
-      console.error('Auth Error:', err)
-      const message = /provider.*enabled|unsupported provider|provider is not enabled/i.test(err?.message || '')
-        ? 'Google authentication is currently undergoing configuration. Please sign in with your School Email instead.'
-        : err?.message || 'Google authentication failed. Please sign in with your School Email instead.'
-      setError(message)
-    } finally {
-      setIsLoading(false)
-    }
+  // Google Sign-In is intentionally disabled — no external OAuth redirects
+  const handleGoogleSignIn = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    setGoogleWarning(true)
+    // Ensure any prior form error is cleared so the Google warning stands out
+    setError(null)
   }
 
   return (
@@ -184,22 +172,53 @@ export default function LoginPage() {
                     <span>📶</span>
                   </div>
                   <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 space-y-3 h-80">
-                    <div className="bg-gradient-to-r from-[var(--brand-primary)] to-emerald-600 rounded-2xl px-4 py-3 text-white">
-                      <p className="text-[11px] font-semibold">Good morning,</p>
-                      <p className="text-[13px] font-bold">John Doe</p>
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Recent</p>
-                      <div className="bg-white rounded-lg px-3 py-2 border border-slate-200">
-                        <p className="text-[10px] font-semibold text-slate-900">Assembly Today</p>
-                        <p className="text-[8px] text-slate-600 mt-1">2:00 PM Hall</p>
+                    {/* Header with brand accent and notification badge */}
+                    <div className="flex items-center justify-between rounded-xl bg-[#005d40] px-3 py-2 text-white">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold uppercase tracking-wide">NOTIFICATIONS</span>
                       </div>
-                      <div className="bg-white rounded-lg px-3 py-2 border border-slate-200">
-                        <p className="text-[10px] font-semibold text-slate-900">Exam Results</p>
-                        <p className="text-[8px] text-slate-600 mt-1">Check portal</p>
+                      <div className="relative">
+                        <span className="inline-block rounded-full bg-white/20 px-2 py-0.5 text-xs font-bold">3</span>
                       </div>
                     </div>
-                    <button className="w-full bg-[var(--brand-primary)] text-white text-[9px] font-bold rounded-lg py-2 mt-auto">
+
+                    {/* Profile identity card */}
+                    <div className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-slate-200">
+                      <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">SS</div>
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">Welcome, Swadell Simone</p>
+                        <p className="text-xs text-slate-500">Student Dashboard</p>
+                      </div>
+                    </div>
+
+                    {/* Feature blocks grid */}
+                    <div className="grid grid-cols-1 gap-2">
+                      <div className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                        <div className="h-8 w-8 rounded-md bg-[#007A53] flex items-center justify-center text-white">J</div>
+                        <div>
+                          <p className="text-xs font-semibold">Jadwal Kelas</p>
+                          <p className="text-[11px] text-slate-500">Matematika • 09:00</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                        <div className="h-8 w-8 rounded-md bg-[#006342] flex items-center justify-center text-white">N</div>
+                        <div>
+                          <p className="text-xs font-semibold">Nilai Terbaru</p>
+                          <p className="text-[11px] text-slate-500">Matematika 92%</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                        <div className="h-8 w-8 rounded-md bg-emerald-200 flex items-center justify-center text-emerald-800">P</div>
+                        <div>
+                          <p className="text-xs font-semibold">Presensi Selesai</p>
+                          <p className="text-[11px] text-slate-500">100% hari ini</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button className="w-full bg-[var(--brand-primary)] text-white text-[9px] font-bold rounded-lg py-2 mt-auto hover:shadow-lg transition-all duration-300">
                       VIEW DASHBOARD
                     </button>
                   </div>
@@ -316,15 +335,22 @@ export default function LoginPage() {
                 <div className="h-px flex-1 bg-slate-200" />
               </div>
 
-              {/* Google Auth Button - Official Branding */}
+              {/* Google Auth Button - Disabled placeholder, no OAuth redirects */}
               <button
                 type="button"
+                id="google-signin-disabled"
                 onClick={handleGoogleSignIn}
-                className="mt-6 flex w-full items-center justify-center gap-3 rounded-3xl border border-[var(--brand-border)] bg-white px-4 py-3 text-sm font-semibold text-[var(--brand-heading)] transition hover:bg-slate-50 shadow-sm"
+                className="mt-6 flex w-full items-center justify-center gap-3 rounded-3xl border border-[var(--brand-border)] bg-white px-4 py-3 text-sm font-semibold text-slate-400 cursor-not-allowed opacity-70 shadow-sm select-none"
+                aria-disabled="true"
               >
                 <FcGoogle size={20} aria-hidden="true" />
                 <span>Sign in with Google</span>
               </button>
+              {googleWarning && (
+                <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                  Google login is currently disabled. Please sign in above using your unique Student ID or School Email.
+                </div>
+              )}
 
               <p className="mt-6 text-center text-sm text-slate-500">
                 Don&apos;t have an account?{' '}
