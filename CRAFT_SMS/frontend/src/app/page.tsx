@@ -3,7 +3,9 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { GraduationCap, Shield, Zap, Globe, ArrowRight, Mail, Phone, MessageCircle } from 'lucide-react'
+import { Shield, Zap, Globe, ArrowRight, Mail, Phone } from 'lucide-react'
+import { FaInstagram, FaFacebook, FaWhatsapp } from 'react-icons/fa'
+import { CraftLogo } from '@/components/ui/CraftLogo'
 
 const BRAND = {
   primary: '#007A53',
@@ -41,8 +43,8 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 border-b border-gray-100 bg-white/95 backdrop-blur py-3">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[var(--brand-primary)] rounded-xl flex items-center justify-center shadow-lg" style={{background:BRAND.primary}}>
-              <GraduationCap className="text-white w-6 h-6" />
+            <div className="w-10 h-10 rounded-xl bg-[#007A53] flex items-center justify-center shadow-lg">
+              <CraftLogo className="h-10 w-auto object-contain" />
             </div>
             <span className="text-2xl font-bold tracking-tight text-slate-900">CRAFT <span style={{color:BRAND.primary}}>SMS</span></span>
           </div>
@@ -189,8 +191,8 @@ export default function LandingPage() {
           {/* Column 1: Branding & Support */}
           <div>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{background:BRAND.primary}}>
-                <GraduationCap className="text-white w-6 h-6" />
+              <div className="w-12 h-12 rounded-lg bg-[#007A53] flex items-center justify-center">
+                <CraftLogo className="h-10 w-auto object-contain" />
               </div>
               <div>
                 <p className="font-bold text-slate-900">CRAFT SMS</p>
@@ -246,14 +248,14 @@ export default function LandingPage() {
           <div>
             <p className="font-semibold text-slate-900 mb-3">Ikuti Craft SMS</p>
             <div className="flex flex-col gap-3">
-                <a href="https://www.instagram.com/craf.tsms?igsh=MTB6M3UzenRwemlzYg%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-[#007A53]">
-                <Globe className="text-pink-500 w-5 h-5" /> <span className="text-sm">Instagram</span>
+              <a href="https://www.instagram.com/craf.tsms?igsh=MTB6M3UzenRwemlzYg%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-[#007A53] hover:text-[#005d40] transition-colors">
+                <FaInstagram className="w-5 h-5" /> <span className="text-sm">Instagram</span>
               </a>
-              <a href="https://www.facebook.com/profile.php?id=61590187690022&mibextid=wwXIfr&mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-[#007A53]">
-                <MessageCircle className="text-blue-600 w-5 h-5" /> <span className="text-sm">Facebook</span>
+              <a href="https://www.facebook.com/profile.php?id=61590187690022&mibextid=wwXIfr&mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-[#007A53] hover:text-[#005d40] transition-colors">
+                <FaFacebook className="w-5 h-5" /> <span className="text-sm">Facebook</span>
               </a>
-              <a href="https://wa.me" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-[#007A53]">
-                <Phone className="text-green-500 w-5 h-5" /> <span className="text-sm">WhatsApp</span>
+              <a href="https://wa.me" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-[#007A53] hover:text-[#005d40] transition-colors">
+                <FaWhatsapp className="w-5 h-5" /> <span className="text-sm">WhatsApp</span>
               </a>
             </div>
           </div>

@@ -26,10 +26,16 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
 
   // Ensure robust base URL format (remove trailing slash or /v1 suffix if misconfigured)
   let baseUrl = API_BASE_URL || ''
-  if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1)
+  if (!baseUrl && typeof window !== 'undefined') {
+    baseUrl = window.location.origin
+  }
+  baseUrl = baseUrl.replace(/\/+$/, '')
   if (baseUrl.endsWith('/v1')) baseUrl = baseUrl.slice(0, -3)
 
-  const response = await fetch(`${baseUrl}${endpoint}`, {
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
+  const requestEndpoint = normalizedEndpoint.startsWith('/api/') ? normalizedEndpoint : `/api${normalizedEndpoint}`
+
+  const response = await fetch(`${baseUrl}${requestEndpoint}`, {
     ...options,
     headers,
   })

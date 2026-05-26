@@ -84,8 +84,10 @@ export default function LoginPage() {
       // Supabase will redirect the browser to the provider
     } catch (err: any) {
       console.error('Auth Error:', err)
-      setError('Invalid credentials. Please try again or request access.')
-      router.push('/login')
+      const message = /provider.*enabled|unsupported provider|provider is not enabled/i.test(err?.message || '')
+        ? 'Google authentication is currently undergoing configuration. Please sign in with your School Email instead.'
+        : err?.message || 'Google authentication failed. Please sign in with your School Email instead.'
+      setError(message)
     } finally {
       setIsLoading(false)
     }
@@ -96,23 +98,23 @@ export default function LoginPage() {
       <div className="mx-auto flex min-h-screen max-w-[1480px] flex-col px-4 py-8 md:px-8">
         <div className="grid flex-1 gap-10 md:grid-cols-[1.1fr_0.9fr] md:items-center">
           {/* LEFT COLUMN: Student Hero with Phone Overlay */}
-          <section className="relative hidden overflow-hidden rounded-[44px] border border-[var(--brand-border)] bg-[var(--brand-surface)] p-8 shadow-sm md:flex md:min-h-[600px]">
+          <section className="relative hidden overflow-hidden rounded-[44px] bg-[#FAF8F5] p-8 shadow-sm md:flex md:min-h-[600px]">
             {/* Student Image Backdrop */}
-            <div className="absolute inset-0 w-full h-full overflow-hidden rounded-l-none rounded-r-2xl">
+            <div className="absolute inset-0 w-full h-full overflow-hidden">
               <img
                 src="/hero-student.jpg"
                 alt="Student working on a laptop"
-                className="absolute inset-0 w-full h-full object-cover object-center z-0"
+                className="absolute inset-0 w-full h-full object-cover object-[center_25%] z-0"
               />
             </div>
-            <div className="absolute inset-0 z-5 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/90 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/70 to-transparent z-[5]" />
 
             <div className="relative z-10 flex h-full w-full items-start">
               <div className="w-full md:w-1/2 pr-8">
                 <div className="space-y-10 max-w-xl">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-[var(--brand-primary)] text-white shadow-lg shadow-[var(--brand-primary)/20]">
-                      <CraftLogo className="h-6 w-6" />
+                    <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-[#007A53] text-white shadow-lg shadow-[#007A53]/20">
+                      <CraftLogo className="h-10 w-auto object-contain" />
                     </div>
                     <div>
                       <p className="text-lg font-semibold text-[var(--brand-heading)]">
