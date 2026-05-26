@@ -1,6 +1,7 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+  - 'CRAFT_SMS/*'
 allowBuilds:
   '@prisma/client': true
   '@prisma/engines': true
