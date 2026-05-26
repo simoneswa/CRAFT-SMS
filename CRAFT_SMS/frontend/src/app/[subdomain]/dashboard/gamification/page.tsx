@@ -13,6 +13,7 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     if (school?.id) fetchLeaderboard()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [school])
 
   const fetchLeaderboard = async () => {

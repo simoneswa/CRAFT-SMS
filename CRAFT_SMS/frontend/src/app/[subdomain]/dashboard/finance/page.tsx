@@ -43,6 +43,7 @@ export default function FinancePage() {
     if (school?.id && profile) {
       fetchSlips()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, school, profile])
 
   const fetchSlips = async () => {
@@ -271,6 +272,7 @@ export default function FinancePage() {
                 className="premium-card max-w-2xl w-full p-2 relative z-10"
               >
                  <button onClick={() => setModalState('NONE')} className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/80 rounded-full text-white z-20"><X className="w-6 h-6" /></button>
+                 {/* eslint-disable-next-line @next/next/no-img-element */}
                  <img src={selectedSlip.image_url} alt="Slip Proof" className="w-full h-auto max-h-[80vh] object-contain rounded-xl" />
               </motion.div>
             )}

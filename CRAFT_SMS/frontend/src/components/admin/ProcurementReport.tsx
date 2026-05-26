@@ -15,12 +15,14 @@ export function ProcurementReport({ school, data }: ProcurementReportProps) {
     <div className="bg-white text-black p-16 min-h-[297mm] w-[210mm] mx-auto border-[10px] border-gray-100 relative print:p-8 print:border-none">
        {/* Official Watermark Geometry */}
        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="w-[400px] h-[400px] object-contain" />
        </div>
 
        {/* Header Section */}
        <header className="flex justify-between items-start border-b-2 border-black pb-10 mb-12 relative z-10">
           <div className="flex items-center gap-6">
+             {/* eslint-disable-next-line @next/next/no-img-element */}
              <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="w-16 h-16 object-contain" />
              <div>
                 <h1 className="text-2xl font-black uppercase tracking-tighter leading-tight">{school?.name}</h1>

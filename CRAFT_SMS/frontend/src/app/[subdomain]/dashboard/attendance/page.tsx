@@ -112,6 +112,7 @@ const loadRollCall = useCallback(async () => {
   useEffect(() => {
     if (view === 'ROLL_CALL') loadRollCall()
     if (view === 'HISTORY') loadHistory()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadRollCall, view, selectedClass])
 
   // Load aggregate history stats when switching to HISTORY view

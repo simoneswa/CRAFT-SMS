@@ -45,6 +45,7 @@ export default function GradebookPage() {
     if (school?.id) {
       loadInitialData()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [school])
 
   const loadInitialData = async () => {

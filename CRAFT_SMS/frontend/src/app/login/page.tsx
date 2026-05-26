@@ -89,6 +89,7 @@ export default function LoginPage() {
           <section className="relative overflow-hidden rounded-[44px] bg-[#FAF8F5] p-8 shadow-sm flex flex-col md:min-h-[600px] w-full md:w-[55%]">
             {/* Student Image Backdrop */}
             <div className="absolute inset-0 w-full h-full overflow-hidden hidden md:block">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/hero-student.jpg"
                 alt="Student working on a laptop"
@@ -102,6 +103,7 @@ export default function LoginPage() {
                 <div className="space-y-10 max-w-xl">
                   <div className="flex items-center gap-4">
                     <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-[#007A53] text-white shadow-lg shadow-[#007A53]/20">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain" />
                     </div>
                     <div>

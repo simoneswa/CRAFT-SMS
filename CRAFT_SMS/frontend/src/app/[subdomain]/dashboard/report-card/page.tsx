@@ -51,6 +51,7 @@ export default function ReportCardPage() {
     if (selectedTerm && profile) {
       loadReport()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTerm, profile])
 
   const loadReport = async () => {

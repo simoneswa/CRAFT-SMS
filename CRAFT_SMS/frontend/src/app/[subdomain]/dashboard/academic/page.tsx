@@ -38,6 +38,7 @@ export default function AcademicControlCenter() {
     if (school?.id) {
       loadData()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [school, activeTab])
 
   const loadData = async () => {

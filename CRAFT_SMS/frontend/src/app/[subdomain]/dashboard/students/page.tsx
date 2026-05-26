@@ -38,6 +38,7 @@ export default function StudentsPage() {
     if (school?.id) {
       fetchStudents()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [school])
 
   const fetchStudents = async () => {

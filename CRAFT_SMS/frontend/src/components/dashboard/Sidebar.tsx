@@ -98,6 +98,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Branding */}
       <div className="p-10 flex flex-col items-center text-center">
         <div className="mb-4">
+           {/* eslint-disable-next-line @next/next/no-img-element */}
            <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="w-16 h-16 object-contain" />
         </div>
         <div>

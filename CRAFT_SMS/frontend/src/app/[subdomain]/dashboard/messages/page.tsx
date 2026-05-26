@@ -35,6 +35,7 @@ export default function CommunicationCenter() {
     if (profile) {
       loadInitialData()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile])
 
   const loadInitialData = async () => {
@@ -80,6 +81,7 @@ export default function CommunicationCenter() {
 
       return () => { supabase.removeChannel(channel) }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedContact?.id, profile?.id])
 
   const loadMessages = async (contactId: string) => {
