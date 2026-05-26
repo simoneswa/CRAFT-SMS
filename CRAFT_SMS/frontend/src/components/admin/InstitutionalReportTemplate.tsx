@@ -22,8 +22,8 @@ export function InstitutionalReportTemplate({ school, type, termName, data }: Re
       {/* Institutional Header */}
       <div className="flex justify-between items-start border-b-4 border-black pb-8 mb-10">
         <div className="flex items-center gap-6">
-           {/* eslint-disable-next-line @next/next/no-img-element */}
            {school?.logo_url ? (
+             // eslint-disable-next-line @next/next/no-img-element
              <img src={school.logo_url} className="w-20 h-20 object-contain" alt="Logo" />
            ) : (
              <div className="w-20 h-20 bg-gray-900 rounded-2xl flex items-center justify-center">

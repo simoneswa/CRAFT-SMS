@@ -43,7 +43,6 @@ export default function FinancePage() {
     if (school?.id && profile) {
       fetchSlips()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, school, profile])
 
   const fetchSlips = async () => {
