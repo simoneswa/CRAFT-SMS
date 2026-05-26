@@ -1,24 +1,17 @@
-import { defineConfig, globalIgnores } from "eslint/config";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import { FlatCompat } from "@eslint/eslintrc";
 
-let nextVitals = [];
-try {
-  // eslint-config-next v14 sometimes exposes this path, but not always.
-  // eslint-disable-next-line import/no-unresolved
-  nextVitals = (await import('eslint-config-next/core-web-vitals')).default;
-  if (!Array.isArray(nextVitals)) nextVitals = [nextVitals];
-} catch {
-  nextVitals = [];
-}
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-const eslintConfig = defineConfig([
-  ...nextVitals,
-  // Override default ignores of eslint-config-next.
-  globalIgnores([
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-  ]),
-]);
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
+
+const eslintConfig = [
+  { ignores: [".next/**"] },
+  ...compat.extends("next/core-web-vitals"),
+];
 
 export default eslintConfig;

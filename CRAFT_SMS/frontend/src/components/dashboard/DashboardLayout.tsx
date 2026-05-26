@@ -34,24 +34,26 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     setIsMounted(true)
   }, [])
 
+  const userId = user?.id
+
   useEffect(() => {
     // Guard: only redirect to /login after a stabilization delay.
     // This prevents redirect loops during the brief window when Supabase
     // auth state is still propagating after a router.push from the login page.
-    if (!isMounted || isLoading || user) return
+    if (!isMounted || isLoading || userId) return
 
     // Already on login — don't push again
     if (pathname === '/login') return
 
     const timer = setTimeout(() => {
       // Re-check: user may have been set during the delay
-      if (!user) {
+      if (!userId) {
         router.push('/login')
       }
     }, 500)
 
     return () => clearTimeout(timer)
-  }, [user, isLoading, router, isMounted, pathname])
+  }, [userId, isLoading, router, isMounted, pathname])
 
   if (!isMounted || isLoading) {
     return (

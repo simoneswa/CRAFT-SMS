@@ -165,7 +165,7 @@ export default function TenantDashboard() {
               ) : profile?.role === 'TEACHER' ? (
                  <div className="premium-card">
                     <div className="flex items-center justify-between mb-8">
-                       <h3 className="text-lg font-bold text-white">Today's Schedule</h3>
+                       <h3 className="text-lg font-bold text-white">Today&apos;s Schedule</h3>
                        <div className="flex items-center gap-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
                           <Calendar className="w-3 h-3" />
                           May 14, 2026

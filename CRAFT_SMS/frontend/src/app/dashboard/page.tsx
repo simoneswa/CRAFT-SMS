@@ -53,7 +53,7 @@ export default function DashboardPage() {
           </div>
           <h2 className="text-2xl font-bold mb-4">School Directory</h2>
           <p className="text-gray-400 leading-relaxed mb-8">
-            Access your school's dedicated portal. View grades, attendance, and pay fees through your specific subdomain.
+            Access your school&apos;s dedicated portal. View grades, attendance, and pay fees through your specific subdomain.
           </p>
           <div className="flex flex-col gap-3">
               {['St. Edwards High', 'Monrovia Academy', 'Liberia Int. School'].map((school, i) => (

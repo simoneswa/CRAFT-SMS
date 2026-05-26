@@ -26,7 +26,6 @@ import {
 } from 'lucide-react'
 import { useTenant } from '@/providers/TenantProvider'
 import { useAuth } from '@/providers/AuthProvider'
-import { CraftLogo } from '../ui/CraftLogo'
 
 interface SidebarItem {
   icon: any
@@ -99,7 +98,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Branding */}
       <div className="p-10 flex flex-col items-center text-center">
         <div className="mb-4">
-           <CraftLogo className="w-16 h-16" />
+           <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="w-16 h-16 object-contain" />
         </div>
         <div>
           <span className={`text-2xl font-black tracking-tighter block leading-none uppercase ${isSuperAdmin ? 'text-white' : 'text-[var(--brand-heading)]'}`}>CRAFT <span className={`${isSuperAdmin ? 'text-[var(--accent)]' : 'text-[var(--brand-primary)]'}`}>SMS</span></span>

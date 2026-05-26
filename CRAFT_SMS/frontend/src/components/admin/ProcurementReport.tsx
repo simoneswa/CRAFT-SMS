@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { ShieldCheck, FileText, Globe, Award } from 'lucide-react'
-import { CraftLogo } from '../ui/CraftLogo'
 
 interface ProcurementReportProps {
   school: any
@@ -16,13 +15,13 @@ export function ProcurementReport({ school, data }: ProcurementReportProps) {
     <div className="bg-white text-black p-16 min-h-[297mm] w-[210mm] mx-auto border-[10px] border-gray-100 relative print:p-8 print:border-none">
        {/* Official Watermark Geometry */}
        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none">
-          <CraftLogo className="w-[400px] h-[400px]" />
+          <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="w-[400px] h-[400px] object-contain" />
        </div>
 
        {/* Header Section */}
        <header className="flex justify-between items-start border-b-2 border-black pb-10 mb-12 relative z-10">
           <div className="flex items-center gap-6">
-             <CraftLogo className="w-16 h-16" />
+             <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="w-16 h-16 object-contain" />
              <div>
                 <h1 className="text-2xl font-black uppercase tracking-tighter leading-tight">{school?.name}</h1>
                 <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.25em] mt-1">CRAFT SMS Institutional Audit Stream</p>
@@ -70,7 +69,7 @@ export function ProcurementReport({ school, data }: ProcurementReportProps) {
                    </div>
                 </div>
                 <div className="p-4 bg-gray-50 border border-gray-100 rounded-xl">
-                   <p className="text-[10px] font-black uppercase mb-2">Director's Memo</p>
+                   <p className="text-[10px] font-black uppercase mb-2">Director&apos;s Memo</p>
                    <p className="text-xs leading-relaxed text-gray-600">
                       This report represents the verified operational state of {school?.name}. 
                       All academic and financial data points have been synchronized via the CRAFT SMS decentralized sync engine.

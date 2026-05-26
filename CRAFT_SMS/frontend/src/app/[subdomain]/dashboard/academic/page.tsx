@@ -107,7 +107,7 @@ export default function AcademicControlCenter() {
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-3xl font-bold mb-2 text-white">Academic <span className="gradient-text">Control Center</span></h1>
-            <p className="text-gray-400">Configure your institution's structural foundation and grading rules.</p>
+            <p className="text-gray-400">Configure your institution&apos;s structural foundation and grading rules.</p>
           </div>
           <button 
             onClick={() => { setShowModal(true); setFormData({}); setError(null); }}
