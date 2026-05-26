@@ -19,7 +19,7 @@ import {
   Star,
 } from 'lucide-react'
 import { FaInstagram, FaFacebook, FaWhatsapp } from 'react-icons/fa'
-import { CraftLogo } from '@/components/ui/CraftLogo'
+import { supabase } from '@/lib/supabase'
 
 const BRAND = {
   primary: '#007A53',
@@ -29,19 +29,19 @@ const BRAND = {
 
 const features = [
   {
+    icon: <Globe className="h-6 w-6" />,
+    title: 'Offline-First',
+    desc: "Work even without internet. Auto-syncs when you're back online.",
+  },
+  {
+    icon: <Shield className="h-6 w-6" />,
+    title: 'Smart & Secure',
+    desc: 'Your data is protected with enterprise security and role-based access.',
+  },
+  {
     icon: <BookOpen className="h-6 w-6" />,
-    title: 'Academic Management',
-    desc: 'Manage classes, timetables, and curriculum from one unified workspace.',
-  },
-  {
-    icon: <Users className="h-6 w-6" />,
-    title: 'Attendance Tracking',
-    desc: 'Real-time digital roll calls with offline-first sync for low-connectivity schools.',
-  },
-  {
-    icon: <CreditCard className="h-6 w-6" />,
-    title: 'School Finance',
-    desc: 'Fee collection, receipts, and financial reporting built for institutional clarity.',
+    title: 'All-in-One Platform',
+    desc: 'Academics, Finance, Attendance, Exams, Communication & more.',
   },
   {
     icon: <BarChart3 className="h-6 w-6" />,
@@ -54,17 +54,10 @@ const features = [
     desc: 'Push alerts for parents, staff, and students — across SMS, email, and in-app.',
   },
   {
-    icon: <Shield className="h-6 w-6" />,
-    title: 'Enterprise Security',
-    desc: 'Role-based access control, SSL encryption, and audit logging by default.',
+    icon: <CreditCard className="h-6 w-6" />,
+    title: 'School Finance',
+    desc: 'Fee collection, receipts, and financial reporting built for institutional clarity.',
   },
-]
-
-const stats = [
-  { value: '50+', label: 'Schools Onboarded' },
-  { value: '99.9%', label: 'Platform Uptime' },
-  { value: '10K+', label: 'Students Managed' },
-  { value: '4.9★', label: 'Average Rating' },
 ]
 
 const testimonials = [
@@ -90,6 +83,37 @@ export default function LandingPage() {
   const nextTestimonial = () => setTIndex((i) => (i + 1) % testimonials.length)
   const prevTestimonial = () => setTIndex((i) => (i - 1 + testimonials.length) % testimonials.length)
 
+  const [stats, setStats] = useState([
+    { value: '0', label: 'Schools Onboarded' },
+    { value: '0%', label: 'Platform Uptime' },
+    { value: '0', label: 'Students Managed' },
+    { value: '0★', label: 'Average Rating' },
+  ])
+
+  React.useEffect(() => {
+    let mounted = true
+    async function loadStats() {
+      try {
+        const [{ count: schoolCount }, { count: profileCount }] = await Promise.all([
+          supabase.from('schools').select('*', { count: 'exact', head: true }),
+          supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        ])
+        if (mounted) {
+          setStats([
+            { value: schoolCount ? `${schoolCount}+` : '0', label: 'Schools Onboarded' },
+            { value: '99.9%', label: 'Platform Uptime' },
+            { value: profileCount ? `${profileCount}+` : '0', label: 'Students Managed' },
+            { value: '4.9★', label: 'Average Rating' },
+          ])
+        }
+      } catch (err) {
+        // Keep zeros if fetch fails
+      }
+    }
+    loadStats()
+    return () => { mounted = false }
+  }, [])
+
   return (
     <main className="min-h-screen selection:bg-[#007A53]/20 bg-white text-slate-900 overflow-x-hidden">
 
@@ -98,7 +122,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#007A53] flex items-center justify-center shadow-lg">
-              <CraftLogo className="h-10 w-auto object-contain" />
+              <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain" />
             </div>
             <span className="text-2xl font-bold tracking-tight text-slate-900">
               CRAFT <span style={{ color: BRAND.primary }}>SMS</span>
@@ -243,7 +267,7 @@ export default function LandingPage() {
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#007A53] mb-4">Why CRAFT SMS?</p>
               <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
-                Built for Africa's
+                Built for Africa&apos;s
                 <br />
                 <span className="text-[#007A53]">connected future</span>
               </h2>
@@ -304,7 +328,7 @@ export default function LandingPage() {
               </div>
               {/* Card 2 */}
               <div className="absolute bottom-0 left-0 right-8 rounded-[28px] bg-[#007A53] p-6 shadow-2xl">
-                <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-3">Today's Attendance</p>
+                <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-3">Today&apos;s Attendance</p>
                 <p className="text-5xl font-extrabold text-white">94%</p>
                 <p className="text-white/60 text-sm mt-1">482 / 512 students present</p>
                 <div className="mt-4 h-2 bg-white/20 rounded-full overflow-hidden">
@@ -339,7 +363,7 @@ export default function LandingPage() {
                     <Star key={s} className="h-4 w-4 fill-[#007A53] text-[#007A53]" />
                   ))}
                 </div>
-                <p className="italic text-slate-700 text-sm leading-relaxed">"{t.quote}"</p>
+                <p className="italic text-slate-700 text-sm leading-relaxed">&quot;{t.quote}&quot;</p>
                 <div className="mt-5 pt-5 border-t border-slate-100">
                   <p className="font-semibold text-slate-900 text-sm">{t.author}</p>
                   <p className="text-xs text-slate-500">{t.role}</p>
@@ -364,7 +388,7 @@ export default function LandingPage() {
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/signup">
               <button className="inline-flex items-center gap-2 px-9 py-4 rounded-full text-white font-bold bg-[#007A53] hover:bg-[#005d40] hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
-                Get Started — It's Free <ArrowRight className="h-4 w-4" />
+                Get Started — It&apos;s Free <ArrowRight className="h-4 w-4" />
               </button>
             </Link>
             <div className="flex items-center gap-3 px-6 py-4 rounded-full border border-slate-200 bg-white shadow-sm">
@@ -384,7 +408,7 @@ export default function LandingPage() {
           <div className="md:col-span-2">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-12 h-12 rounded-lg bg-[#007A53] flex items-center justify-center">
-                <CraftLogo className="h-10 w-auto object-contain" />
+                <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain" />
               </div>
               <div>
                 <p className="font-bold text-slate-900 text-lg">CRAFT SMS</p>

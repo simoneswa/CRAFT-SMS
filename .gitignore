@@ -216,3 +216,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Node/JS
+node_modules/
+.next/
+.turbo/
+out/
+build/
+.vercel/
+pnpm-debug.log
+npm-debug.log

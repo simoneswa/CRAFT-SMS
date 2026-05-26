@@ -190,7 +190,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         </div>
         <h1 className="text-4xl font-bold mb-4 text-center">School Not Found</h1>
         <p className="text-gray-400 text-center max-w-md mb-2">
-          The subdomain <code className="text-teal-400 font-mono">"{subdomain}"</code> doesn't match an active school.
+          The subdomain <code className="text-teal-400 font-mono">&quot;{subdomain}&quot;</code> doesn&apos;t match an active school.
         </p>
         <p className="text-gray-600 text-center text-sm max-w-md mb-8">{error}</p>
         <button

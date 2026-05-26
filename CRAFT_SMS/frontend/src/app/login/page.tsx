@@ -13,11 +13,11 @@ import {
   Mail,
   ShieldCheck,
   Smartphone,
+  CheckCircle2,
 } from 'lucide-react'
 import { FcGoogle } from 'react-icons/fc'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import { CraftLogo } from '@/components/ui/CraftLogo'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -84,25 +84,25 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen bg-[var(--brand-surface)] text-[var(--brand-heading)]">
       <div className="mx-auto flex min-h-screen max-w-[1480px] flex-col px-4 py-8 md:px-8">
-        <div className="grid flex-1 gap-10 md:grid-cols-[1.1fr_0.9fr] md:items-center">
+        <div className="flex flex-col gap-6 w-full px-4 md:flex-row md:gap-12 flex-1 md:items-center">
           {/* LEFT COLUMN: Student Hero with Phone Overlay */}
-          <section className="relative hidden overflow-hidden rounded-[44px] bg-[#FAF8F5] p-8 shadow-sm md:flex md:min-h-[600px]">
+          <section className="relative overflow-hidden rounded-[44px] bg-[#FAF8F5] p-8 shadow-sm flex flex-col md:min-h-[600px] w-full md:w-[55%]">
             {/* Student Image Backdrop */}
-            <div className="absolute inset-0 w-full h-full overflow-hidden">
+            <div className="absolute inset-0 w-full h-full overflow-hidden hidden md:block">
               <img
                 src="/hero-student.jpg"
                 alt="Student working on a laptop"
                 className="absolute inset-0 w-full h-full object-cover object-[center_25%] z-0"
               />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/70 to-transparent z-[5]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/70 to-transparent z-[5] hidden md:block" />
 
-            <div className="relative z-10 flex h-full w-full items-start">
-              <div className="w-full md:w-1/2 pr-8">
+            <div className="relative z-10 flex h-full w-full items-start flex-col md:flex-row">
+              <div className="w-full md:w-1/2 md:pr-8">
                 <div className="space-y-10 max-w-xl">
                   <div className="flex items-center gap-4">
                     <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-[#007A53] text-white shadow-lg shadow-[#007A53]/20">
-                      <CraftLogo className="h-10 w-auto object-contain" />
+                      <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain" />
                     </div>
                     <div>
                       <p className="text-lg font-semibold text-[var(--brand-heading)]">
@@ -154,7 +154,7 @@ export default function LoginPage() {
 
                 <div className="mt-10 rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
                   <p className="text-base italic leading-8 text-slate-700">
-                    "CRAFT SMS helps us run school operations faster and keeps our staff aligned."
+                    &quot;CRAFT SMS helps us run school operations faster and keeps our staff aligned.&quot;
                   </p>
                   <p className="mt-4 text-sm font-semibold text-slate-950">- Mary J. Johnson, Principal</p>
                 </div>
@@ -164,7 +164,7 @@ export default function LoginPage() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
-                className="absolute right-4 bottom-4 z-20 w-[220px] md:w-[260px] drop-shadow-2xl"
+                className="absolute right-4 bottom-4 z-20 w-[220px] md:w-[260px] drop-shadow-2xl hidden md:block"
               >
                 <div className="rounded-[32px] border-8 border-black bg-white overflow-hidden">
                   <div className="bg-gradient-to-r from-[var(--brand-primary)] to-teal-600 px-4 py-2 text-white text-[10px] font-bold flex justify-between">
@@ -186,7 +186,7 @@ export default function LoginPage() {
                     <div className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-slate-200">
                       <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">SS</div>
                       <div>
-                        <p className="text-sm font-semibold text-slate-900">Welcome, Swadell Simone</p>
+                        <p className="text-sm font-semibold text-slate-900">Welcome Swadell Simone</p>
                         <p className="text-xs text-slate-500">Student Dashboard</p>
                       </div>
                     </div>
@@ -210,10 +210,10 @@ export default function LoginPage() {
                       </div>
 
                       <div className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-                        <div className="h-8 w-8 rounded-md bg-emerald-200 flex items-center justify-center text-emerald-800">P</div>
+                        <div className="h-8 w-8 rounded-md bg-emerald-200 flex items-center justify-center text-emerald-800"><CheckCircle2 className="h-4 w-4" /></div>
                         <div>
-                          <p className="text-xs font-semibold">Presensi Selesai</p>
-                          <p className="text-[11px] text-slate-500">100% hari ini</p>
+                          <p className="text-xs font-semibold">Attendance: 100%</p>
+                          <p className="text-[11px] text-slate-500">Verified present</p>
                         </div>
                       </div>
                     </div>
@@ -233,7 +233,7 @@ export default function LoginPage() {
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-center"
+            className="flex items-center justify-center w-full md:w-[45%]"
           >
             <div className="w-full max-w-xl rounded-[40px] bg-white p-8 shadow-[0_40px_120px_-48px_rgba(15,23,42,0.12)] sm:p-10">
               <div className="text-center">
