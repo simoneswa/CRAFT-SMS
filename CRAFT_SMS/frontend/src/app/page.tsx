@@ -388,10 +388,12 @@ export default function LandingPage() {
           <div className="flex justify-center items-center gap-4 mt-10">
             {/* App Store Badge */}
             <a href="#" className="hover:-translate-y-1 transition-transform">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" alt="Download on the App Store" className="h-12 w-auto" />
             </a>
             {/* Google Play Badge */}
             <a href="#" className="hover:-translate-y-1 transition-transform">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" className="h-[68px] w-auto -mt-2" />
             </a>
           </div>
@@ -399,9 +401,11 @@ export default function LandingPage() {
         
         {/* Illustrations (Using absolute positioning constraints) */}
         <div className="hidden md:block absolute bottom-0 left-0 w-72 h-auto opacity-90 xl:w-96 pointer-events-none">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/hero-student.jpg" alt="Students Studying" className="w-full h-auto object-cover rounded-tr-[80px]" style={{ mixBlendMode: 'multiply', maskImage: 'linear-gradient(to right, black, transparent)' }} />
         </div>
         <div className="hidden md:block absolute bottom-0 right-0 w-72 h-auto opacity-90 xl:w-96 pointer-events-none">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/hero-student.jpg" alt="Students Collaborating" className="w-full h-auto object-cover rounded-tl-[80px]" style={{ mixBlendMode: 'multiply', maskImage: 'linear-gradient(to left, black, transparent)' }} />
         </div>
       </section>
