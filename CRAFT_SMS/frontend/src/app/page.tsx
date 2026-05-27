@@ -127,7 +127,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block" />
+            <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain" />
             <span className="text-2xl font-bold tracking-tight text-slate-900">
               CRAFT <span style={{ color: BRAND.primary }}>SMS</span>
             </span>
@@ -454,7 +454,7 @@ export default function LandingPage() {
           <div className="md:col-span-4">
             <div className="flex items-center gap-3 mb-8">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block" />
+              <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain" />
               <span className="text-3xl font-bold tracking-tight text-white">
                 CRAFT <span style={{ color: BRAND.primary }}>SMS</span>
               </span>

@@ -103,7 +103,7 @@ export default function LoginPage() {
                 <div className="space-y-10 max-w-xl">
                   <div className="flex items-center gap-4">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block" />
+                    <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain" />
                     <div>
                       <p className="text-lg font-semibold text-[var(--brand-heading)]">
                         CRAFT <span className="text-[var(--brand-primary)]">SMS</span>
