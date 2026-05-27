@@ -80,6 +80,7 @@ const testimonials = [
 
 export default function LandingPage() {
   const [tIndex, setTIndex] = useState(0)
+  const [registeredSchools, setRegisteredSchools] = useState<any[]>([])
   const nextTestimonial = () => setTIndex((i) => (i + 1) % testimonials.length)
   const prevTestimonial = () => setTIndex((i) => (i - 1 + testimonials.length) % testimonials.length)
 
@@ -94,9 +95,10 @@ export default function LandingPage() {
     let mounted = true
     async function loadStats() {
       try {
-        const [{ count: schoolCount }, { count: profileCount }] = await Promise.all([
+        const [{ count: schoolCount }, { count: profileCount }, { data: schoolsData }] = await Promise.all([
           supabase.from('schools').select('*', { count: 'exact', head: true }),
           supabase.from('profiles').select('*', { count: 'exact', head: true }),
+          supabase.from('schools').select('*'),
         ])
         if (mounted) {
           setStats([
@@ -105,6 +107,9 @@ export default function LandingPage() {
             { value: profileCount ? `${profileCount}+` : '0', label: 'Students Managed' },
             { value: '4.9★', label: 'Average Rating' },
           ])
+          if (schoolsData) {
+            setRegisteredSchools(schoolsData)
+          }
         }
       } catch (err) {
         // Keep zeros if fetch fails
@@ -122,7 +127,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block" style={{ background: 'transparent' }} />
+            <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block" />
             <span className="text-2xl font-bold tracking-tight text-slate-900">
               CRAFT <span style={{ color: BRAND.primary }}>SMS</span>
             </span>
@@ -376,6 +381,38 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── Schools Empowered Marquee ──────────────────────── */}
+      <section className="py-24 bg-[#FAF8F5]">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#007A53] mb-3">Our Partners</p>
+          <h2 className="text-4xl font-extrabold tracking-tight text-slate-900 mb-12">Schools Empowered by Craft SMS</h2>
+          
+          <div className="flex flex-wrap justify-center items-center gap-8">
+            {registeredSchools.filter(s => s.status === 'verified').length > 0 ? (
+              registeredSchools.filter(s => s.status === 'verified').map((school) => (
+                <div key={school.id} className="flex items-center justify-center p-6 bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                  {school.logo_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={school.logo_url} alt={school.name} className="h-16 w-auto object-contain" />
+                  ) : (
+                    <span className="font-bold text-slate-800">{school.name}</span>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="flex flex-wrap justify-center gap-6 w-full">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="flex flex-col items-center justify-center h-32 w-48 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50">
+                    <div className="h-12 w-12 rounded-full bg-slate-200/50 mb-3" />
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Awaiting Next<br/>School Onboarding...</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* ── Download Section ─────────────────────────── */}
       <section className="py-24 bg-white relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
@@ -383,7 +420,7 @@ export default function LandingPage() {
             Download Craft SMS Now
           </h2>
           <p className="mt-4 text-lg md:text-xl text-slate-500 max-w-2xl mx-auto font-light leading-relaxed">
-            Selesaikan semua aktivitas sekolah Anda dari tablet atau Smartphone dengan tampilan yang menarik dan mudah digunakan.
+            Manage all your school activities from your tablet or smartphone with an engaging, easy-to-use interface.
           </p>
           <div className="flex justify-center items-center gap-4 mt-10">
             {/* App Store Badge */}
@@ -417,7 +454,7 @@ export default function LandingPage() {
           <div className="md:col-span-4">
             <div className="flex items-center gap-3 mb-8">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-12 w-auto object-contain block" />
+              <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block" />
               <span className="text-3xl font-bold tracking-tight text-white">
                 CRAFT <span style={{ color: BRAND.primary }}>SMS</span>
               </span>
@@ -439,7 +476,7 @@ export default function LandingPage() {
                   <a href="tel:+231880864187" className="hover:text-white transition-colors font-bold text-base block text-[#E5A822]">
                     +231 88 086 4187
                   </a>
-                  <p className="text-xs text-slate-500 mt-1">Jam operasional 08.30 - 16.30</p>
+                  <p className="text-xs text-slate-500 mt-1">Operational Hours: 8:30 AM - 4:30 PM</p>
                 </div>
               </div>
             </div>
@@ -451,7 +488,7 @@ export default function LandingPage() {
 
           {/* Links Columns */}
           <div className="md:col-span-2">
-            <p className="font-bold text-white mb-6">Produk</p>
+            <p className="font-bold text-white mb-6">Products</p>
             <ul className="space-y-4 text-sm font-medium">
               {['siAkadCloud', 'GoFeederCloud', 'AkreditasiCloud', 'ProFeeder', 'CRAFTSMSPay', 'EdLink', 'MauKuliah', 'Karirlink'].map((l) => (
                 <li key={l}><a href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">{l}</a></li>
@@ -460,9 +497,9 @@ export default function LandingPage() {
           </div>
 
           <div className="md:col-span-2">
-            <p className="font-bold text-white mb-6">Perusahaan</p>
+            <p className="font-bold text-white mb-6">Company</p>
             <ul className="space-y-4 text-sm font-medium mb-8">
-              {['Tentang CRAFT SMS', 'Karir', 'Berita'].map((l) => (
+              {['About CRAFT SMS', 'Careers', 'News'].map((l) => (
                 <li key={l}><a href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">{l}</a></li>
               ))}
             </ul>
@@ -477,15 +514,15 @@ export default function LandingPage() {
           <div className="md:col-span-1">
             <p className="font-bold text-white mb-6">Platform</p>
             <ul className="space-y-4 text-sm font-medium">
-              {['CRAFT SMS PRO', 'Panduan', 'Privacy & Policy'].map((l) => (
-                <li key={l}><a href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">{l}</a></li>
-              ))}
+              <li><Link href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">CRAFT SMS PRO</Link></li>
+              <li><Link href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">Guides</Link></li>
+              <li><Link href="/privacy-policy" className="text-slate-400 hover:text-[#007A53] transition-colors">Privacy Policy</Link></li>
             </ul>
           </div>
 
           {/* Social */}
           <div className="md:col-span-2">
-            <p className="font-bold text-white mb-6">Ikuti Craft SMS</p>
+            <p className="font-bold text-white mb-6">Follow Craft SMS</p>
             <div className="flex flex-col gap-4">
               <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-400 hover:text-white group">
                 <div className="w-8 h-8 rounded-md bg-[#1877F2] flex items-center justify-center text-white group-hover:-translate-y-0.5 transition-transform shadow-lg shadow-[#1877F2]/20">

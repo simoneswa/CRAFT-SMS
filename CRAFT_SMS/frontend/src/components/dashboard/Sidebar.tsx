@@ -99,7 +99,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       <div className="p-10 flex flex-col items-center text-center">
         <div className="mb-4">
            {/* eslint-disable-next-line @next/next/no-img-element */}
-           <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-9 w-auto object-contain block mx-auto md:mx-0" style={{ background: 'transparent' }} />
+           <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block mx-auto md:mx-0" />
         </div>
         <div>
           <span className={`text-2xl font-black tracking-tighter block leading-none uppercase ${isSuperAdmin ? 'text-white' : 'text-[var(--brand-heading)]'}`}>CRAFT <span className={`${isSuperAdmin ? 'text-[var(--accent)]' : 'text-[var(--brand-primary)]'}`}>SMS</span></span>
