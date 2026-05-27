@@ -21,6 +21,9 @@ import {
 import { FaInstagram, FaFacebook, FaWhatsapp } from 'react-icons/fa'
 import { supabase } from '@/lib/supabase'
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const BRAND = {
   primary: '#007A53',
   primaryDark: '#005d40',
