@@ -32,7 +32,8 @@ body {
   /* Core brand card styling for the refreshed interface */
   .premium-card {
     @apply bg-[var(--brand-card)] border border-[var(--brand-border)] rounded-[var(--brand-radius-card)] p-[var(--spacing-card)]
-           text-[var(--brand-heading)] shadow-sm transition-all duration-300;
+           text-[var(--brand-heading)] transition-all duration-300;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.04);
     background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.95), transparent);
   }
 
@@ -43,7 +44,8 @@ body {
   /* Brand card without padding - for layouts that manage padding */
   .brand-card {
     @apply bg-[var(--brand-card)] border border-[var(--brand-border)] rounded-[var(--brand-radius-card)]
-           text-[var(--brand-heading)] shadow-sm transition-all duration-300;
+           text-[var(--brand-heading)] transition-all duration-300;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.04);
   }
 
   .brand-card:hover {

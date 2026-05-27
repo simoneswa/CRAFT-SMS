@@ -103,7 +103,7 @@ export default function LoginPage() {
                 <div className="space-y-10 max-w-xl">
                   <div className="flex items-center gap-4">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block" />
+                    <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block bg-transparent" />
                     <div>
                       <p className="text-lg font-semibold text-[var(--brand-heading)]">
                         CRAFT <span className="text-[var(--brand-primary)]">SMS</span>
@@ -164,65 +164,71 @@ export default function LoginPage() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
-                className="absolute right-4 bottom-4 z-20 w-[220px] md:w-[260px] drop-shadow-2xl hidden md:block"
+                className="absolute right-6 bottom-6 z-20 hidden md:block"
               >
-                <div className="rounded-[32px] border-8 border-black bg-white overflow-hidden">
-                  <div className="bg-gradient-to-r from-[var(--brand-primary)] to-teal-600 px-4 py-2 text-white text-[10px] font-bold flex justify-between">
-                    <span>9:41</span>
-                    <span>📶</span>
-                  </div>
-                  <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 space-y-3 h-80">
-                    {/* Header with brand accent and notification badge */}
-                    <div className="flex items-center justify-between rounded-xl bg-[#005d40] px-3 py-2 text-white">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-bold uppercase tracking-wide">NOTIFICATIONS</span>
-                      </div>
+                <div className="relative w-[260px] md:w-[300px]">
+                  {/* Device outer frame */}
+                  <div className="rounded-[36px] bg-black p-1 drop-shadow-[0_25px_25px_rgba(0,0,0,0.15)]">
+                    {/* Bezel / screen */}
+                    <div className="rounded-[32px] bg-white overflow-hidden w-full h-[520px]">
+                      {/* Top status bar and subtle notch */}
                       <div className="relative">
-                        <span className="inline-block rounded-full bg-white/20 px-2 py-0.5 text-xs font-bold">3</span>
+                        <div className="h-10 bg-[var(--brand-primary)] px-4 flex items-center justify-between text-white font-bold text-[11px]">
+                          <span>9:41</span>
+                          <span>📶</span>
+                        </div>
+                        <div className="absolute left-1/2 -translate-x-1/2 -top-2 w-28 h-6 bg-black rounded-b-xl" />
                       </div>
-                    </div>
 
-                    {/* Profile identity card */}
-                    <div className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-slate-200">
-                      <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">SS</div>
-                      <div>
-                        <p className="text-sm font-semibold text-slate-900">Welcome Swadell Simone</p>
-                        <p className="text-xs text-slate-500">Student Dashboard</p>
-                      </div>
-                    </div>
+                      <div className="p-4 space-y-4 h-[452px] bg-gradient-to-b from-slate-50 to-white">
+                        {/* Welcome / identity */}
+                        <div className="flex items-center gap-3">
+                          <div className="h-12 w-12 rounded-full bg-gradient-to-tr from-teal-500 to-emerald-600 flex items-center justify-center text-white font-bold">SS</div>
+                          <div>
+                            <p className="text-sm font-semibold text-[#0A251C]">Welcome, Swaddell Simone</p>
+                            <p className="text-xs text-slate-500">Student Dashboard</p>
+                          </div>
+                        </div>
 
-                    {/* Feature blocks grid */}
-                    <div className="grid grid-cols-1 gap-2">
-                      <div className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-                        <div className="h-8 w-8 rounded-md bg-[#007A53] flex items-center justify-center text-white">J</div>
-                        <div>
-                          <p className="text-xs font-semibold">Jadwal Kelas</p>
-                          <p className="text-[11px] text-slate-500">Matematika • 09:00</p>
+                        {/* Attendance progress card */}
+                        <div className="brand-card p-3">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs font-bold text-slate-600 uppercase">Attendance Rate</p>
+                              <p className="text-2xl font-extrabold text-[#0A251C]">100%</p>
+                            </div>
+                            <div className="h-12 w-12 rounded-full bg-[#007A53] flex items-center justify-center text-white font-bold">✓</div>
+                          </div>
+                          <div className="mt-3 h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-[#007A53] w-[100%] rounded-full" />
+                          </div>
+                        </div>
+
+                        {/* Small feature list */}
+                        <div className="grid grid-cols-1 gap-2">
+                          <div className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-[var(--brand-border)] hover:shadow-lg transition-all duration-300">
+                            <div className="h-8 w-8 rounded-md bg-[#007A53] flex items-center justify-center text-white">J</div>
+                            <div>
+                              <p className="text-xs font-semibold">Jadwal Kelas</p>
+                              <p className="text-[11px] text-slate-500">Matematika • 09:00</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-[var(--brand-border)] hover:shadow-lg transition-all duration-300">
+                            <div className="h-8 w-8 rounded-md bg-[#006342] flex items-center justify-center text-white">N</div>
+                            <div>
+                              <p className="text-xs font-semibold">Nilai Terbaru</p>
+                              <p className="text-[11px] text-slate-500">Matematika 92%</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mt-auto">
+                          <button className="w-full bg-[var(--brand-primary)] text-white text-[12px] font-bold rounded-lg py-3 hover:bg-[#006342] transition">View Dashboard</button>
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-                        <div className="h-8 w-8 rounded-md bg-[#006342] flex items-center justify-center text-white">N</div>
-                        <div>
-                          <p className="text-xs font-semibold">Nilai Terbaru</p>
-                          <p className="text-[11px] text-slate-500">Matematika 92%</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-                        <div className="h-8 w-8 rounded-md bg-emerald-200 flex items-center justify-center text-emerald-800"><CheckCircle2 className="h-4 w-4" /></div>
-                        <div>
-                          <p className="text-xs font-semibold">Attendance: 100%</p>
-                          <p className="text-[11px] text-slate-500">Verified present</p>
-                        </div>
-                      </div>
                     </div>
-
-                    <button className="w-full bg-[var(--brand-primary)] text-white text-[9px] font-bold rounded-lg py-2 mt-auto hover:shadow-lg transition-all duration-300">
-                      VIEW DASHBOARD
-                    </button>
                   </div>
-                  <div className="h-6 bg-black rounded-t-3xl" />
                 </div>
               </motion.div>
             </div>

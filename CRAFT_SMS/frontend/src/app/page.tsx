@@ -115,14 +115,14 @@ export default function LandingPage() {
   }, [])
 
   return (
-    <main className="min-h-screen selection:bg-[#007A53]/20 bg-white text-slate-900 overflow-x-hidden">
+    <main className="min-h-screen selection:bg-[#007A53]/20 bg-[var(--brand-surface)] text-slate-900 overflow-x-hidden">
 
       {/* ── Navbar ─────────────────────────────────── */}
-      <nav className="fixed top-0 w-full z-50 border-b border-gray-100 bg-white/95 backdrop-blur-sm py-3">
+      <nav className="fixed top-0 w-full z-50 border-b border-[var(--brand-border)] bg-[var(--brand-surface)]/95 backdrop-blur-sm py-3">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block" />
+            <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block bg-transparent" />
             <span className="text-2xl font-bold tracking-tight text-slate-900">
               CRAFT <span style={{ color: BRAND.primary }}>SMS</span>
             </span>
@@ -410,7 +410,7 @@ export default function LandingPage() {
           <div className="md:col-span-2">
             <div className="flex items-center gap-3 mb-5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block" />
+              <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block bg-transparent" />
               <div>
                 <p className="font-bold text-slate-900 text-lg">CRAFT SMS</p>
                 <p className="text-xs text-slate-500">Unified Educational Platform</p>
