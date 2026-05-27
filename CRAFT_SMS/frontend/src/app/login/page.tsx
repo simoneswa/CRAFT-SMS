@@ -102,10 +102,8 @@ export default function LoginPage() {
               <div className="w-full md:w-1/2 md:pr-8">
                 <div className="space-y-10 max-w-xl">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-[#007A53] text-white shadow-lg shadow-[#007A53]/20">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain" />
-                    </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block" />
                     <div>
                       <p className="text-lg font-semibold text-[var(--brand-heading)]">
                         CRAFT <span className="text-[var(--brand-primary)]">SMS</span>

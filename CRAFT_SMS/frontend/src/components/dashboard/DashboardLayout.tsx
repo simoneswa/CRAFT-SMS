@@ -170,6 +170,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             >
               <Menu className="w-5 h-5" />
             </button>
+            <div className="md:hidden flex items-center ml-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-8 w-auto object-contain block" />
+            </div>
             <div className="relative max-w-md w-full hidden md:block">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--brand-body)]" />
               <input 
