@@ -8,6 +8,8 @@ router = APIRouter()
 class SchoolCreate(BaseModel):
     name: str
     subdomain: str
+    branding: dict = None
+
 
 @router.post("/schools")
 async def create_school(req: SchoolCreate, user=Depends(RoleChecker(["SUPER_ADMIN"]))):
@@ -15,6 +17,7 @@ async def create_school(req: SchoolCreate, user=Depends(RoleChecker(["SUPER_ADMI
         data = {
             "name": req.name,
             "subdomain": req.subdomain.lower(),
+            "branding": req.branding,
             "is_active": True
         }
         response = supabase_admin.table("schools").insert(data).execute()

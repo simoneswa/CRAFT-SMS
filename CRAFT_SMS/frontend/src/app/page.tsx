@@ -376,99 +376,130 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── CTA Banner ─────────────────────────────── */}
-      <section className="py-20 bg-[#FAF8F5]">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
-            Ready to modernise
-            <br />
-            <span className="text-[#007A53]">your school?</span>
+      {/* ── Download Section ─────────────────────────── */}
+      <section className="py-24 bg-white relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 mb-6">
+            Download Craft SMS Now
           </h2>
-          <p className="mt-5 text-lg text-slate-600">
-            Join hundreds of educators using CRAFT SMS to run smarter, more connected institutions.
+          <p className="mt-4 text-lg md:text-xl text-slate-500 max-w-2xl mx-auto font-light leading-relaxed">
+            Selesaikan semua aktivitas sekolah Anda dari tablet atau Smartphone dengan tampilan yang menarik dan mudah digunakan.
           </p>
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/signup">
-              <button className="inline-flex items-center gap-2 px-9 py-4 rounded-full text-white font-bold bg-[#007A53] hover:bg-[#005d40] hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
-                Get Started — It&apos;s Free <ArrowRight className="h-4 w-4" />
-              </button>
-            </Link>
-            <div className="flex items-center gap-3 px-6 py-4 rounded-full border border-slate-200 bg-white shadow-sm">
-              <Phone className="h-4 w-4 text-slate-500" />
-              <a href="tel:+231880864187" className="text-sm font-semibold text-slate-700 hover:text-[#007A53] transition-colors">
-                +231 88 086 4187
-              </a>
-            </div>
+          <div className="flex justify-center items-center gap-4 mt-10">
+            {/* App Store Badge */}
+            <a href="#" className="hover:-translate-y-1 transition-transform">
+              <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" alt="Download on the App Store" className="h-12 w-auto" />
+            </a>
+            {/* Google Play Badge */}
+            <a href="#" className="hover:-translate-y-1 transition-transform">
+              <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" className="h-[68px] w-auto -mt-2" />
+            </a>
           </div>
+        </div>
+        
+        {/* Illustrations (Using absolute positioning constraints) */}
+        <div className="hidden md:block absolute bottom-0 left-0 w-72 h-auto opacity-90 xl:w-96 pointer-events-none">
+          <img src="/hero-student.jpg" alt="Students Studying" className="w-full h-auto object-cover rounded-tr-[80px]" style={{ mixBlendMode: 'multiply', maskImage: 'linear-gradient(to right, black, transparent)' }} />
+        </div>
+        <div className="hidden md:block absolute bottom-0 right-0 w-72 h-auto opacity-90 xl:w-96 pointer-events-none">
+          <img src="/hero-student.jpg" alt="Students Collaborating" className="w-full h-auto object-cover rounded-tl-[80px]" style={{ mixBlendMode: 'multiply', maskImage: 'linear-gradient(to left, black, transparent)' }} />
         </div>
       </section>
 
       {/* ── Footer ─────────────────────────────────── */}
-      <footer id="contact" className="w-full border-t border-gray-100 bg-white">
-        <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-5 gap-10">
-          {/* Branding */}
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-3 mb-5">
+      <footer id="contact" className="w-full bg-[#1F2128] text-slate-300">
+        <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-12 gap-10">
+          {/* Left Column: Branding & Contact */}
+          <div className="md:col-span-4">
+            <div className="flex items-center gap-3 mb-8">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block" style={{ background: 'transparent' }} />
-              <div>
-                <p className="font-bold text-slate-900 text-lg">CRAFT SMS</p>
-                <p className="text-xs text-slate-500">Unified Educational Platform</p>
-              </div>
+              <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-12 w-auto object-contain block" />
+              <span className="text-3xl font-bold tracking-tight text-white">
+                CRAFT <span style={{ color: BRAND.primary }}>SMS</span>
+              </span>
             </div>
-            <p className="text-sm text-slate-600 leading-relaxed max-w-xs">
-              Empowering schools across West Africa with modern, offline-first school management.
-            </p>
-            <div className="mt-5 space-y-2.5 text-sm text-slate-700">
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-[#007A53]" />
-                <a href="mailto:support.craftsms@gmail.com" className="hover:text-[#007A53] transition-colors">
+            <div className="space-y-5 text-sm">
+              <div className="flex items-center gap-4">
+                <div className="w-11 h-11 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 hover:bg-white/10 transition-colors">
+                  <Mail className="w-5 h-5 text-slate-300" />
+                </div>
+                <a href="mailto:support.craftsms@gmail.com" className="hover:text-white transition-colors font-medium">
                   support.craftsms@gmail.com
                 </a>
               </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-[#007A53]" />
-                <a href="tel:+231880864187" className="hover:text-[#007A53] transition-colors">
-                  +231 88 086 4187
-                </a>
+              <div className="flex items-center gap-4">
+                <div className="w-11 h-11 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 hover:bg-white/10 transition-colors">
+                  <FaWhatsapp className="w-5 h-5 text-slate-300" />
+                </div>
+                <div>
+                  <a href="tel:+231880864187" className="hover:text-white transition-colors font-bold text-base block text-[#E5A822]">
+                    +231 88 086 4187
+                  </a>
+                  <p className="text-xs text-slate-500 mt-1">Jam operasional 08.30 - 16.30</p>
+                </div>
               </div>
-              <p className="text-xs text-slate-400">Mon – Fri, 9:00 – 17:00 (Local Time)</p>
             </div>
-            <p className="mt-6 text-xs text-slate-400">© 2026 CRAFT SMS. All Rights Reserved.</p>
+            <p className="mt-12 text-sm text-slate-500 font-medium">© 2026 CRAFT SMS. All Right Reserved</p>
           </div>
 
-          {/* Products */}
-          <div>
-            <p className="font-semibold text-slate-900 mb-4">Products</p>
-            <ul className="space-y-2.5 text-sm text-slate-600">
-              {['Platform', 'Mobile App', 'Integrations'].map((l) => (
-                <li key={l}><a href="#" className="hover:text-[#007A53] transition-colors">{l}</a></li>
+          {/* Spacer */}
+          <div className="hidden md:block md:col-span-1"></div>
+
+          {/* Links Columns */}
+          <div className="md:col-span-2">
+            <p className="font-bold text-white mb-6">Produk</p>
+            <ul className="space-y-4 text-sm font-medium">
+              {['siAkadCloud', 'GoFeederCloud', 'AkreditasiCloud', 'ProFeeder', 'CRAFTSMSPay', 'EdLink', 'MauKuliah', 'Karirlink'].map((l) => (
+                <li key={l}><a href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">{l}</a></li>
               ))}
             </ul>
           </div>
 
-          {/* Company */}
-          <div>
-            <p className="font-semibold text-slate-900 mb-4">Company</p>
-            <ul className="space-y-2.5 text-sm text-slate-600">
-              {['About', 'Careers', 'Blog'].map((l) => (
-                <li key={l}><a href="#" className="hover:text-[#007A53] transition-colors">{l}</a></li>
+          <div className="md:col-span-2">
+            <p className="font-bold text-white mb-6">Perusahaan</p>
+            <ul className="space-y-4 text-sm font-medium mb-8">
+              {['Tentang CRAFT SMS', 'Karir', 'Berita'].map((l) => (
+                <li key={l}><a href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">{l}</a></li>
+              ))}
+            </ul>
+            <p className="font-bold text-white mb-6">Partner</p>
+            <ul className="space-y-4 text-sm font-medium">
+              {['Perguruan Tinggi', 'Authorized Sales Partner'].map((l) => (
+                <li key={l}><a href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">{l}</a></li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="md:col-span-1">
+            <p className="font-bold text-white mb-6">Platform</p>
+            <ul className="space-y-4 text-sm font-medium">
+              {['CRAFT SMS PRO', 'Panduan', 'Privacy & Policy'].map((l) => (
+                <li key={l}><a href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">{l}</a></li>
               ))}
             </ul>
           </div>
 
           {/* Social */}
-          <div>
-            <p className="font-semibold text-slate-900 mb-4">Follow Us</p>
-            <div className="flex flex-col gap-3">
-              <a href="https://www.instagram.com/craf.tsms?igsh=MTB6M3UzenRwemlzYg%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-[#007A53] hover:text-[#005d40] hover:-translate-y-0.5 transition-all duration-200">
-                <FaInstagram className="w-5 h-5" /><span className="text-sm font-medium">Instagram</span>
+          <div className="md:col-span-2">
+            <p className="font-bold text-white mb-6">Ikuti Craft SMS</p>
+            <div className="flex flex-col gap-4">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-400 hover:text-white group">
+                <div className="w-8 h-8 rounded-md bg-[#1877F2] flex items-center justify-center text-white group-hover:-translate-y-0.5 transition-transform shadow-lg shadow-[#1877F2]/20">
+                  <FaFacebook className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-medium">CRAFT SMS Utama</span>
               </a>
-              <a href="https://www.facebook.com/profile.php?id=61590187690022&mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-[#007A53] hover:text-[#005d40] hover:-translate-y-0.5 transition-all duration-200">
-                <FaFacebook className="w-5 h-5" /><span className="text-sm font-medium">Facebook</span>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-400 hover:text-white group">
+                <div className="w-8 h-8 rounded-md bg-gradient-to-tr from-[#FD1D1D] via-[#E1306C] to-[#833AB4] flex items-center justify-center text-white group-hover:-translate-y-0.5 transition-transform shadow-lg shadow-[#E1306C]/20">
+                  <FaInstagram className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-medium">craftsms_official</span>
               </a>
-              <a href="https://wa.me/231880864187" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-[#007A53] hover:text-[#005d40] hover:-translate-y-0.5 transition-all duration-200">
-                <FaWhatsapp className="w-5 h-5" /><span className="text-sm font-medium">WhatsApp</span>
+              <a href="https://wa.me/231880864187" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-400 hover:text-white group">
+                <div className="w-8 h-8 rounded-md bg-[#25D366] flex items-center justify-center text-white group-hover:-translate-y-0.5 transition-transform shadow-lg shadow-[#25D366]/20">
+                  <FaWhatsapp className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-medium">CRAFT SMS</span>
               </a>
             </div>
           </div>

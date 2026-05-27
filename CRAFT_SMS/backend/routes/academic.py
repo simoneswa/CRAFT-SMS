@@ -12,6 +12,7 @@ class TermReq(BaseModel):
     start_date: str
     end_date: str
     is_current: bool = False
+    school_id: Optional[str] = None
 
 class SubjectReq(BaseModel):
     name: str
@@ -59,8 +60,8 @@ async def get_terms(user=Depends(get_current_user)):
     return resp.data
 
 @router.post("/terms")
-async def create_term(req: TermReq, user=Depends(RoleChecker(["SCHOOL_ADMIN"]))):
-    school_id = user["profile"]["school_id"]
+async def create_term(req: TermReq, user=Depends(RoleChecker(["SUPER_ADMIN", "SCHOOL_ADMIN"]))):
+    school_id = req.school_id if req.school_id and user["profile"]["role"] == "SUPER_ADMIN" else user["profile"]["school_id"]
     
     # If this term is set as current, unset others
     if req.is_current:
