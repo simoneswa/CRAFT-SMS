@@ -103,7 +103,7 @@ export default function LoginPage() {
                 <div className="space-y-10 max-w-xl">
                   <div className="flex items-center gap-4">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block bg-transparent" />
+                    <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain block" style={{ background: 'transparent' }} />
                     <div>
                       <p className="text-lg font-semibold text-[var(--brand-heading)]">
                         CRAFT <span className="text-[var(--brand-primary)]">SMS</span>
@@ -163,69 +163,90 @@ export default function LoginPage() {
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
                 className="absolute right-6 bottom-6 z-20 hidden md:block"
               >
-                <div className="relative w-[260px] md:w-[300px]">
-                  {/* Device outer frame */}
-                  <div className="rounded-[36px] bg-black p-1 drop-shadow-[0_25px_25px_rgba(0,0,0,0.15)]">
-                    {/* Bezel / screen */}
-                    <div className="rounded-[32px] bg-white overflow-hidden w-full h-[520px]">
-                      {/* Top status bar and subtle notch */}
-                      <div className="relative">
-                        <div className="h-10 bg-[var(--brand-primary)] px-4 flex items-center justify-between text-white font-bold text-[11px]">
+                <div className="relative w-[260px] md:w-[295px]">
+                  {/* Device outer frame — midnight black bezel */}
+                  <div className="rounded-[36px] bg-[#111111] p-[3px] drop-shadow-[0_30px_40px_rgba(0,0,0,0.22)] ring-1 ring-white/5">
+                    {/* Screen glass */}
+                    <div className="rounded-[34px] bg-white overflow-hidden w-full flex flex-col" style={{ height: 540 }}>
+
+                      {/* ── Green Header Panel ── */}
+                      <div className="relative flex-shrink-0 bg-[#007A53]" style={{ paddingTop: 28, paddingBottom: 20, paddingLeft: 16, paddingRight: 16 }}>
+                        {/* Dynamic island / notch */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-[#111111] rounded-b-2xl z-10" />
+                        {/* Status row */}
+                        <div className="flex items-center justify-between text-white/80 text-[10px] font-semibold mb-3">
                           <span>9:41</span>
-                          <span>📶</span>
+                          <span className="flex items-center gap-1">📶 🔋</span>
                         </div>
-                        <div className="absolute left-1/2 -translate-x-1/2 -top-2 w-28 h-6 bg-black rounded-b-xl" />
+                        {/* Greeting + Avatar */}
+                        <div className="flex items-center gap-3">
+                          <div className="h-11 w-11 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0">AB</div>
+                          <div>
+                            <p className="text-white/70 text-[10px] font-medium">CRAFT SMS — Student Portal</p>
+                            <p className="text-white font-bold text-[13px] leading-tight">Selamat Pagi, Alex Brandon</p>
+                            <span className="inline-block mt-1 bg-white/20 text-white/90 text-[9px] font-bold px-2 py-0.5 rounded-full tracking-wide">✓ Active Student</span>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="p-4 space-y-4 h-[452px] bg-gradient-to-b from-slate-50 to-white">
-                        {/* Welcome / identity */}
-                        <div className="flex items-center gap-3">
-                          <div className="h-12 w-12 rounded-full bg-gradient-to-tr from-teal-500 to-emerald-600 flex items-center justify-center text-white font-bold">SS</div>
-                          <div>
-                            <p className="text-sm font-semibold text-[#0A251C]">Welcome, Swaddell Simone</p>
-                            <p className="text-xs text-slate-500">Student Dashboard</p>
-                          </div>
-                        </div>
+                      {/* ── Dashboard Body ── */}
+                      <div className="flex-1 overflow-hidden bg-gradient-to-b from-[#F4F7F5] to-white p-3 space-y-2.5">
 
-                        {/* Attendance progress card */}
-                        <div className="brand-card p-3">
+                        {/* Attendance metric card */}
+                        <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-3">
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="text-xs font-bold text-slate-600 uppercase">Attendance Rate</p>
-                              <p className="text-2xl font-extrabold text-[#0A251C]">100%</p>
+                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Attendance Rate</p>
+                              <p className="text-[26px] font-extrabold text-[#0A251C] leading-none mt-0.5">100%</p>
+                              <p className="text-[9px] text-[#007A53] font-semibold mt-0.5">Perfect Record ↑</p>
                             </div>
-                            <div className="h-12 w-12 rounded-full bg-[#007A53] flex items-center justify-center text-white font-bold">✓</div>
+                            <div className="h-11 w-11 rounded-full bg-[#007A53] flex items-center justify-center shadow-md">
+                              <CheckCircle2 className="h-5 w-5 text-white" />
+                            </div>
                           </div>
-                          <div className="mt-3 h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-[#007A53] w-[100%] rounded-full" />
+                          {/* Progress bar */}
+                          <div className="mt-2.5 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-[#007A53] rounded-full" style={{ width: '100%' }} />
                           </div>
                         </div>
 
-                        {/* Small feature list */}
-                        <div className="grid grid-cols-1 gap-2">
-                          <div className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-[var(--brand-border)] hover:shadow-lg transition-all duration-300">
-                            <div className="h-8 w-8 rounded-md bg-[#007A53] flex items-center justify-center text-white">J</div>
-                            <div>
-                              <p className="text-xs font-semibold">Jadwal Kelas</p>
-                              <p className="text-[11px] text-slate-500">Matematika • 09:00</p>
+                        {/* Class schedule items */}
+                        <div className="space-y-1.5">
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-1">Today&apos;s Schedule</p>
+                          <div className="flex items-center gap-2.5 bg-white rounded-xl px-3 py-2 border border-slate-100 shadow-sm">
+                            <div className="h-7 w-7 rounded-lg bg-[#007A53] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">M</div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[11px] font-semibold text-slate-800 truncate">Matematika</p>
+                              <p className="text-[9px] text-slate-400">09:00 – 10:30</p>
                             </div>
+                            <span className="text-[8px] bg-emerald-50 text-[#007A53] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">Live</span>
                           </div>
-
-                          <div className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-[var(--brand-border)] hover:shadow-lg transition-all duration-300">
-                            <div className="h-8 w-8 rounded-md bg-[#006342] flex items-center justify-center text-white">N</div>
-                            <div>
-                              <p className="text-xs font-semibold">Nilai Terbaru</p>
-                              <p className="text-[11px] text-slate-500">Matematika 92%</p>
+                          <div className="flex items-center gap-2.5 bg-white rounded-xl px-3 py-2 border border-slate-100 shadow-sm">
+                            <div className="h-7 w-7 rounded-lg bg-[#006342] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">B</div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[11px] font-semibold text-slate-800 truncate">Biologi</p>
+                              <p className="text-[9px] text-slate-400">11:00 – 12:30</p>
                             </div>
+                            <span className="text-[8px] bg-slate-100 text-slate-400 font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">Next</span>
                           </div>
                         </div>
 
-                        <div className="mt-auto">
-                          <button className="w-full bg-[var(--brand-primary)] text-white text-[12px] font-bold rounded-lg py-3 hover:bg-[#006342] transition">View Dashboard</button>
+                        {/* Latest grade */}
+                        <div className="flex items-center gap-2.5 rounded-xl bg-[#007A53]/8 border border-[#007A53]/15 px-3 py-2">
+                          <div className="h-7 w-7 rounded-lg bg-[#007A53]/20 flex items-center justify-center text-[#007A53] text-[10px] font-extrabold flex-shrink-0">92</div>
+                          <div>
+                            <p className="text-[10px] font-semibold text-slate-700">Latest Grade — Matematika</p>
+                            <p className="text-[9px] text-[#007A53] font-medium">Excellent Performance</p>
+                          </div>
                         </div>
+
+                        {/* CTA */}
+                        <button className="w-full bg-[#007A53] text-white text-[11px] font-bold rounded-xl py-2.5 hover:bg-[#006342] transition-colors shadow-sm">
+                          Open Full Dashboard →
+                        </button>
                       </div>
                     </div>
                   </div>
