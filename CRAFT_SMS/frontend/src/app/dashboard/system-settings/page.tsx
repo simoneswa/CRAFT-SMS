@@ -27,24 +27,24 @@ export default function SystemSettingsPage() {
     <>
       <div className="space-y-8">
         <header>
-          <h1 className="text-3xl font-bold mb-2 text-white">System <span className="gradient-text">Settings</span></h1>
-          <p className="text-gray-400">Configure global platform behavior and security defaults.</p>
+          <h1 className="text-3xl font-bold mb-2 text-slate-900">System <span className="gradient-text">Settings</span></h1>
+          <p className="text-slate-600">Configure global platform behavior and security defaults.</p>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             {/* General Configuration */}
-            <div className="premium-card">
-              <h3 className="text-lg font-bold mb-6 flex items-center gap-2 text-white">
-                <Globe className="w-5 h-5 text-teal-400" />
+            <div className="premium-card bg-white border border-slate-200">
+              <h3 className="text-lg font-bold mb-6 flex items-center gap-2 text-slate-900">
+                <Globe className="w-5 h-5 text-teal-600" />
                 Platform Controls
               </h3>
               
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-bold text-white">Maintenance Mode</p>
-                    <p className="text-xs text-gray-500">Disable access for all non-admin users across all tenants.</p>
+                    <p className="font-bold text-slate-900">Maintenance Mode</p>
+                    <p className="text-xs text-slate-600">Disable access for all non-admin users across all tenants.</p>
                   </div>
                   <button 
                     onClick={() => setSettings({...settings, maintenanceMode: !settings.maintenanceMode})}
@@ -56,8 +56,8 @@ export default function SystemSettingsPage() {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-bold text-white">Allow New School Registrations</p>
-                    <p className="text-xs text-gray-500">Toggle whether new schools can request access on the landing page.</p>
+                    <p className="font-bold text-slate-900">Allow New School Registrations</p>
+                    <p className="text-xs text-slate-600">Toggle whether new schools can request access on the landing page.</p>
                   </div>
                   <button 
                     onClick={() => setSettings({...settings, allowNewRegistrations: !settings.allowNewRegistrations})}
@@ -68,32 +68,32 @@ export default function SystemSettingsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="section-label">Default API Rate Limit (req/min)</label>
+                  <label className="section-label text-slate-900">Default API Rate Limit (req/min)</label>
                   <input 
                     type="number"
                     value={settings.apiRateLimit}
                     onChange={(e) => setSettings({...settings, apiRateLimit: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500/50 transition-all text-white"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500/50 transition-all text-slate-900"
                   />
                 </div>
               </div>
             </div>
 
             {/* Security Settings */}
-            <div className="premium-card">
-              <h3 className="text-lg font-bold mb-6 flex items-center gap-2 text-white">
-                <Shield className="w-5 h-5 text-blue-400" />
+            <div className="premium-card bg-white border border-slate-200">
+              <h3 className="text-lg font-bold mb-6 flex items-center gap-2 text-slate-900">
+                <Shield className="w-5 h-5 text-blue-600" />
                 Security & RBAC
               </h3>
               <div className="space-y-4">
-                <p className="text-sm text-gray-400 mb-4">Manage system-wide security defaults for all school administrators.</p>
-                <div className="flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-xl">
-                   <span className="text-sm text-white">Enforce 2FA for Teachers & Admins</span>
-                   <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest bg-amber-500/10 px-2 py-1 rounded">Dev Only</span>
+                <p className="text-sm text-slate-600 mb-4">Manage system-wide security defaults for all school administrators.</p>
+                <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-xl">
+                   <span className="text-sm text-slate-900 font-medium">Enforce 2FA for Teachers & Admins</span>
+                   <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-100 px-2 py-1 rounded">Dev Only</span>
                 </div>
-                <div className="flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-xl">
-                   <span className="text-sm text-white">IP Whitelisting for Super Admins</span>
-                   <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-1 rounded">Active</span>
+                <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-xl">
+                   <span className="text-sm text-slate-900 font-medium">IP Whitelisting for Super Admins</span>
+                   <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest bg-emerald-100 px-2 py-1 rounded">Active</span>
                 </div>
               </div>
             </div>
@@ -101,9 +101,9 @@ export default function SystemSettingsPage() {
 
           <div className="space-y-6">
             {/* Save Actions */}
-            <div className="premium-card sticky top-24">
-              <h3 className="text-lg font-bold mb-4 text-white">Publish Changes</h3>
-              <p className="text-xs text-gray-500 mb-6">Updates here take effect immediately across all system nodes.</p>
+            <div className="premium-card bg-white border border-slate-200 sticky top-24">
+              <h3 className="text-lg font-bold mb-4 text-slate-900">Publish Changes</h3>
+              <p className="text-xs text-slate-600 mb-6">Updates here take effect immediately across all system nodes.</p>
               
               <button 
                 onClick={handleSave}
@@ -120,12 +120,12 @@ export default function SystemSettingsPage() {
                 )}
               </button>
               
-              <div className="mt-4 p-4 rounded-xl bg-blue-500/5 border border-blue-500/10">
+              <div className="mt-4 p-4 rounded-xl bg-blue-50 border border-blue-100">
                 <div className="flex items-center gap-2 mb-2">
-                  <Database className="w-4 h-4 text-blue-400" />
-                  <span className="text-xs font-bold text-blue-400 uppercase tracking-widest">Storage Status</span>
+                  <Database className="w-4 h-4 text-blue-600" />
+                  <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">Storage Status</span>
                 </div>
-                <p className="text-[10px] text-gray-500 leading-relaxed">
+                <p className="text-[10px] text-slate-600 leading-relaxed">
                   Last sync: {new Date().toLocaleTimeString()}
                   <br />
                   Persistence: Cloud-replicated

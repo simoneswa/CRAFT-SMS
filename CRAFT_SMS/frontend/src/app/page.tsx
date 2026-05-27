@@ -172,8 +172,11 @@ export default function LandingPage() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#007A53]/10 text-[#007A53] text-xs font-bold uppercase tracking-widest mb-8">
               <CheckCircle2 className="h-3.5 w-3.5" />
-              Trusted by 50+ Schools across West Africa
+              Offline-First System Architecture
             </div>
+            <p className="text-sm text-slate-600 mb-8 max-w-xl mx-auto font-medium">
+              Data automatically logs without an internet connection and syncs seamlessly once networks become stable.
+            </p>
 
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] text-slate-900">
               Unified School Management
