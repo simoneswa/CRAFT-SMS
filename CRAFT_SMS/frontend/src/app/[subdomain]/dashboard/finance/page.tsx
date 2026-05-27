@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   CreditCard, 
@@ -39,27 +39,27 @@ export default function FinancePage() {
   
   const isBusiness = profile?.role === 'BUSINESS' || profile?.role === 'SCHOOL_ADMIN'
 
-  useEffect(() => {
-    if (school?.id && profile) {
-      fetchSlips()
-    }
-  }, [filter, school, profile])
+  // Stabilise primitive deps to prevent identity-change re-render loops.
+  const schoolId = school?.id
+  const profileId = profile?.id
+  const profileRole = profile?.role
 
-  const fetchSlips = async () => {
+  const fetchSlips = useCallback(async () => {
+    if (!schoolId) return
     setIsLoading(true)
     try {
       let query = supabase
         .from('slips')
         .select('*, profiles!student_id(full_name, custom_id)')
-        .eq('school_id', school?.id)
+        .eq('school_id', schoolId)
         .order('created_at', { ascending: false })
 
       if (filter !== 'ALL') {
         query = query.eq('status', filter)
       }
 
-      if (profile?.role === 'STUDENT') {
-        query = query.eq('student_id', profile.id)
+      if (profileRole === 'STUDENT' && profileId) {
+        query = query.eq('student_id', profileId)
       }
 
       const { data, error } = await query
@@ -68,9 +68,16 @@ export default function FinancePage() {
     } catch (err) {
       console.error('Error fetching slips:', err)
     } finally {
+      // Always clear loading — even on network failure — to prevent endless spinner.
       setIsLoading(false)
     }
-  }
+  }, [schoolId, profileId, profileRole, filter])
+
+  useEffect(() => {
+    if (schoolId && profileId) {
+      fetchSlips()
+    }
+  }, [fetchSlips, schoolId, profileId])
 
   const handleVerify = async (slipId: string, status: 'VERIFIED' | 'REJECTED', notes?: string) => {
     setIsSubmitting(true)
