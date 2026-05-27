@@ -1,104 +1,155 @@
-"use client"
-
 import React from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { GraduationCap, ArrowLeft, Book, Shield, Zap, Globe, Code } from 'lucide-react'
+import type { Metadata } from 'next'
 
-export default function DocsPage() {
+export const metadata: Metadata = {
+  title: 'Platform Operations Guide — CRAFT SMS',
+  description: 'Read the CRAFT SMS Platform Operations Guide. Last updated May 27, 2026.',
+}
+
+export default function GuidesPage() {
   return (
-    <main className="min-h-screen bg-[#030712] text-white flex flex-col">
-      {/* Header */}
-      <nav className="border-b border-white/5 bg-black/20 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-tr from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/20">
-                <GraduationCap className="text-white w-6 h-6" />
-              </div>
-              <span className="text-2xl font-bold tracking-tight">CRAFT <span className="text-teal-400">SMS</span></span>
-            </Link>
-            <div className="h-6 w-px bg-white/10" />
-            <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Documentation</span>
-          </div>
-
-          <Link href="/login">
-            <button className="px-6 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-sm transition-all">
-              Sign In
-            </button>
+    <main className="min-h-screen bg-[#FAF8F5] text-slate-800">
+      {/* Top Nav */}
+      <nav className="border-b border-slate-200 bg-white/90 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 group">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-8 w-auto object-contain block" />
+            <span className="font-bold text-slate-900 text-lg tracking-tight">
+              CRAFT <span className="text-[#007A53]">SMS</span>
+            </span>
+          </Link>
+          <Link
+            href="/"
+            className="text-sm font-semibold text-[#007A53] hover:text-[#005d40] transition-colors"
+          >
+            ← Back to Home
           </Link>
         </div>
       </nav>
 
-      <div className="flex-1 flex max-w-7xl mx-auto w-full">
-        {/* Sidebar */}
-        <aside className="w-64 border-r border-white/5 p-8 hidden lg:block sticky top-20 h-[calc(100vh-80px)]">
-          <div className="space-y-8">
-            <div>
-              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Getting Started</h3>
-              <ul className="space-y-3">
-                {['Introduction', 'Quickstart', 'Architecture'].map((item) => (
-                  <li key={item}><span className="text-sm text-teal-400 font-medium opacity-80">{item}</span></li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Core Concepts</h3>
-              <ul className="space-y-3">
-                {['Multi-Tenancy', 'Row Level Security', 'Offline Sync'].map((item) => (
-                  <li key={item}>
-                    <span className="text-sm text-gray-400 opacity-80">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </aside>
+      <div className="max-w-4xl mx-auto px-6 py-12 bg-[#FAF8F5] text-slate-800">
+        <h1 className="text-3xl font-bold text-slate-900 mb-2">CRAFT SMS — Platform Operations Guide</h1>
+        <p className="text-sm text-slate-500 mb-6">Last Updated: May 27, 2026</p>
+        
+        <section>
+          <h2 className="text-2xl font-bold mt-8 mb-4 text-slate-900">SECTION: Introduction</h2>
+          <p className="mb-4 leading-relaxed text-slate-600">CRAFT SMS (Centralized Resource for Academic & Financial Tracking) is a next-generation school management platform designed for African educational institutions.</p>
+          <p className="mb-2 leading-relaxed text-slate-600">The platform combines:</p>
+          <ul className="list-disc pl-6 mb-6 text-slate-600 space-y-1">
+            <li>Academic management</li>
+            <li>Student tracking</li>
+            <li>Financial systems</li>
+            <li>Real-time communication</li>
+            <li>Offline-first synchronization</li>
+            <li>Multi-tenant architecture</li>
+            <li>Enterprise-grade security</li>
+          </ul>
+          <p className="mb-6 leading-relaxed text-slate-600">CRAFT SMS is optimized for low-bandwidth environments and supports schools operating in both urban and rural internet conditions.</p>
+        </section>
 
-        {/* Content */}
-        <div className="flex-1 p-8 lg:p-16 max-w-4xl">
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="prose prose-invert prose-teal max-w-none"
-          >
-            <h1 className="text-4xl font-extrabold mb-8">Documentation</h1>
-            
-            <p className="text-gray-400 text-lg mb-12 leading-relaxed">
-              Welcome to the CRAFT SMS documentation. CRAFT (Centralized Resource for Academic & Financial Tracking) 
-              is a next-generation school management system built for the unique challenges of the West African educational landscape.
-            </p>
+        <section>
+          <h2 className="text-2xl font-bold mt-8 mb-4 text-slate-900">SECTION: Quickstart</h2>
+          <p className="mb-2 leading-relaxed text-slate-600 font-semibold">Requirements:</p>
+          <ul className="list-disc pl-6 mb-4 text-slate-600 space-y-1">
+            <li>Node.js 20+</li>
+            <li>PostgreSQL</li>
+            <li>Supabase Project</li>
+            <li>Railway or VPS deployment</li>
+            <li>Modern browser</li>
+          </ul>
+          <p className="mb-2 leading-relaxed text-slate-600 font-semibold">Installation Steps:</p>
+          <ol className="list-decimal pl-6 mb-4 text-slate-600 space-y-1">
+            <li>Clone repository</li>
+            <li>Install dependencies</li>
+            <li>Configure environment variables</li>
+            <li>Run database migrations</li>
+            <li>Start frontend and backend services</li>
+          </ol>
+          <p className="mb-2 leading-relaxed text-slate-600 font-semibold">Development:</p>
+          <p className="mb-1 leading-relaxed text-slate-600">Frontend: <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-800">npm run dev</code></p>
+          <p className="mb-4 leading-relaxed text-slate-600">Backend: <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-800">uvicorn main:app --reload</code></p>
+          <p className="mb-2 leading-relaxed text-slate-600 font-semibold">Production Deployment:</p>
+          <p className="mb-1 leading-relaxed text-slate-600">Frontend: Vercel, Netlify</p>
+          <p className="mb-6 leading-relaxed text-slate-600">Backend: Railway, Docker VPS, Render</p>
+        </section>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-              {[
-                { title: 'Security First', desc: 'Isolated data per school using PostgreSQL RLS.', icon: Shield },
-                { title: 'Offline-First', desc: 'Sync data in 2G/3G environments seamlessly.', icon: Zap },
-                { title: 'Multi-Tenant', desc: 'Dedicated subdomains for every institution.', icon: Globe },
-                { title: 'API Access', desc: 'Integrate with local payment gateways easily.', icon: Code },
-              ].map((feature, i) => (
-                <div key={i} className="premium-card">
-                  <feature.icon className="text-teal-400 w-8 h-8 mb-4" />
-                  <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{feature.desc}</p>
-                </div>
-              ))}
-            </div>
+        <section>
+          <h2 className="text-2xl font-bold mt-8 mb-4 text-slate-900">SECTION: Architecture</h2>
+          <p className="mb-4 leading-relaxed text-slate-600">CRAFT SMS follows a distributed multi-tenant architecture.</p>
+          <p className="mb-2 leading-relaxed text-slate-600 font-semibold">Core Stack:</p>
+          <ul className="list-disc pl-6 mb-4 text-slate-600 space-y-1">
+            <li>Frontend: Next.js</li>
+            <li>Backend: FastAPI</li>
+            <li>Database: PostgreSQL</li>
+            <li>Realtime: Supabase</li>
+            <li>Auth: JWT + RLS</li>
+            <li>Offline Cache: IndexedDB</li>
+            <li>Sync Engine: Service Worker Layer</li>
+          </ul>
+          <p className="mb-6 leading-relaxed text-slate-600">Each institution operates as an isolated tenant with dedicated security boundaries.</p>
+        </section>
 
-            <h2 className="text-2xl font-bold mb-6">System Architecture</h2>
-            <p className="text-gray-400 mb-8">
-              CRAFT SMS utilizes a distributed architecture with a centralized FastAPI backend and a Supabase storage layer. 
-              Each school is treated as a first-class tenant with its own secure data silo.
-            </p>
+        <section>
+          <h2 className="text-2xl font-bold mt-8 mb-6 text-slate-900 border-b pb-2">CORE CONCEPTS</h2>
+          
+          <h3 className="text-xl font-bold mt-6 mb-3 text-slate-900">SECTION: Multi-Tenancy</h3>
+          <p className="mb-2 leading-relaxed text-slate-600">Each school in CRAFT SMS is treated as a secure tenant.</p>
+          <p className="mb-2 leading-relaxed text-slate-600"><strong>Features:</strong> Dedicated subdomains, Isolated database rows, Tenant-aware authentication, Independent branding, Scoped permissions, School-level analytics.</p>
+          <p className="mb-6 leading-relaxed text-slate-600"><strong>Example:</strong> school-a.craftsms.app, school-b.craftsms.app</p>
 
-            <div className="p-8 rounded-2xl bg-teal-500/5 border border-teal-500/20">
-              <h3 className="text-teal-400 font-bold mb-2">Need Help?</h3>
-              <p className="text-sm text-gray-400">
-                Contact our support team in Monrovia for on-site onboarding and technical assistance.
-              </p>
-            </div>
-          </motion.div>
-        </div>
+          <h3 className="text-xl font-bold mt-6 mb-3 text-slate-900">SECTION: Row Level Security (RLS)</h3>
+          <p className="mb-2 leading-relaxed text-slate-600">CRAFT SMS uses PostgreSQL Row Level Security.</p>
+          <p className="mb-2 leading-relaxed text-slate-600"><strong>Benefits:</strong> Prevents cross-school data leaks, Secure per-user access, Backend-enforced authorization, Zero-trust architecture. Every query is filtered using: tenant_id, role permissions, ownership policies.</p>
+
+          <h3 className="text-xl font-bold mt-6 mb-3 text-slate-900">SECTION: Offline Sync</h3>
+          <p className="mb-2 leading-relaxed text-slate-600">CRAFT SMS is designed for unstable internet environments.</p>
+          <p className="mb-6 leading-relaxed text-slate-600"><strong>Offline capabilities:</strong> Cached dashboards, Local attendance capture, Queue-based synchronization, Conflict resolution engine, Background sync workers. The platform automatically syncs once internet becomes available.</p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-bold mt-8 mb-6 text-slate-900 border-b pb-2">SYSTEM MODULES</h2>
+          <ul className="list-disc pl-6 mb-6 text-slate-600 space-y-2">
+            <li><strong>Student Management:</strong> Enrollment, Student profiles, Guardian record, Attendance tracking, Academic history, Class assignments.</li>
+            <li><strong>Teacher Portal:</strong> Mark attendance, Upload grades, Send announcements, Create assignments, Message parents, Access analytics.</li>
+            <li><strong>Parent Portal:</strong> Attendance alerts, Fee notifications, Assignment updates, Performance reports, School announcements.</li>
+            <li><strong>Financial System:</strong> Payment tracking, Receipt generation, Outstanding balances, Financial analytics, Payment gateway integrations.</li>
+            <li><strong>Messaging System:</strong> Contains an internal messaging engine supporting SMS, Push notifications, Internal messaging, Email alerts, and Emergency broadcasts. Features queue retry systems and offline dispatching.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-bold mt-8 mb-6 text-slate-900 border-b pb-2">SECURITY & DEPLOYMENT</h2>
+          <ul className="list-disc pl-6 mb-6 text-slate-600 space-y-2">
+            <li><strong>Authentication:</strong> JWT Access Tokens, Refresh Tokens, Role-based permissions, Session isolation, Secure cookie storage.</li>
+            <li><strong>Data Protection:</strong> HTTPS encryption, Database isolation, API validation, Rate limiting, Device fingerprint monitoring, Audit logging.</li>
+            <li><strong>Frontend Variables:</strong> NEXT_PUBLIC_API_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-bold mt-8 mb-6 text-slate-900 border-b pb-2">API DOCUMENTATION & ADMINISTRATION</h2>
+          <ul className="list-disc pl-6 mb-6 text-slate-600 space-y-2">
+            <li><strong>Authentication API:</strong> POST /api/auth/login, POST /api/auth/refresh, POST /api/auth/logout.</li>
+            <li><strong>Students API:</strong> GET /api/students, POST /api/students, PATCH /api/students/:id, DELETE /api/students/:id.</li>
+            <li><strong>Attendance API:</strong> POST /api/attendance/check-in, GET /api/attendance/report.</li>
+            <li><strong>Super Admin Features:</strong> Tenant creation, School management, Platform analytics, Global monitoring, Subscription management, System logs.</li>
+            <li><strong>School Admin Features:</strong> Manage students, Manage teachers, Generate reports, Configure grading systems, Handle communications.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-bold mt-8 mb-6 text-slate-900 border-b pb-2">PERFORMANCE & ROADMAP</h2>
+          <p className="mb-6 leading-relaxed text-slate-600">Optimized for low-RAM devices, slow internet, mobile-first usage, progressive loading, and edge caching. Planned features include AI academic analytics, voice announcements, biometric attendance, offline desktop mode, AI grading assistant, and national exam integration.</p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-bold mt-8 mb-6 text-slate-900 border-b pb-2">SUPPORT SECTION</h2>
+          <p className="mb-6 leading-relaxed text-slate-600"><strong>Support Channels:</strong> Technical Support, Deployment Assistance, School Onboarding, Infrastructure Consultation, Security Audits.</p>
+        </section>
+
       </div>
     </main>
-  )
+  );
 }

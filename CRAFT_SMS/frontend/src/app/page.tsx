@@ -515,7 +515,7 @@ export default function LandingPage() {
             <p className="font-bold text-white mb-6">Platform</p>
             <ul className="space-y-4 text-sm font-medium">
               <li><Link href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">CRAFT SMS PRO</Link></li>
-              <li><Link href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">Guides</Link></li>
+              <li><Link href="/docs" className="text-slate-400 hover:text-[#007A53] transition-colors">Guides</Link></li>
               <li><Link href="/privacy-policy" className="text-slate-400 hover:text-[#007A53] transition-colors">Privacy Policy</Link></li>
             </ul>
           </div>
