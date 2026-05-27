@@ -103,7 +103,7 @@ export default function LoginPage() {
                 <div className="space-y-10 max-w-xl">
                   <div className="flex items-center gap-4">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-10 w-auto object-contain" />
+                    <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-14 w-auto object-contain block" />
                     <div>
                       <p className="text-lg font-semibold text-[var(--brand-heading)]">
                         CRAFT <span className="text-[var(--brand-primary)]">SMS</span>
@@ -168,7 +168,7 @@ export default function LoginPage() {
               >
                 <div className="relative w-[260px] md:w-[295px]">
                   {/* Device outer frame — midnight black bezel */}
-                  <div className="rounded-[36px] bg-[#111111] p-[3px] drop-shadow-[0_30px_40px_rgba(0,0,0,0.22)] ring-1 ring-white/5">
+                  <div className="border-4 border-[#007A53] rounded-[36px] overflow-hidden shadow-2xl transition-all duration-300">
                     {/* Screen glass */}
                     <div className="rounded-[34px] bg-white overflow-hidden w-full flex flex-col" style={{ height: 540 }}>
 
@@ -186,7 +186,7 @@ export default function LoginPage() {
                           <div className="h-11 w-11 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0">AB</div>
                           <div>
                             <p className="text-white/70 text-[10px] font-medium">CRAFT SMS — Student Portal</p>
-                            <p className="text-white font-bold text-[13px] leading-tight">Selamat Pagi, Alex Brandon</p>
+                            <p className="text-white font-bold text-[13px] leading-tight">Good morning, Simone Swaray</p>
                             <span className="inline-block mt-1 bg-white/20 text-white/90 text-[9px] font-bold px-2 py-0.5 rounded-full tracking-wide">✓ Active Student</span>
                           </div>
                         </div>
@@ -219,7 +219,7 @@ export default function LoginPage() {
                           <div className="flex items-center gap-2.5 bg-white rounded-xl px-3 py-2 border border-slate-100 shadow-sm">
                             <div className="h-7 w-7 rounded-lg bg-[#007A53] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">M</div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-[11px] font-semibold text-slate-800 truncate">Matematika</p>
+                              <p className="text-[11px] font-semibold text-slate-800 truncate">Mathematics</p>
                               <p className="text-[9px] text-slate-400">09:00 – 10:30</p>
                             </div>
                             <span className="text-[8px] bg-emerald-50 text-[#007A53] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">Live</span>
@@ -227,7 +227,7 @@ export default function LoginPage() {
                           <div className="flex items-center gap-2.5 bg-white rounded-xl px-3 py-2 border border-slate-100 shadow-sm">
                             <div className="h-7 w-7 rounded-lg bg-[#006342] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">B</div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-[11px] font-semibold text-slate-800 truncate">Biologi</p>
+                              <p className="text-[11px] font-semibold text-slate-800 truncate">Biology</p>
                               <p className="text-[9px] text-slate-400">11:00 – 12:30</p>
                             </div>
                             <span className="text-[8px] bg-slate-100 text-slate-400 font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">Next</span>
@@ -238,7 +238,7 @@ export default function LoginPage() {
                         <div className="flex items-center gap-2.5 rounded-xl bg-[#007A53]/8 border border-[#007A53]/15 px-3 py-2">
                           <div className="h-7 w-7 rounded-lg bg-[#007A53]/20 flex items-center justify-center text-[#007A53] text-[10px] font-extrabold flex-shrink-0">92</div>
                           <div>
-                            <p className="text-[10px] font-semibold text-slate-700">Latest Grade — Matematika</p>
+                            <p className="text-[10px] font-semibold text-slate-700">Latest Grade — Mathematics</p>
                             <p className="text-[9px] text-[#007A53] font-medium">Excellent Performance</p>
                           </div>
                         </div>

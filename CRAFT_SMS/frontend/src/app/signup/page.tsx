@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { GraduationCap, User, Building, ArrowRight, CheckCircle } from 'lucide-react'
-import { fetchAPI } from '@/lib/api'
+import { supabase } from '@/lib/supabase'
 
 export default function SignupPage() {
   const [step, setStep] = useState(1)
@@ -23,13 +23,22 @@ export default function SignupPage() {
     setError(null)
 
     try {
-      // Simulate backend API call to register institution request
-      // In a full production implementation, this would POST to /api/v1/onboarding
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Simulate validation failure for empty fields
       if (!formData.fullName || !formData.email || !formData.institutionName) {
          throw new Error("Please fill out all required fields.")
+      }
+
+      const { error: dbError } = await supabase.from('schools').insert([{
+        name: formData.institutionName,
+        subdomain: formData.institutionName.toLowerCase().replace(/[^a-z0-9]/g, ''),
+        branding: {
+          contact_name: formData.fullName,
+          contact_email: formData.email
+        },
+        is_active: false
+      }])
+
+      if (dbError) {
+        throw new Error(`Database Error: ${dbError.message}`)
       }
 
       setIsSuccess(true)
