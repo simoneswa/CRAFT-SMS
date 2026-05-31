@@ -8,15 +8,21 @@ load_dotenv()
 app = FastAPI(title="CRAFT SMS API", version="1.0.0")
 
 # CORS — must be added before routes
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
+allowed_origins = os.environ.get("ALLOWED_ORIGINS")
+if allowed_origins:
+    allow_origins = [origin.strip() for origin in allowed_origins.split(",") if origin.strip()]
+else:
+    allow_origins = [
         "https://craft-sms.vercel.app",
         "http://localhost:3000",
         "http://localhost:3001",
-        # Allow all vercel preview deployments
+        # Allow all Vercel preview deployments
         "https://craft-sms-git-main-simoneswas-projects.vercel.app",
-    ],
+    ]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,7 +41,7 @@ async def api_health_status():
     return {"status": "healthy"}
 
 # Include all API routers
-from routes import auth, finance, tenants, admin, academic, notifications, parents, messages, analytics, reports, health
+from routes import auth, finance, tenants, admin, academic, notifications, parents, messages, analytics, reports, health, lesson_plans
 
 app.include_router(auth.router,           prefix="/api/auth",          tags=["Authentication"])
 app.include_router(finance.router,        prefix="/api/finance",       tags=["Finance"])
@@ -48,3 +54,4 @@ app.include_router(messages.router,       prefix="/api/messages",      tags=["Me
 app.include_router(analytics.router,      prefix="/api/analytics",     tags=["Analytics"])
 app.include_router(reports.router,        prefix="/api/reports",       tags=["Reports"])
 app.include_router(health.router,         prefix="/api/health",        tags=["Health"])
+app.include_router(lesson_plans.router,   prefix="/api/lesson-plans",  tags=["LessonPlans"])

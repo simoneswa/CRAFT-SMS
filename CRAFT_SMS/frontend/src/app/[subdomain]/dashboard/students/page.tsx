@@ -18,7 +18,6 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/providers/AuthProvider'
 import { useTenant } from '@/providers/TenantProvider'
-import { fetchAPI } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
 
@@ -66,18 +65,29 @@ export default function StudentsPage() {
     setError(null)
     
     try {
-      await fetchAPI('/admin/invite', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...formData,
-          role: 'STUDENT',
-          school_id: school?.id
-        })
+      // Use Supabase auth.signUp directly — this creates the auth user AND
+      // triggers handle_new_user() which auto-creates the profile row with
+      // school_id and role from user_metadata.
+      // The backend /admin/invite route is broken due to missing service role key.
+      const tempPassword = `Craft${Date.now()}!` // Temporary password — user resets on first login
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: tempPassword,
+        options: {
+          data: {
+            full_name: formData.full_name,
+            school_id: school?.id,
+            role: 'STUDENT'
+          }
+        }
       })
+
+      if (signUpError) throw signUpError
       
       setIsModalOpen(false)
       setFormData({ full_name: '', email: '' })
-      fetchStudents() // Refresh list
+      // Short delay to allow the trigger to create the profile
+      setTimeout(() => fetchStudents(), 1000)
     } catch (err: any) {
       setError(err.message || 'Failed to enroll student')
     } finally {

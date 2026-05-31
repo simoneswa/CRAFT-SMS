@@ -19,7 +19,7 @@ class SlipVerify(BaseModel):
     notes: Optional[str] = None
 
 @router.post("/slips")
-async def submit_slip(request: Request, slip: SlipCreate, user=Depends(get_current_user), client: Client = Depends(get_user_client)):
+async def submit_slip(request: Request, slip: SlipCreate, user=Depends(RoleChecker(["STUDENT", "TEACHER", "BUSINESS", "SCHOOL_ADMIN"])), client: Client = Depends(get_user_client)):
     school_id = request.state.school_id or user["profile"]["school_id"]
     
     # Use a placeholder if no image is uploaded yet, per user instructions

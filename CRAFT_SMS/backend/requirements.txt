@@ -13,3 +13,8 @@ aiohttp
 cryptography
 python-jose[cryptography]
 gunicorn
+firebase-admin
+pytest
+pytest-asyncio
+httpx
+asgi-lifespan

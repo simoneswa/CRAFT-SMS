@@ -1,0 +1,22 @@
+{
+  "hosting": {
+    "source": "CRAFT_SMS/frontend",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "craft-sms-backend",
+          "region": "us-central1"
+        }
+      }
+    ],
+    "frameworksBackend": {
+      "region": "us-central1"
+    }
+  }
+}

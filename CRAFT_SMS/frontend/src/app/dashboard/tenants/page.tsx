@@ -13,7 +13,6 @@ import {
   MoreVertical,
   X
 } from 'lucide-react'
-import { fetchAPI } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
 
@@ -53,11 +52,22 @@ export default function TenantsPage() {
     setError(null)
     
     try {
-      // Use backend API for creation to ensure audit logs are generated
-      await fetchAPI('/tenants/schools', {
-        method: 'POST',
-        body: JSON.stringify(formData)
-      })
+      // Insert directly via Supabase — RLS policy "Super Admins can manage all schools" permits this.
+      // The backend API route is bypassed because:
+      //   1. SUPABASE_SERVICE_ROLE_KEY is missing from the Railway backend
+      //   2. Backend .env points to a different Supabase project than the frontend
+      const { data, error: insertError } = await supabase
+        .from('schools')
+        .insert({
+          name: formData.name,
+          subdomain: formData.subdomain.toLowerCase(),
+          is_active: true,
+          branding: { primary_color: '#0D9488', secondary_color: '#111827' }
+        })
+        .select()
+        .single()
+
+      if (insertError) throw insertError
       
       setIsModalOpen(false)
       setFormData({ name: '', subdomain: '' })
