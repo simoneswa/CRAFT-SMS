@@ -110,11 +110,14 @@ export default function FinancePage() {
     setIsSubmitting(true)
 
     try {
+      if (!school?.id || !profile?.id) {
+        throw new Error('Missing school or profile context.')
+      }
       // 1. Upload File via StorageProvider
       const { path } = await storageProvider.uploadFile(
-        school?.id,
+        school.id,
         'payment-slips',
-        profile?.id,
+        profile.id,
         newSlip.file
       )
       
@@ -383,7 +386,11 @@ export default function FinancePage() {
                          const token = sessionData.data.session?.access_token || '';
                          
                          // Determine path: backwards compatibility for old slips with HTTP URLs
-                         const path = slip.image_url?.startsWith('http') ? slip.image_url : slip.image_url;
+                         const path = slip.image_url;
+                         if (!path || typeof path !== 'string') {
+                           throw new Error('Missing or invalid image path.');
+                         }
+                         
                          if (path.startsWith('http')) {
                            setSelectedSlipUrl(path); // Legacy URL
                          } else {
