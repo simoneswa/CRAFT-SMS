@@ -1,6 +1,6 @@
 from fastapi import Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
-from .db import supabase
+from repositories import get_db_provider
 
 class TenantMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -21,9 +21,10 @@ class TenantMiddleware(BaseHTTPMiddleware):
                 subdomain = parts[0]
                 if subdomain not in ["www", "api", "localhost", "craft-sms"]:
                     try:
-                        res = supabase.table("schools").select("id").eq("subdomain", subdomain).eq("is_active", True).single().execute()
-                        if res.data:
-                            school_id = res.data["id"]
+                        db = get_db_provider()
+                        res = await db.fetch_one("schools", {"subdomain": subdomain, "is_active": True})
+                        if res:
+                            school_id = res.get("id")
                     except Exception as e:
                         print(f"Subdomain resolution error: {e}")
         

@@ -5,13 +5,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from core.secrets import get_secret
+
 # Read primary supabase connection values. These may be provided using
 # conventional names (SUPABASE_*) or frontend-facing NEXT_PUBLIC_* entries
 # in local development setups. We do NOT create noop/fake clients — missing
 # server-side credentials should surface clearly and cause writes to fail.
-url: Optional[str] = os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
-anon_key: Optional[str] = os.environ.get("SUPABASE_ANON_KEY") or os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY")
-service_key: Optional[str] = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+url: Optional[str] = get_secret("SUPABASE_URL", os.environ.get("NEXT_PUBLIC_SUPABASE_URL"))
+anon_key: Optional[str] = get_secret("SUPABASE_ANON_KEY", os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY"))
+service_key: Optional[str] = get_secret("SUPABASE_SERVICE_ROLE_KEY")
 
 # Default to None for missing clients. Callers must check and handle None
 supabase: Optional[Client] = None

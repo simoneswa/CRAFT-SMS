@@ -1,7 +1,81 @@
+# cloudbuild.yaml — CRAFT SMS Backend
+# Builds the Docker image, pushes to Artifact Registry, and deploys to Cloud Run.
+# Triggered by: .github/workflows/deploy-gcp.yml OR gcloud builds submit directly.
+#
+# Required substitutions (set as Cloud Build triggers or passed via --substitutions):
+#   _REGION          : GCP region (e.g. us-central1)
+#   _SERVICE_NAME    : Cloud Run service name (craft-sms-backend)
+#   _IMAGE           : Full Artifact Registry image path
+
+substitutions:
+  _REGION: us-central1
+  _SERVICE_NAME: craft-sms-backend
+  _IMAGE: us-central1-docker.pkg.dev/$PROJECT_ID/craft-sms/craft-sms-backend
+  _FIREBASE_PROJECT_ID: craft-sms-5bb1c
+
 steps:
+  # Step 1: Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/craft-sms-backend', '.']
+    id: 'build-image'
+    args:
+      - 'build'
+      - '-t'
+      - '${_IMAGE}:$SHORT_SHA'
+      - '-t'
+      - '${_IMAGE}:latest'
+      - '.'
+
+  # Step 2: Push to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-image'
+    args:
+      - 'push'
+      - '--all-tags'
+      - '${_IMAGE}'
+
+  # Step 3: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-cloud-run'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}'
+      - '--image=${_IMAGE}:$SHORT_SHA'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--service-account=craft-sms-backend@$PROJECT_ID.iam.gserviceaccount.com'
+      - '--concurrency=20'
+      - '--set-env-vars=GCP_PROJECT=$PROJECT_ID,DB_PROVIDER=cloudsql,FIREBASE_PROJECT_ID=${_FIREBASE_PROJECT_ID},FIREBASE_STORAGE_BUCKET=${_FIREBASE_PROJECT_ID}.firebasestorage.app,FIREBASE_AUTH_JWT_AUD=${_FIREBASE_PROJECT_ID},FIREBASE_AUTH_JWT_ISS=https://securetoken.google.com/${_FIREBASE_PROJECT_ID}'
+      - '--update-secrets=CLOUD_SQL_DATABASE_URL=CLOUD_SQL_DATABASE_URL:latest,FIREBASE_SERVICE_ACCOUNT_JSON=FIREBASE_SERVICE_ACCOUNT_JSON:latest,ALLOWED_ORIGINS=ALLOWED_ORIGINS:latest'
+      - '--min-instances=1'
+      - '--max-instances=10'
+      - '--memory=512Mi'
+      - '--cpu=1'
+      - '--timeout=60'
+      - '--port=8080'
+
+  # Step 4: Smoke Test
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'smoke-test'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        URL=$(gcloud run services describe ${_SERVICE_NAME} --region=${_REGION} --format='value(status.url)')
+        echo "Validating health endpoint at: $URL/health"
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL/health")
+        if [ "$STATUS" -ne 200 ]; then
+          echo "❌ Smoke test failed with HTTP status $STATUS"
+          exit 1
+        fi
+        echo "✅ Smoke test passed with HTTP status $STATUS"
+
 images:
-  - 'gcr.io/$PROJECT_ID/craft-sms-backend'
+  - '${_IMAGE}:$SHORT_SHA'
+  - '${_IMAGE}:latest'
+
 options:
   machineType: 'E2_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY

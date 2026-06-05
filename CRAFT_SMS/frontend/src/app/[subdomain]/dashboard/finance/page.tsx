@@ -18,6 +18,7 @@ import {
 import { useAuth } from '@/providers/AuthProvider'
 import { useTenant } from '@/providers/TenantProvider'
 import { supabase } from '@/lib/supabase'
+import { storageProvider } from '@/lib/storage'
 import { generatePDFFromElement } from '@/lib/pdfGenerator'
 import { ReceiptTemplate } from '@/components/finance/ReceiptTemplate'
 
@@ -30,6 +31,7 @@ export default function FinancePage() {
   
   const [modalState, setModalState] = useState<'NONE' | 'IMAGE' | 'REJECT' | 'SUBMIT'>('NONE')
   const [selectedSlip, setSelectedSlip] = useState<any>(null)
+  const [selectedSlipUrl, setSelectedSlipUrl] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [generatingPdf, setGeneratingPdf] = useState<string | null>(null) 
@@ -108,16 +110,27 @@ export default function FinancePage() {
     setIsSubmitting(true)
 
     try {
-      // 1. Upload Image
-      const fileExt = newSlip.file.name.split('.').pop()
-      const fileName = `${profile?.id}/${Date.now()}.${fileExt}`
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('payment-slips')
-        .upload(fileName, newSlip.file)
-
-      if (uploadError) throw uploadError
-
-      const { data: { publicUrl } } = supabase.storage.from('payment-slips').getPublicUrl(fileName)
+      // 1. Upload File via StorageProvider
+      const { path } = await storageProvider.uploadFile(
+        school?.id,
+        'payment-slips',
+        profile?.id,
+        newSlip.file
+      )
+      
+      // Notify backend to audit the upload
+      const sessionData = await supabase.auth.getSession()
+      const token = sessionData.data.session?.access_token
+      if (token) {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL?.replace(/\/v1$/, '') || 'http://localhost:8000/api'}/v1/storage/audit-upload`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ path })
+        }).catch(err => console.warn('Audit upload failed:', err))
+      }
 
       // 2. Insert Record
       const { error: insertError } = await supabase.from('slips').insert({
@@ -125,7 +138,7 @@ export default function FinancePage() {
         student_id: profile?.id,
         amount: parseFloat(newSlip.amount),
         slip_number: newSlip.slip_number,
-        image_url: publicUrl,
+        image_url: path,
         status: 'PENDING'
       })
 
@@ -275,11 +288,23 @@ export default function FinancePage() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="premium-card max-w-2xl w-full p-2 relative z-10"
+                className="premium-card max-w-2xl w-full p-2 relative z-10 min-h-[300px] flex items-center justify-center"
               >
                  <button onClick={() => setModalState('NONE')} className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/80 rounded-full text-white z-20"><X className="w-6 h-6" /></button>
-                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                 <img src={selectedSlip.image_url} alt="Slip Proof" className="w-full h-auto max-h-[80vh] object-contain rounded-xl" />
+                 {!selectedSlipUrl ? (
+                   <div className="flex flex-col items-center justify-center space-y-4 text-gray-400">
+                     <div className="w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full animate-spin" />
+                     <p className="text-sm font-bold animate-pulse">Requesting secure access...</p>
+                   </div>
+                 ) : selectedSlipUrl === 'ERROR' ? (
+                   <div className="flex flex-col items-center justify-center space-y-4 text-rose-500">
+                     <AlertCircle className="w-12 h-12" />
+                     <p className="text-sm font-bold">Access Denied or File Not Found</p>
+                   </div>
+                 ) : (
+                   /* eslint-disable-next-line @next/next/no-img-element */
+                   <img src={selectedSlipUrl} alt="Slip Proof" className="w-full h-auto max-h-[80vh] object-contain rounded-xl" />
+                 )}
               </motion.div>
             )}
 
@@ -348,7 +373,30 @@ export default function FinancePage() {
                 </div>
 
                 <div className="flex items-center gap-2 border-l border-white/10 pl-8">
-                   <button onClick={() => { setSelectedSlip(slip); setModalState('IMAGE'); }} className="p-3 rounded-xl bg-white/5 text-gray-400 hover:text-white transition-all">
+                   <button 
+                     onClick={async () => { 
+                       setSelectedSlip(slip); 
+                       setSelectedSlipUrl(null);
+                       setModalState('IMAGE'); 
+                       try {
+                         const sessionData = await supabase.auth.getSession();
+                         const token = sessionData.data.session?.access_token || '';
+                         
+                         // Determine path: backwards compatibility for old slips with HTTP URLs
+                         const path = slip.image_url?.startsWith('http') ? slip.image_url : slip.image_url;
+                         if (path.startsWith('http')) {
+                           setSelectedSlipUrl(path); // Legacy URL
+                         } else {
+                           const signedUrl = await storageProvider.getSignedUrl(path, token);
+                           setSelectedSlipUrl(signedUrl);
+                         }
+                       } catch (e) {
+                         console.error(e);
+                         setSelectedSlipUrl('ERROR');
+                       }
+                     }} 
+                     className="p-3 rounded-xl bg-white/5 text-gray-400 hover:text-white transition-all"
+                   >
                       <FileText className="w-5 h-5" />
                    </button>
                    {isBusiness && slip.status === 'PENDING' && (

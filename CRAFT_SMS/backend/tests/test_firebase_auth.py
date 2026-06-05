@@ -1,59 +1,49 @@
 import asyncio
 import json
-from types import SimpleNamespace
 import pytest
 from httpx import AsyncClient, ASGITransport
 from asgi_lifespan import LifespanManager
 from fastapi import Depends
 
 from core import security
-from core.security import RoleChecker
-
-# Import the app
+from core.security import RoleChecker, get_current_user
+import repositories
 from main import app
 
 
-class MockTable:
-    def __init__(self, data=None):
-        self._data = data
-    def select(self, *args, **kwargs):
-        return self
-    def eq(self, *args, **kwargs):
-        return self
-    def single(self):
-        return self
-    def execute(self):
-        return SimpleNamespace(data=self._data, error=None)
-
-
-class MockSupabaseAdmin:
+class MockDatabaseProvider:
     def __init__(self, profile=None):
         self._profile = profile
-    def table(self, name):
-        return MockTable(data=self._profile)
+        self.inserts = []
+        self.updates = []
 
+    async def fetch_one(self, table, filters, columns="*"):
+        if table == "profiles":
+            if self._profile:
+                # Mock get_profile_by_firebase_uid or get_profile_by_email match
+                if "firebase_uid" in filters and filters["firebase_uid"] == self._profile.get("firebase_uid"):
+                    return self._profile
+                if "email" in filters and filters["email"] == self._profile.get("email"):
+                    return self._profile
+        return None
 
-class MockSupabase:
-    def __init__(self, user_id=None):
-        self._user_id = user_id
-    class Auth:
-        def __init__(self, parent):
-            self.parent = parent
-        def get_user(self, token):
-            if token == "supabase-valid-token":
-                return SimpleNamespace(user=SimpleNamespace(id=self.parent._user_id))
-            raise Exception("invalid supabase token")
-    @property
-    def auth(self):
-        return MockSupabase.Auth(self)
+    async def fetch_many(self, table, filters=None, columns="*", order_by=None, descending=False, limit=None):
+        return []
+
+    async def insert(self, table, data):
+        self.inserts.append((table, data))
+        return data
+
+    async def update(self, table, filters, data):
+        self.updates.append((table, filters, data))
+        return [data]
+
+    async def delete(self, table, filters):
+        pass
 
 
 @pytest.mark.asyncio
 async def test_firebase_token_maps_to_profile(monkeypatch):
-    # Mock firebase_auth.verify_id_token
-    async def fake_verify(token, app=None):
-        return {"uid": "firebase-uid-123", "email": "teacher@example.com"}
-
     class FakeFirebaseAuth:
         def verify_id_token(self, token, app=None):
             if token == "firebase-valid":
@@ -61,14 +51,25 @@ async def test_firebase_token_maps_to_profile(monkeypatch):
             raise Exception("invalid")
 
     monkeypatch.setattr(security, "firebase_auth", FakeFirebaseAuth())
-    # Provide a supabase_admin that returns a profile matching the firebase uid
-    profile = {"id": "user-1", "role": "TEACHER", "school_id": "school-1", "email": "teacher@example.com", "firebase_uid": "firebase-uid-123"}
-    monkeypatch.setattr(security, "supabase_admin", MockSupabaseAdmin(profile=profile))
 
-    # Register a temporary protected endpoint
+    profile = {
+        "id": "user-1",
+        "role": "TEACHER",
+        "school_id": "school-1",
+        "email": "teacher@example.com",
+        "firebase_uid": "firebase-uid-123",
+    }
+    mock_db = MockDatabaseProvider(profile=profile)
+    monkeypatch.setattr(repositories, "get_db_provider", lambda: mock_db)
+
+    # Register temporary protected endpoint if not already registered
     @app.get("/test-protected")
     async def protected(user=Depends(RoleChecker(["TEACHER"]))):
-        return {"ok": True, "role": user["profile"]["role"], "school_id": user["profile"]["school_id"]}
+        return {
+            "ok": True,
+            "role": user["profile"]["role"],
+            "school_id": user["profile"]["school_id"],
+        }
 
     async with LifespanManager(app):
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
@@ -89,9 +90,15 @@ async def test_firebase_token_fallback_to_email(monkeypatch):
             raise Exception("invalid")
 
     monkeypatch.setattr(security, "firebase_auth", FakeFirebaseAuth())
-    # Simulate no firebase_uid match, but email match
-    profile = {"id": "user-2", "role": "TEACHER", "school_id": "school-2", "email": "teacher2@example.com"}
-    monkeypatch.setattr(security, "supabase_admin", MockSupabaseAdmin(profile=profile))
+
+    profile = {
+        "id": "user-2",
+        "role": "TEACHER",
+        "school_id": "school-2",
+        "email": "teacher2@example.com",
+    }
+    mock_db = MockDatabaseProvider(profile=profile)
+    monkeypatch.setattr(repositories, "get_db_provider", lambda: mock_db)
 
     @app.get("/test-protected-email")
     async def protected_email(user=Depends(RoleChecker(["TEACHER"]))):
@@ -99,35 +106,17 @@ async def test_firebase_token_fallback_to_email(monkeypatch):
 
     async with LifespanManager(app):
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
-            resp = await ac.get("/test-protected-email", headers={"Authorization": "Bearer firebase-valid-email"})
+            resp = await ac.get(
+                "/test-protected-email",
+                headers={"Authorization": "Bearer firebase-valid-email"},
+            )
             assert resp.status_code == 200
             assert resp.json()["role"] == "TEACHER"
 
 
 @pytest.mark.asyncio
-async def test_supabase_fallback(monkeypatch):
-    # Simulate firebase not configured/verify fails
-    monkeypatch.setattr(security, "firebase_auth", None)
-    # Simulate supabase auth returns user
-    mock_supabase = MockSupabase(user_id="user-3")
-    monkeypatch.setattr(security, "supabase", mock_supabase)
-    profile = {"id": "user-3", "role": "SCHOOL_ADMIN", "school_id": "school-3", "email": "admin@example.com"}
-    monkeypatch.setattr(security, "supabase_admin", MockSupabaseAdmin(profile=profile))
-
-    @app.get("/test-supabase")
-    async def protected_sb(user=Depends(RoleChecker(["SCHOOL_ADMIN"]))):
-        return {"ok": True, "role": user["profile"]["role"]}
-
-    async with LifespanManager(app):
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
-            resp = await ac.get("/test-supabase", headers={"Authorization": "Bearer supabase-valid-token"})
-            assert resp.status_code == 200
-            assert resp.json()["role"] == "SCHOOL_ADMIN"
-
-
-@pytest.mark.asyncio
 async def test_missing_token(monkeypatch):
-    # Ensure missing token returns 403 or 401
+    # Ensure missing token returns 401
     async with LifespanManager(app):
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
             resp = await ac.get("/test-protected")
@@ -136,20 +125,13 @@ async def test_missing_token(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_invalid_token(monkeypatch):
-    # Set firebase to raise
     class FakeFirebaseAuth:
         def verify_id_token(self, token, app=None):
             raise Exception("invalid")
+
     monkeypatch.setattr(security, "firebase_auth", FakeFirebaseAuth())
-    # And supabase fallback fails
-    class BrokenSupabase:
-        class Auth:
-            def get_user(self, token):
-                raise Exception("invalid")
-        @property
-        def auth(self):
-            return BrokenSupabase.Auth()
-    monkeypatch.setattr(security, "supabase", BrokenSupabase())
+    mock_db = MockDatabaseProvider(profile=None)
+    monkeypatch.setattr(repositories, "get_db_provider", lambda: mock_db)
 
     async with LifespanManager(app):
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:

@@ -2,8 +2,11 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime
-from core.security import get_current_user, RoleChecker, get_user_client
-from supabase import Client
+from core.security import get_current_user, RoleChecker
+from core.audit import log_audit_event, ACTION_PAYMENT_SUBMITTED
+from repositories import get_db_provider, DatabaseProvider
+from repositories.finance import FinanceRepository
+
 
 router = APIRouter()
 
@@ -19,7 +22,14 @@ class SlipVerify(BaseModel):
     notes: Optional[str] = None
 
 @router.post("/slips")
-async def submit_slip(request: Request, slip: SlipCreate, user=Depends(RoleChecker(["STUDENT", "TEACHER", "BUSINESS", "SCHOOL_ADMIN"])), client: Client = Depends(get_user_client)):
+async def submit_slip(
+    request: Request, 
+    slip: SlipCreate, 
+    user=Depends(RoleChecker(["STUDENT", "TEACHER", "BUSINESS", "SCHOOL_ADMIN"])), 
+    db: DatabaseProvider = Depends(get_db_provider)
+):
+    repo = FinanceRepository(db)
+
     school_id = request.state.school_id or user["profile"]["school_id"]
     
     # Use a placeholder if no image is uploaded yet, per user instructions
@@ -36,13 +46,27 @@ async def submit_slip(request: Request, slip: SlipCreate, user=Depends(RoleCheck
     }
     
     try:
-        response = client.table("slips").insert(data).execute()
-        return response.data
+        created_slip = await repo.create_slip(data)
+        if created_slip:
+            log_audit_event(
+                ACTION_PAYMENT_SUBMITTED, request, actor_id=user["profile"]["id"],
+                school_id=school_id, target_id=created_slip.get("id"),
+                additional_metadata={"amount": slip.amount, "slip_number": slip.slip_number}
+            )
+        return [created_slip] if created_slip else []
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.patch("/slips/{slip_id}/verify")
-async def verify_slip(slip_id: str, verification: SlipVerify, user=Depends(RoleChecker(["BUSINESS", "SCHOOL_ADMIN"])), client: Client = Depends(get_user_client)):
+async def verify_slip(
+    slip_id: str, 
+    verification: SlipVerify, 
+    user=Depends(RoleChecker(["BUSINESS", "SCHOOL_ADMIN"])), 
+    db: DatabaseProvider = Depends(get_db_provider)
+):
+    repo = FinanceRepository(db)
+
     if verification.status not in ["VERIFIED", "REJECTED"]:
         raise HTTPException(status_code=400, detail="Invalid status")
     
@@ -54,47 +78,47 @@ async def verify_slip(slip_id: str, verification: SlipVerify, user=Depends(RoleC
     }
     
     try:
-        response = client.table("slips").update(data).eq("id", slip_id).execute()
+        updated_slips = await repo.update_slip(slip_id, data)
         
         # Log this action to the audit logs
-        from core.db import supabase_admin
-        supabase_admin.table("audit_logs").insert({
-            "school_id": user["profile"]["school_id"],
-            "actor_id": user["profile"]["id"],
-            "action": f"SLIP_{verification.status}",
-            "target_id": slip_id,
-            "metadata": {"notes": verification.notes}
-        }).execute()
-
+        log_audit_event(
+            f"SLIP_{verification.status}", request=None, actor_id=user["profile"]["id"],
+            school_id=user["profile"]["school_id"], target_id=slip_id,
+            additional_metadata={"notes": verification.notes}
+        )
         # Trigger Notification for Student
-        slip_data = response.data[0]
-        supabase_admin.table("notifications").insert({
-            "school_id": user["profile"]["school_id"],
-            "user_id": slip_data["student_id"],
-            "title": f"Payment {verification.status}",
-            "message": f"Your payment slip #{slip_data['slip_number']} for ${slip_data['amount']} has been {verification.status.lower()}.",
-            "type": "FINANCE"
-        }).execute()
+        if updated_slips:
+            slip_data = updated_slips[0]
+            await db.insert("notifications", {
+                "school_id": user["profile"]["school_id"],
+                "user_id": slip_data["student_id"],
+                "title": f"Payment {verification.status}",
+                "message": f"Your payment slip #{slip_data['slip_number']} for ${slip_data['amount']} has been {verification.status.lower()}.",
+                "type": "FINANCE"
+            })
         
-        return response.data
+        return updated_slips
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/slips")
-async def get_my_slips(request: Request, status: Optional[str] = None, user=Depends(get_current_user), client: Client = Depends(get_user_client)):
+async def get_my_slips(
+    request: Request, 
+    status: Optional[str] = None, 
+    user=Depends(get_current_user), 
+    db: DatabaseProvider = Depends(get_db_provider)
+):
+    repo = FinanceRepository(db)
+
     school_id = request.state.school_id or user["profile"]["school_id"]
     
-    query = client.table("slips").select("*, profiles!student_id(full_name, custom_id)").eq("school_id", school_id)
-    
+    student_id = None
     # If not staff, only see own slips (Though RLS also enforces this!)
     if user["profile"]["role"] not in ["BUSINESS", "SCHOOL_ADMIN", "TEACHER"]:
-        query = query.eq("student_id", user["profile"]["id"])
+        student_id = user["profile"]["id"]
         
-    if status:
-        query = query.eq("status", status)
-    
     try:
-        response = query.execute()
-        return response.data
+        slips = await repo.list_slips(school_id=school_id, student_id=student_id, status=status)
+        return slips
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

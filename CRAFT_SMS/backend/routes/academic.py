@@ -1,10 +1,18 @@
+"""
+routes/academic.py
+
+Academic & grading endpoints — fully migrated to DatabaseProvider.
+No Supabase SDK imports.
+"""
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import List, Optional
-from core.db import supabase_admin
 from core.security import RoleChecker, get_current_user
+from repositories import get_db_provider, DatabaseProvider
+from core.audit import log_audit_event
 
 router = APIRouter()
+
 
 # Models
 class TermReq(BaseModel):
@@ -14,15 +22,18 @@ class TermReq(BaseModel):
     is_current: bool = False
     school_id: Optional[str] = None
 
+
 class SubjectReq(BaseModel):
     name: str
     code: Optional[str] = None
     department: Optional[str] = None
 
+
 class ClassReq(BaseModel):
     name: str
     grade_level: Optional[str] = None
     room_number: Optional[str] = None
+
 
 class GradeReq(BaseModel):
     student_id: str
@@ -32,224 +43,372 @@ class GradeReq(BaseModel):
     score: float
     status: str = "DRAFT"
 
+
 class EnrollmentReq(BaseModel):
     student_id: str
     class_id: str
     academic_term_id: str
+
 
 class ClassSubjectReq(BaseModel):
     class_id: str
     subject_id: str
     teacher_id: Optional[str] = None
 
+
 class AttendanceEntry(BaseModel):
     student_id: str
-    status: str # PRESENT, ABSENT, LATE, EXCUSED
+    status: str  # PRESENT, ABSENT, LATE, EXCUSED
     notes: Optional[str] = None
+
 
 class AttendanceBatchReq(BaseModel):
     class_id: str
     date: str
     entries: List[AttendanceEntry]
 
+
 # --- ACADEMIC TERMS ---
 @router.get("/terms")
-async def get_terms(user=Depends(get_current_user)):
+async def get_terms(
+    user=Depends(get_current_user),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
     school_id = user["profile"]["school_id"]
-    resp = supabase_admin.table("academic_terms").select("*").eq("school_id", school_id).execute()
-    return resp.data
+    return await db.fetch_many("academic_terms", {"school_id": school_id})
+
 
 @router.post("/terms")
-async def create_term(req: TermReq, user=Depends(RoleChecker(["SUPER_ADMIN", "SCHOOL_ADMIN"]))):
+async def create_term(
+    req: TermReq,
+    user=Depends(RoleChecker(["SUPER_ADMIN", "SCHOOL_ADMIN"])),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
     school_id = req.school_id if req.school_id and user["profile"]["role"] == "SUPER_ADMIN" else user["profile"]["school_id"]
-    
+
     # If this term is set as current, unset others
     if req.is_current:
-        supabase_admin.table("academic_terms").update({"is_current": False}).eq("school_id", school_id).execute()
-        
-    resp = supabase_admin.table("academic_terms").insert({
+        # Fetch current terms and unset them
+        current_terms = await db.fetch_many("academic_terms", {"school_id": school_id, "is_current": True})
+        for term in current_terms:
+            await db.update("academic_terms", {"id": term["id"]}, {"is_current": False})
+
+    new_term = await db.insert("academic_terms", {
         **req.dict(),
         "school_id": school_id
-    }).execute()
-    return resp.data[0]
+    })
+    return new_term
+
 
 # --- SUBJECTS ---
 @router.get("/subjects")
-async def get_subjects(user=Depends(get_current_user)):
+async def get_subjects(
+    user=Depends(get_current_user),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
     school_id = user["profile"]["school_id"]
-    resp = supabase_admin.table("subjects").select("*").eq("school_id", school_id).execute()
-    return resp.data
+    return await db.fetch_many("subjects", {"school_id": school_id})
+
 
 @router.post("/subjects")
-async def create_subject(req: SubjectReq, user=Depends(RoleChecker(["SCHOOL_ADMIN"]))):
-    resp = supabase_admin.table("subjects").insert({
+async def create_subject(
+    req: SubjectReq,
+    user=Depends(RoleChecker(["SCHOOL_ADMIN"])),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
+    new_sub = await db.insert("subjects", {
         **req.dict(),
         "school_id": user["profile"]["school_id"]
-    }).execute()
-    return resp.data[0]
+    })
+    return new_sub
+
 
 # --- CLASSES ---
 @router.get("/classes")
-async def get_classes(user=Depends(get_current_user)):
+async def get_classes(
+    user=Depends(get_current_user),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
     school_id = user["profile"]["school_id"]
-    resp = supabase_admin.table("classes").select("*").eq("school_id", school_id).execute()
-    return resp.data
+    return await db.fetch_many("classes", {"school_id": school_id})
+
 
 @router.post("/classes")
-async def create_class(req: ClassReq, user=Depends(RoleChecker(["SCHOOL_ADMIN"]))):
-    resp = supabase_admin.table("classes").insert({
+async def create_class(
+    req: ClassReq,
+    user=Depends(RoleChecker(["SCHOOL_ADMIN"])),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
+    new_class = await db.insert("classes", {
         **req.dict(),
         "school_id": user["profile"]["school_id"]
-    }).execute()
-    return resp.data[0]
+    })
+    return new_class
+
 
 # --- ENROLLMENTS ---
 @router.post("/enrollments")
-async def enroll_student(req: EnrollmentReq, user=Depends(RoleChecker(["SCHOOL_ADMIN", "REGISTRAR"]))):
+async def enroll_student(
+    req: EnrollmentReq,
+    user=Depends(RoleChecker(["SCHOOL_ADMIN", "REGISTRAR"])),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
     school_id = user["profile"]["school_id"]
-    resp = supabase_admin.table("enrollments").insert({
+    new_enr = await db.insert("enrollments", {
         **req.dict(),
         "school_id": school_id
-    }).execute()
-    return resp.data[0]
+    })
+    return new_enr
+
 
 @router.get("/classes/{class_id}/students")
-async def get_class_students(class_id: str, term_id: str, user=Depends(get_current_user)):
+async def get_class_students(
+    class_id: str,
+    term_id: str,
+    user=Depends(get_current_user),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
     school_id = user["profile"]["school_id"]
-    resp = supabase_admin.table("enrollments").select("profiles!student_id(*)").eq("class_id", class_id).eq("academic_term_id", term_id).eq("school_id", school_id).execute()
-    return [e["profiles"] for e in resp.data]
+    enrollments = await db.fetch_many("enrollments", {
+        "class_id": class_id,
+        "academic_term_id": term_id,
+        "school_id": school_id
+    })
+
+    # Resolve profiles for all enrollments (no PostgREST join dependency)
+    students = []
+    for e in enrollments:
+        student_id = e.get("student_id")
+        if student_id:
+            profile = await db.fetch_one("profiles", {"id": student_id})
+            if profile:
+                students.append(profile)
+    return students
+
 
 # --- CLASS SUBJECTS ---
 @router.post("/class-subjects")
-async def assign_subject_to_class(req: ClassSubjectReq, user=Depends(RoleChecker(["SCHOOL_ADMIN", "ACADEMIC_DEAN"]))):
+async def assign_subject_to_class(
+    req: ClassSubjectReq,
+    user=Depends(RoleChecker(["SCHOOL_ADMIN", "ACADEMIC_DEAN"])),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
     school_id = user["profile"]["school_id"]
-    resp = supabase_admin.table("class_subjects").insert({
+    new_cs = await db.insert("class_subjects", {
         **req.dict(),
         "school_id": school_id
-    }).execute()
-    return resp.data[0]
+    })
+    return new_cs
+
 
 @router.get("/classes/{class_id}/subjects")
-async def get_class_subjects(class_id: str, user=Depends(get_current_user)):
+async def get_class_subjects(
+    class_id: str,
+    user=Depends(get_current_user),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
     school_id = user["profile"]["school_id"]
-    resp = supabase_admin.table("class_subjects").select("*, subjects(*)").eq("class_id", class_id).eq("school_id", school_id).execute()
-    return resp.data
+    class_subs = await db.fetch_many("class_subjects", {
+        "class_id": class_id,
+        "school_id": school_id
+    })
+
+    # Enrich with subject names (no PostgREST join dependency)
+    enriched = []
+    for cs in class_subs:
+        subject_id = cs.get("subject_id")
+        subject = None
+        if subject_id:
+            subject = await db.fetch_one("subjects", {"id": subject_id})
+        enriched.append({
+            **cs,
+            "subjects": subject
+        })
+    return enriched
+
 
 # --- ATTENDANCE ---
 @router.post("/attendance/batch")
-async def record_attendance_batch(req: AttendanceBatchReq, user=Depends(RoleChecker(["TEACHER", "SCHOOL_ADMIN"]))):
+async def record_attendance_batch(
+    req: AttendanceBatchReq,
+    user=Depends(RoleChecker(["TEACHER", "SCHOOL_ADMIN"])),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
     school_id = user["profile"]["school_id"]
-    
-    insert_data = []
+
+    recorded_count = 0
     for entry in req.entries:
-        insert_data.append({
+        entry_data = {
             "school_id": school_id,
             "student_id": entry.student_id,
             "date": req.date,
             "status": entry.status,
             "notes": entry.notes,
             "recorded_by": user["profile"]["id"]
+        }
+        # Safely upsert using find-and-update/insert sequence (database agnostic)
+        existing = await db.fetch_one("attendance", {
+            "school_id": school_id,
+            "student_id": entry.student_id,
+            "date": req.date
         })
-        
-    resp = supabase_admin.table("attendance").upsert(insert_data, on_conflict="school_id,student_id,date").execute()
-    
+        if existing:
+            await db.update("attendance", {"id": existing["id"]}, entry_data)
+        else:
+            await db.insert("attendance", entry_data)
+        recorded_count += 1
+
     # Trigger notification for Absentees
     absentees = [e.student_id for e in req.entries if e.status == "ABSENT"]
     if absentees:
         # Future: Trigger SMS/Email/In-App alerts to parents
         pass
-        
-    return {"message": f"Recorded attendance for {len(resp.data)} students"}
+
+    return {"message": f"Recorded attendance for {recorded_count} students"}
+
 
 @router.get("/attendance")
-async def get_attendance(class_id: str, date: str, user=Depends(get_current_user)):
+async def get_attendance(
+    class_id: str,
+    date: str,
+    user=Depends(get_current_user),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
     school_id = user["profile"]["school_id"]
-    resp = supabase_admin.table("attendance").select("*").eq("school_id", school_id).eq("date", date).execute()
-    return resp.data
+    return await db.fetch_many("attendance", {"school_id": school_id, "date": date})
+
 
 # --- GRADEBOOK ENGINE ---
 @router.get("/grade-categories")
-async def get_grade_categories(user=Depends(get_current_user)):
+async def get_grade_categories(
+    user=Depends(get_current_user),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
     school_id = user["profile"]["school_id"]
-    resp = supabase_admin.table("grade_categories").select("*").eq("school_id", school_id).execute()
-    return resp.data
+    return await db.fetch_many("grade_categories", {"school_id": school_id})
+
 
 @router.post("/grades")
-async def post_grade(req: GradeReq, user=Depends(RoleChecker(["TEACHER", "SCHOOL_ADMIN"]))):
+async def post_grade(
+    req: GradeReq,
+    user=Depends(RoleChecker(["TEACHER", "SCHOOL_ADMIN"])),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
     school_id = user["profile"]["school_id"]
-    
+
     # Validate term is not locked
-    term = supabase_admin.table("academic_terms").select("is_locked").eq("id", req.academic_term_id).single().execute()
-    if term.data.get("is_locked"):
+    term = await db.fetch_one("academic_terms", {"id": req.academic_term_id})
+    if not term:
+        raise HTTPException(status_code=404, detail="Academic term not found.")
+    if term.get("is_locked"):
         raise HTTPException(status_code=400, detail="This academic term is locked.")
-        
-    resp = supabase_admin.table("grades").insert({
+
+    new_grade = await db.insert("grades", {
         **req.dict(),
         "school_id": school_id,
         "graded_by": user["profile"]["id"]
-    }).execute()
-    
+    })
+
     # Trigger Notification for Published Grades
     if req.status == "PUBLISHED":
-        supabase_admin.table("notifications").insert({
+        await db.insert("notifications", {
             "school_id": school_id,
             "user_id": req.student_id,
             "title": "New Grade Published",
             "message": "A new grade has been published for your subject.",
             "type": "ACADEMIC"
-        }).execute()
-        
+        })
+
     # Log Action
-    supabase_admin.table("audit_logs").insert({
-        "school_id": school_id,
-        "actor_id": user["profile"]["id"],
-        "action": f"GRADE_ENTRY_{req.status}",
-        "target_id": req.student_id,
-        "metadata": {"score": req.score, "subject_id": req.class_subject_id}
-    }).execute()
-    
-    return resp.data[0]
+    log_audit_event(
+        f"GRADE_ENTRY_{req.status}",
+        actor_id=user["profile"]["id"],
+        school_id=school_id,
+        target_id=req.student_id,
+        additional_metadata={"score": req.score, "subject_id": req.class_subject_id}
+    )
+
+    return new_grade
+
 
 @router.get("/report-card/{student_id}")
-async def get_student_report_card(student_id: str, term_id: str, user=Depends(get_current_user)):
+async def get_student_report_card(
+    student_id: str,
+    term_id: str,
+    user=Depends(get_current_user),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
     school_id = user["profile"]["school_id"]
-    
+
     # 1. Get student profile
-    student = supabase_admin.table("profiles").select("*").eq("id", student_id).single().execute()
-    
-    # 2. Get all class-subject assignments for this student's class in this term
-    enrollment = supabase_admin.table("enrollments").select("class_id").eq("student_id", student_id).eq("academic_term_id", term_id).single().execute()
-    if not enrollment.data:
+    student = await db.fetch_one("profiles", {"id": student_id})
+    if not student:
+        raise HTTPException(status_code=404, detail="Student profile not found.")
+
+    # 2. Get enrollment for this student's class in this term
+    enrollment = await db.fetch_one("enrollments", {
+        "student_id": student_id,
+        "academic_term_id": term_id
+    })
+    if not enrollment:
         raise HTTPException(status_code=404, detail="Student not enrolled in this term.")
-        
-    class_id = enrollment.data["class_id"]
-    subjects_resp = supabase_admin.table("class_subjects").select("*, subjects(*)").eq("class_id", class_id).execute()
-    
-    # 3. Get all published grades for this student and term
-    grades_resp = supabase_admin.table("grades").select("*, grade_categories(*)").eq("student_id", student_id).eq("academic_term_id", term_id).eq("status", "PUBLISHED").execute()
-    grades = grades_resp.data
-    
-    # 4. Process subjects
+
+    class_id = enrollment["class_id"]
+
+    # 3. Get all class-subject assignments for this class
+    class_subs = await db.fetch_many("class_subjects", {"class_id": class_id})
+    subjects_list = []
+    for cs in class_subs:
+        subject_id = cs.get("subject_id")
+        subject = None
+        if subject_id:
+            subject = await db.fetch_one("subjects", {"id": subject_id})
+        subjects_list.append({
+            **cs,
+            "subjects": subject
+        })
+
+    # 4. Get all published grades for this student and term
+    all_grades = await db.fetch_many("grades", {
+        "student_id": student_id,
+        "academic_term_id": term_id,
+        "status": "PUBLISHED"
+    })
+
+    # Enrich grades with categories
+    grades = []
+    for g in all_grades:
+        cat_id = g.get("category_id")
+        category = None
+        if cat_id:
+            category = await db.fetch_one("grade_categories", {"id": cat_id})
+        grades.append({
+            **g,
+            "grade_categories": category
+        })
+
+    # 5. Process subjects & calculate averages
     report_data = []
     overall_sum = 0
     subject_count = 0
-    
-    for cs in subjects_resp.data:
+
+    for cs in subjects_list:
         cs_id = cs["id"]
-        subject_name = cs["subjects"]["name"]
-        
+        subject_name = cs["subjects"]["name"] if cs.get("subjects") else "Unknown"
+
         # Calculate weighted average for this subject
         s_grades = [g for g in grades if g["class_subject_id"] == cs_id]
         if not s_grades:
             continue
-            
+
         total_weighted = 0
         total_weight = 0
         for g in s_grades:
-            weight = g["grade_categories"]["weight"]
-            total_weighted += (float(g["score"]) / 100) * float(weight)
-            total_weight += float(weight)
-            
+            if g.get("grade_categories") and g["grade_categories"].get("weight") is not None:
+                weight = g["grade_categories"]["weight"]
+                total_weighted += (float(g["score"]) / 100) * float(weight)
+                total_weight += float(weight)
+
         if total_weight > 0:
             avg = (total_weighted / total_weight) * 100
             report_data.append({
@@ -259,28 +418,55 @@ async def get_student_report_card(student_id: str, term_id: str, user=Depends(ge
             })
             overall_sum += avg
             subject_count += 1
-            
+
     final_avg = (overall_sum / subject_count) if subject_count > 0 else 0
-    
+
     return {
-        "student": student.data,
+        "student": student,
         "term_id": term_id,
         "subjects": report_data,
         "overall_average": round(final_avg, 2),
         "status": "FINALIZED" if subject_count > 0 else "INCOMPLETE"
     }
 
+
 @router.get("/grades/student/{student_id}")
-async def get_student_grades(student_id: str, term_id: Optional[str] = None, user=Depends(get_current_user)):
+async def get_student_grades(
+    student_id: str,
+    term_id: Optional[str] = None,
+    user=Depends(get_current_user),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
     school_id = user["profile"]["school_id"]
-    
+
     # RLS Enforcement in Logic (Double Layer)
     if user["profile"]["role"] == "STUDENT" and user["profile"]["id"] != student_id:
         raise HTTPException(status_code=403, detail="Unauthorized access")
-        
-    query = supabase_admin.table("grades").select("*, class_subjects(subjects(name))").eq("student_id", student_id)
+
+    filters = {"student_id": student_id}
     if term_id:
-        query = query.eq("academic_term_id", term_id)
-        
-    resp = query.execute()
-    return resp.data
+        filters["academic_term_id"] = term_id
+
+    grades = await db.fetch_many("grades", filters)
+
+    # Enrich grades with subject names (no PostgREST join dependency)
+    enriched = []
+    for g in grades:
+        cs_id = g.get("class_subject_id")
+        cs = None
+        subject = None
+        if cs_id:
+            cs = await db.fetch_one("class_subjects", {"id": cs_id})
+            if cs and cs.get("subject_id"):
+                subject = await db.fetch_one("subjects", {"id": cs["subject_id"]})
+
+        enriched.append({
+            **g,
+            "class_subjects": {
+                "subjects": {
+                    "name": subject.get("name") if subject else None
+                } if subject else None
+            } if cs else None
+        })
+
+    return enriched

@@ -1,5 +1,11 @@
+"""
+routes/notifications.py
+
+Notifications endpoint — fully migrated to DatabaseProvider.
+No Supabase SDK imports.
+"""
 from fastapi import APIRouter, Depends, HTTPException
-from core.db import supabase_admin
+from repositories import get_db_provider, DatabaseProvider
 from core.security import get_current_user
 import logging
 
@@ -7,107 +13,87 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-def _is_supabase_missing_or_forbidden_error(exc: Exception) -> bool:
-    """
-    Supabase REST can respond with 404 when the table doesn't exist in the
-    deployed instance, and 401/403 when RLS/permissions block access.
-    We treat these as non-fatal for the dashboard reads: return an empty list.
-    Writes must fail loudly.
-    """
-    msg = str(exc).lower()
-    return (
-        "404" in msg
-        or "not found" in msg
-        or "does not exist" in msg
-        or "permission denied" in msg
-        or "403" in msg
-        or "401" in msg
-        or "forbidden" in msg
-        or "not configured" in msg
-        or "client not configured" in msg
-    )
-
-
 @router.get("/")
-async def get_notifications(user=Depends(get_current_user)):
-    # Read operations may degrade gracefully if the admin client or table is missing
-    if supabase_admin is None:
-        logger.warning("Supabase admin client is not configured; returning empty notifications list.")
-        return []
-
+async def get_notifications(
+    user=Depends(get_current_user),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
+    """Return all notifications for the authenticated user, newest first."""
     try:
-        resp = (
-            supabase_admin.table("notifications")
-            .select("*")
-            .eq("user_id", user["profile"]["id"])
-            .order("created_at", desc=True)
-            .execute()
+        return await db.fetch_many(
+            "notifications",
+            filters={"user_id": user["profile"]["id"]},
+            order_by="created_at",
+            descending=True,
         )
-        return resp.data
     except Exception as exc:
-        # For reads, non-fatal fallback to empty list for missing table/permissions
-        if _is_supabase_missing_or_forbidden_error(exc):
-            logger.warning("Notifications read failed (treating as empty): %s", exc)
+        msg = str(exc).lower()
+        # Table may not exist on every environment — degrade gracefully for reads
+        if any(k in msg for k in ("not found", "does not exist", "404", "403", "permission denied")):
+            logger.warning("Notifications read failed (returning empty list): %s", exc)
             return []
         logger.exception("Unexpected error fetching notifications")
-        raise
+        raise HTTPException(status_code=500, detail="Failed to fetch notifications")
 
 
 @router.post("/{notification_id}/read")
-async def mark_as_read(notification_id: str, user=Depends(get_current_user)):
-    from datetime import datetime
-
-    # Writes must fail loudly if admin client is missing
-    if supabase_admin is None:
-        logger.error("Attempt to mark notification as read but supabase_admin is not configured.")
-        raise HTTPException(status_code=503, detail="Notifications service unavailable")
+async def mark_as_read(
+    notification_id: str,
+    user=Depends(get_current_user),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
+    """Mark a single notification as read (must belong to the authenticated user)."""
+    from datetime import datetime, timezone
 
     try:
-        supabase_admin.table("notifications").update(
-            {"read_at": datetime.now().isoformat()}
-        ).eq("id", notification_id).eq("user_id", user["profile"]["id"]).execute()
+        await db.update(
+            "notifications",
+            filters={"id": notification_id, "user_id": user["profile"]["id"]},
+            data={"read_at": datetime.now(timezone.utc).isoformat()},
+        )
     except Exception as exc:
         msg = str(exc).lower()
-        # Permission/auth errors should surface clearly
         if "403" in msg or "permission denied" in msg or "forbidden" in msg:
-            logger.error("Permission denied updating notification: %s", exc)
             raise HTTPException(status_code=403, detail="Permission denied")
         if "401" in msg:
-            logger.error("Unauthorized when updating notification: %s", exc)
             raise HTTPException(status_code=401, detail="Unauthorized")
-        if _is_supabase_missing_or_forbidden_error(exc):
-            logger.error("Notifications update failed due to missing table or config: %s", exc)
-            raise HTTPException(status_code=503, detail="Notifications service unavailable")
-        logger.exception("Unexpected error marking notification as read")
-        raise
+        logger.exception("Error marking notification %s as read", notification_id)
+        raise HTTPException(status_code=503, detail="Notifications service unavailable")
 
     return {"status": "success"}
 
 
 @router.post("/read-all")
-async def mark_all_as_read(user=Depends(get_current_user)):
-    from datetime import datetime
-
-    if supabase_admin is None:
-        logger.error("Attempt to mark all notifications as read but supabase_admin is not configured.")
-        raise HTTPException(status_code=503, detail="Notifications service unavailable")
+async def mark_all_as_read(
+    user=Depends(get_current_user),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
+    """Mark every unread notification for the authenticated user as read."""
+    from datetime import datetime, timezone
 
     try:
-        supabase_admin.table("notifications").update(
-            {"read_at": datetime.now().isoformat()}
-        ).eq("user_id", user["profile"]["id"]).is_("read_at", "null").execute()
+        # Fetch unread notifications first, then bulk-update each one.
+        # The base DatabaseProvider protocol does not expose a filtered bulk-update
+        # with IS NULL; we retrieve IDs and update individually.
+        unread = await db.fetch_many(
+            "notifications",
+            filters={"user_id": user["profile"]["id"]},
+        )
+        now_str = datetime.now(timezone.utc).isoformat()
+        for notif in unread:
+            if notif.get("read_at") is None:
+                await db.update(
+                    "notifications",
+                    filters={"id": notif["id"]},
+                    data={"read_at": now_str},
+                )
     except Exception as exc:
         msg = str(exc).lower()
         if "403" in msg or "permission denied" in msg or "forbidden" in msg:
-            logger.error("Permission denied updating notifications: %s", exc)
             raise HTTPException(status_code=403, detail="Permission denied")
         if "401" in msg:
-            logger.error("Unauthorized when updating notifications: %s", exc)
             raise HTTPException(status_code=401, detail="Unauthorized")
-        if _is_supabase_missing_or_forbidden_error(exc):
-            logger.error("Notifications bulk update failed due to missing table or config: %s", exc)
-            raise HTTPException(status_code=503, detail="Notifications service unavailable")
-        logger.exception("Unexpected error marking all notifications as read")
-        raise
+        logger.exception("Error marking all notifications as read")
+        raise HTTPException(status_code=503, detail="Notifications service unavailable")
 
     return {"status": "success"}
