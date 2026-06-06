@@ -20,8 +20,6 @@ on:
 #                             roles/artifactregistry.writer
 #   FIREBASE_PROJECT_ID     — craft-sms-5bb1c
 #   FIREBASE_TOKEN          — Firebase CI token (firebase login:ci)
-#   CLOUD_SQL_DATABASE_URL  — Neon PostgreSQL connection string (stored also in Secret Manager)
-#   ALLOWED_ORIGINS         — Comma-separated CORS origins for production
 #   NEXT_PUBLIC_SUPABASE_URL       — (legacy — required until Supabase fully removed)
 #   NEXT_PUBLIC_SUPABASE_ANON_KEY  — (legacy — required until Supabase fully removed)
 # -----------------------------------------------------------------------
@@ -57,11 +55,40 @@ jobs:
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
-      - name: Configure gcloud defaults
+      - name: Configure gcloud and enable APIs
         run: |
-          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+          set -e
+          PROJECT="${{ secrets.GCP_PROJECT_ID }}"
+          if [ -z "$PROJECT" ]; then
+            echo "ERROR: GCP_PROJECT_ID secret is not set."
+            exit 1
+          fi
+          echo "Project ID: $PROJECT"
+          gcloud config set project "$PROJECT"
           gcloud config set run/region ${{ env.GCP_REGION }}
           gcloud config set run/platform managed
+
+          # Enable required APIs (idempotent)
+          gcloud services enable \
+            cloudbuild.googleapis.com \
+            run.googleapis.com \
+            artifactregistry.googleapis.com \
+            secretmanager.googleapis.com \
+            --project="$PROJECT" --quiet
+
+          # Ensure Artifact Registry repository exists
+          if ! gcloud artifacts repositories describe craft-sms \
+               --location=${{ env.GCP_REGION }} --project="$PROJECT" &>/dev/null; then
+            echo "Creating Artifact Registry repository 'craft-sms'..."
+            gcloud artifacts repositories create craft-sms \
+              --repository-format=docker \
+              --location=${{ env.GCP_REGION }} \
+              --project="$PROJECT" \
+              --quiet
+          else
+            echo "Artifact Registry repository 'craft-sms' already exists."
+          fi
+
           gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
       # ----------------------------------------------------------------
@@ -88,13 +115,15 @@ jobs:
 
       # ----------------------------------------------------------------
       # 4. Build backend container and deploy to Cloud Run via Cloud Build
-      #    cloudbuild.yaml now owns the full build + deploy pipeline.
-      #    Env vars and secrets are injected by cloudbuild.yaml's deploy step.
       # ----------------------------------------------------------------
       - name: Submit backend build and deploy via Cloud Build
         run: |
+          set -e
+          PROJECT="${{ secrets.GCP_PROJECT_ID }}"
+          echo "Submitting Cloud Build for project: $PROJECT"
           gcloud builds submit CRAFT_SMS/backend \
             --config=CRAFT_SMS/backend/cloudbuild.yaml \
+            --project="$PROJECT" \
             --substitutions=_REGION=${{ env.GCP_REGION }},_SERVICE_NAME=${{ env.SERVICE_NAME }},_IMAGE=${{ env.IMAGE }},_FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
 
       # ----------------------------------------------------------------
@@ -104,7 +133,10 @@ jobs:
         run: npm install -g firebase-tools
 
       - name: Deploy frontend to Firebase Hosting
-        run: firebase deploy --project ${{ secrets.FIREBASE_PROJECT_ID }} --only hosting
-        working-directory: ./CRAFT_SMS/frontend
+        run: |
+          firebase deploy \
+            --project ${{ secrets.FIREBASE_PROJECT_ID }} \
+            --only hosting \
+            --non-interactive
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
