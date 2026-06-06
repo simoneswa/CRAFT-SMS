@@ -60,6 +60,27 @@ jobs:
             --quiet 2>/dev/null || true
 
       # ----------------------------------------------------------------
+      # 2b. Enable required APIs for Firebase Framework Hosting
+      # ----------------------------------------------------------------
+      - name: Enable required GCP APIs
+        run: |
+          set -e
+          PROJECT="${{ secrets.GCP_PROJECT_ID }}"
+          echo "Enabling required APIs for project: $PROJECT"
+          gcloud services enable \
+            cloudfunctions.googleapis.com \
+            eventarc.googleapis.com \
+            firebasehosting.googleapis.com \
+            firebase.googleapis.com \
+            run.googleapis.com \
+            cloudbuild.googleapis.com \
+            cloudscheduler.googleapis.com \
+            artifactregistry.googleapis.com \
+            --project="$PROJECT" \
+            --quiet
+          echo "All required APIs enabled."
+
+      # ----------------------------------------------------------------
       # 3. Build frontend
       # ----------------------------------------------------------------
       - name: Setup Node.js
