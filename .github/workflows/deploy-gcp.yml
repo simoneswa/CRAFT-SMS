@@ -68,26 +68,25 @@ jobs:
           gcloud config set run/region ${{ env.GCP_REGION }}
           gcloud config set run/platform managed
 
-          # Enable required APIs (idempotent)
+          # Try to enable APIs — non-fatal if SA lacks serviceusage permission
+          # (APIs may already be enabled by project owner)
           gcloud services enable \
             cloudbuild.googleapis.com \
             run.googleapis.com \
             artifactregistry.googleapis.com \
             secretmanager.googleapis.com \
-            --project="$PROJECT" --quiet
+            --project="$PROJECT" --quiet || \
+            echo "WARNING: Could not enable APIs (may already be enabled or SA lacks permission). Continuing..."
 
-          # Ensure Artifact Registry repository exists
-          if ! gcloud artifacts repositories describe craft-sms \
-               --location=${{ env.GCP_REGION }} --project="$PROJECT" &>/dev/null; then
-            echo "Creating Artifact Registry repository 'craft-sms'..."
-            gcloud artifacts repositories create craft-sms \
-              --repository-format=docker \
-              --location=${{ env.GCP_REGION }} \
-              --project="$PROJECT" \
-              --quiet
-          else
-            echo "Artifact Registry repository 'craft-sms' already exists."
-          fi
+          # Ensure Artifact Registry repository exists — non-fatal if already exists
+          gcloud artifacts repositories describe craft-sms \
+            --location=${{ env.GCP_REGION }} --project="$PROJECT" --quiet 2>/dev/null || \
+          gcloud artifacts repositories create craft-sms \
+            --repository-format=docker \
+            --location=${{ env.GCP_REGION }} \
+            --project="$PROJECT" \
+            --quiet || \
+            echo "WARNING: Could not create/verify Artifact Registry repo. Continuing..."
 
           gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
