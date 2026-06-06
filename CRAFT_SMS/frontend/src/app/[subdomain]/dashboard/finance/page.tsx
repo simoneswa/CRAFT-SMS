@@ -15,12 +15,12 @@ import {
   X,
   AlertCircle
 } from 'lucide-react'
-import { useAuth } from '@/providers/AuthProvider'
-import { useTenant } from '@/providers/TenantProvider'
-import { supabase } from '@/lib/supabase'
-import { storageProvider } from '@/lib/storage'
-import { generatePDFFromElement } from '@/lib/pdfGenerator'
-import { ReceiptTemplate } from '@/components/finance/ReceiptTemplate'
+import { useAuth } from '../../../../providers/AuthProvider'
+import { useTenant } from '../../../../providers/TenantProvider'
+import { supabase } from '../../../../lib/supabase'
+import { storageProvider } from '../../../../lib/storage'
+import { generatePDFFromElement } from '../../../../lib/pdfGenerator'
+import { ReceiptTemplate } from '../../../../components/finance/ReceiptTemplate'
 
 export default function FinancePage() {
   const { profile } = useAuth()

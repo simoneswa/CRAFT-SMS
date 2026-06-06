@@ -4,14 +4,14 @@ import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sidebar } from './Sidebar'
 import { Bell, Search, Menu, Cloud, CloudOff, CloudAlert, Activity, ShieldCheck, X, HardDrive, RefreshCw, Globe } from 'lucide-react'
-import { useAuth } from '@/providers/AuthProvider'
+import { useAuth } from '../../providers/AuthProvider'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { useSyncStatus } from '@/hooks/useSyncStatus'
-import { SyncEngine } from '@/lib/syncEngine'
+import { useSyncStatus } from '../../hooks/useSyncStatus'
+import { SyncEngine } from '../../lib/syncEngine'
 
 import { NotificationBell } from './NotificationBell'
-import { useTenant } from '@/providers/TenantProvider'
+import { useTenant } from '../../providers/TenantProvider'
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { profile, isLoading, user } = useAuth()

@@ -1,4 +1,4 @@
-import { PlaceholderPage } from '@/components/dashboard/InstitutionalPlaceholder'
+import { PlaceholderPage } from '../../../../components/dashboard/InstitutionalPlaceholder'
 import { Settings } from 'lucide-react'
 
 export default function TenantSettingsPage() {

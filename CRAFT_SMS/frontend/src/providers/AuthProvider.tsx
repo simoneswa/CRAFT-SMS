@@ -1,9 +1,9 @@
 "use client"
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '../lib/supabase'
 import { User } from '@supabase/supabase-js'
-import { db } from '@/lib/offline/db'
+import { db } from '../lib/offline/db'
 
 interface AuthContextType {
   user: User | null

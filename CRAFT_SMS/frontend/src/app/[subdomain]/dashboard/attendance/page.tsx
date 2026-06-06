@@ -1,6 +1,6 @@
 "use client"
 
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
+import { DashboardLayout } from '../../../../components/dashboard/DashboardLayout'
 import { useState, useEffect, useCallback } from 'react'
 import { 
   Calendar, 
@@ -14,12 +14,12 @@ import {
   Filter,
   AlertCircle
 } from 'lucide-react'
-import { useTenant } from '@/providers/TenantProvider'
-import { useAuth } from '@/providers/AuthProvider'
-import { createClient } from '@/utils/supabase'
-import { fetchAPI } from '@/lib/api'
-import { SyncEngine } from '@/lib/syncEngine'
-import { generatePDFFromElement } from '@/lib/pdfGenerator'
+import { useTenant } from '../../../../providers/TenantProvider'
+import { useAuth } from '../../../../providers/AuthProvider'
+import { createClient } from '../../../../utils/supabase'
+import { fetchAPI } from '../../../../lib/api'
+import { SyncEngine } from '../../../../lib/syncEngine'
+import { generatePDFFromElement } from '../../../../lib/pdfGenerator'
 
 import { motion, AnimatePresence } from 'framer-motion'
 

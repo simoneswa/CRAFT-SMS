@@ -1,10 +1,10 @@
 "use client"
 
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
+import { DashboardLayout } from '../../../../components/dashboard/DashboardLayout'
 import { useState, useEffect } from 'react'
 import { Bell, Clock, User, Megaphone } from 'lucide-react'
-import { useTenant } from '@/providers/TenantProvider'
-import { createClient } from '@/utils/supabase'
+import { useTenant } from '../../../../providers/TenantProvider'
+import { createClient } from '../../../../utils/supabase'
 
 
 export default function NewsFeedPage() {

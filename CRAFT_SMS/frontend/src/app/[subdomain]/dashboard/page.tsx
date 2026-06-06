@@ -18,16 +18,16 @@ import {
   ChevronRight,
   Clock
 } from 'lucide-react'
-import { useTenant } from '@/providers/TenantProvider'
-import { useAuth } from '@/providers/AuthProvider'
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
-import { fetchAPI } from '@/lib/api'
-import { supabase } from '@/lib/supabase'
+import { useTenant } from '../../../providers/TenantProvider'
+import { useAuth } from '../../../providers/AuthProvider'
+import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
+import { fetchAPI } from '../../../lib/api'
+import { supabase } from '../../../lib/supabase'
 
-import { ParentDashboardWidget } from '@/components/dashboard/ParentDashboardWidget'
-import { StudentWidget } from '@/components/dashboard/StudentWidget'
-import { FinanceWidget } from '@/components/dashboard/FinanceWidget'
-import { AdminWidget } from '@/components/dashboard/AdminWidget'
+import { ParentDashboardWidget } from '../../../components/dashboard/ParentDashboardWidget'
+import { StudentWidget } from '../../../components/dashboard/StudentWidget'
+import { FinanceWidget } from '../../../components/dashboard/FinanceWidget'
+import { AdminWidget } from '../../../components/dashboard/AdminWidget'
 
 function StatCard({ stat, index }: { stat: any, index: number }) {
   return (

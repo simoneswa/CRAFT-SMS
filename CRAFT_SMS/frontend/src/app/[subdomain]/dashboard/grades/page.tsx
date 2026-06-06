@@ -10,11 +10,11 @@ import {
   AlertCircle,
   BookOpen
 } from 'lucide-react'
-import { useAuth } from '@/providers/AuthProvider'
-import { useTenant } from '@/providers/TenantProvider'
-import { supabase } from '@/lib/supabase'
-import { fetchAPI } from '@/lib/api'
-import { SyncEngine } from '@/lib/syncEngine'
+import { useAuth } from '../../../../providers/AuthProvider'
+import { useTenant } from '../../../../providers/TenantProvider'
+import { supabase } from '../../../../lib/supabase'
+import { fetchAPI } from '../../../../lib/api'
+import { SyncEngine } from '../../../../lib/syncEngine'
 
 export default function GradebookPage() {
   const { profile } = useAuth()

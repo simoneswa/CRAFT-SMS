@@ -19,7 +19,7 @@ import {
   Star,
 } from 'lucide-react'
 import { FaInstagram, FaFacebook, FaWhatsapp } from 'react-icons/fa'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '../lib/supabase'
 
 const BRAND = {
   primary: '#007A53',

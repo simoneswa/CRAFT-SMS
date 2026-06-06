@@ -4,8 +4,8 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { Search, Building2, ArrowRight, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
-import { useAuth } from '@/providers/AuthProvider'
-import { SuperAdminOverview } from '@/components/admin/SuperAdminOverview'
+import { useAuth } from '../../providers/AuthProvider'
+import { SuperAdminOverview } from '../../components/admin/SuperAdminOverview'
 
 export default function DashboardPage() {
   const { profile, isLoading } = useAuth()

@@ -1,6 +1,6 @@
 "use client"
 
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
+import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
 import { useState } from 'react'
 import { Settings, Save, Shield, Globe, Bell, Database } from 'lucide-react'
 

@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { Bell, X, CheckCircle2, AlertCircle, CreditCard, BookOpen } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/providers/AuthProvider'
+import { supabase } from '../../lib/supabase'
+import { useAuth } from '../../providers/AuthProvider'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
-import { fetchAPI } from '@/lib/api'
+import { fetchAPI } from '../../lib/api'
 
 export function NotificationBell() {
   const { profile } = useAuth()

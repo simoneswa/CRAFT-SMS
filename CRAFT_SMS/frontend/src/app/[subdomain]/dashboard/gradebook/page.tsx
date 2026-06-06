@@ -1,6 +1,6 @@
 "use client"
 
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
+import { DashboardLayout } from '../../../../components/dashboard/DashboardLayout'
 import { useState, useEffect, useCallback } from 'react'
 import { 
   BookOpen, 
@@ -14,10 +14,10 @@ import {
   Lock,
   Unlock
 } from 'lucide-react'
-import { useTenant } from '@/providers/TenantProvider'
-import { useAuth } from '@/providers/AuthProvider'
-import { supabase } from '@/lib/supabase'
-import { fetchAPI } from '@/lib/api'
+import { useTenant } from '../../../../providers/TenantProvider'
+import { useAuth } from '../../../../providers/AuthProvider'
+import { supabase } from '../../../../lib/supabase'
+import { fetchAPI } from '../../../../lib/api'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function GradebookPage() {

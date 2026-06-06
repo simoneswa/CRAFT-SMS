@@ -1,4 +1,4 @@
-import { PlaceholderPage } from '@/components/dashboard/InstitutionalPlaceholder'
+import { PlaceholderPage } from '../../../components/dashboard/InstitutionalPlaceholder'
 
 export default function AuditPage() {
   return (

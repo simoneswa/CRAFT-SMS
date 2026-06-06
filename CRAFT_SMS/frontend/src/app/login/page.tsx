@@ -16,7 +16,7 @@ import {
   CheckCircle2,
 } from 'lucide-react'
 import { FcGoogle } from 'react-icons/fc'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {

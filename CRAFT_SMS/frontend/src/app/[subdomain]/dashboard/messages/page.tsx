@@ -13,11 +13,11 @@ import {
   AlertTriangle,
   Users
 } from 'lucide-react'
-import { useAuth } from '@/providers/AuthProvider'
-import { useTenant } from '@/providers/TenantProvider'
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
-import { fetchAPI } from '@/lib/api'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '../../../../providers/AuthProvider'
+import { useTenant } from '../../../../providers/TenantProvider'
+import { DashboardLayout } from '../../../../components/dashboard/DashboardLayout'
+import { fetchAPI } from '../../../../lib/api'
+import { supabase } from '../../../../lib/supabase'
 
 export default function CommunicationCenter() {
   const { profile } = useAuth()

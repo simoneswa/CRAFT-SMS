@@ -3,10 +3,10 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { useEffect } from "react";
-import { TenantProvider } from "@/providers/TenantProvider";
-import { AuthProvider } from "@/providers/AuthProvider";
-import { ToastProvider } from "@/providers/ToastProvider";
-import { DemoModeProvider } from "@/providers/DemoModeProvider";
+import { TenantProvider } from "../providers/TenantProvider";
+import { AuthProvider } from "../providers/AuthProvider";
+import { ToastProvider } from "../providers/ToastProvider";
+import { DemoModeProvider } from "../providers/DemoModeProvider";
 
 const inter = Inter({
   subsets: ["latin"],

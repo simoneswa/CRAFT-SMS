@@ -1,7 +1,7 @@
 "use client"
 
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
-import { supabase } from '@/lib/supabase'
+import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
+import { supabase } from '../../../lib/supabase'
 import { useState, useEffect } from 'react'
 import { Building2, CheckCircle2, XCircle, Clock } from 'lucide-react'
 

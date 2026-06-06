@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '@/lib/offline/db';
-import { SyncEngine } from '@/lib/syncEngine';
+import { db } from '../lib/offline/db';
+import { SyncEngine } from '../lib/syncEngine';
 
 export interface SyncTask {
   id: string;

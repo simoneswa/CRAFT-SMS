@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Mail, ShieldCheck, AlertTriangle } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '../../lib/supabase'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')

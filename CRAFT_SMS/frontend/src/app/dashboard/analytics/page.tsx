@@ -1,8 +1,8 @@
 "use client"
 
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
-import { useAuth } from '@/providers/AuthProvider'
-import { supabase } from '@/lib/supabase'
+import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
+import { useAuth } from '../../../providers/AuthProvider'
+import { supabase } from '../../../lib/supabase'
 import { useState, useEffect } from 'react'
 import { BarChart3, TrendingUp, Users, Building2 } from 'lucide-react'
 

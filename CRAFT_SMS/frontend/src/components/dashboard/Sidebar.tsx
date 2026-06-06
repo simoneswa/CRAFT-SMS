@@ -24,8 +24,8 @@ import {
   Lock,
   Mail
 } from 'lucide-react'
-import { useTenant } from '@/providers/TenantProvider'
-import { useAuth } from '@/providers/AuthProvider'
+import { useTenant } from '../../providers/TenantProvider'
+import { useAuth } from '../../providers/AuthProvider'
 
 interface SidebarItem {
   icon: any

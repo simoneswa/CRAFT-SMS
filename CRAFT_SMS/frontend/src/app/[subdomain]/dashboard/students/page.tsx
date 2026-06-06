@@ -16,10 +16,10 @@ import {
   X,
   AlertCircle
 } from 'lucide-react'
-import { useAuth } from '@/providers/AuthProvider'
-import { useTenant } from '@/providers/TenantProvider'
-import { supabase } from '@/lib/supabase'
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
+import { useAuth } from '../../../../providers/AuthProvider'
+import { useTenant } from '../../../../providers/TenantProvider'
+import { supabase } from '../../../../lib/supabase'
+import { DashboardLayout } from '../../../../components/dashboard/DashboardLayout'
 
 export default function StudentsPage() {
   const { profile } = useAuth()

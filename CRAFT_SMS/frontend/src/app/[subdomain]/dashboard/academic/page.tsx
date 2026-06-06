@@ -1,6 +1,6 @@
 "use client"
 
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
+import { DashboardLayout } from '../../../../components/dashboard/DashboardLayout'
 import { useState, useEffect } from 'react'
 import { 
   Settings, 
@@ -17,9 +17,9 @@ import {
   X,
   AlertCircle
 } from 'lucide-react'
-import { useTenant } from '@/providers/TenantProvider'
-import { supabase } from '@/lib/supabase'
-import { fetchAPI } from '@/lib/api'
+import { useTenant } from '../../../../providers/TenantProvider'
+import { supabase } from '../../../../lib/supabase'
+import { fetchAPI } from '../../../../lib/api'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function AcademicControlCenter() {

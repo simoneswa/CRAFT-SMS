@@ -1,8 +1,8 @@
 "use client"
 
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
-import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/providers/AuthProvider'
+import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
+import { supabase } from '../../../lib/supabase'
+import { useAuth } from '../../../providers/AuthProvider'
 import { useState } from 'react'
 import { Megaphone, Send } from 'lucide-react'
 

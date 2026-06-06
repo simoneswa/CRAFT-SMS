@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DollarSign, FileText, CheckCircle, Search, Download, TrendingUp, AlertTriangle } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { useTenant } from '@/providers/TenantProvider';
+import { supabase } from '../../lib/supabase';
+import { useTenant } from '../../providers/TenantProvider';
 
 export function FinanceWidget() {
   const [transactions, setTransactions] = useState<any[]>([]);

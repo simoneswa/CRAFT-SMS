@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, BookOpen, Activity, ShieldCheck, Settings, AlertTriangle } from 'lucide-react';
-import { fetchAPI } from '@/lib/api';
+import { fetchAPI } from '../../lib/api';
 
 export function AdminWidget() {
   const [logs, setLogs] = useState<any[]>([]);

@@ -12,9 +12,9 @@ import {
   ArrowUpRight,
   ChevronRight
 } from 'lucide-react'
-import { useTenant } from '@/providers/TenantProvider'
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
-import { fetchAPI } from '@/lib/api'
+import { useTenant } from '../../../../providers/TenantProvider'
+import { DashboardLayout } from '../../../../components/dashboard/DashboardLayout'
+import { fetchAPI } from '../../../../lib/api'
 import { 
   AreaChart, 
   Area, 

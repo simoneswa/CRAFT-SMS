@@ -14,7 +14,7 @@ import {
   Settings
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { fetchAPI } from '@/lib/api'
+import { fetchAPI } from '../../../lib/api'
 
 const steps = [
   { id: 'INSTITUTION', title: 'Institutional Identity', icon: Building2 },

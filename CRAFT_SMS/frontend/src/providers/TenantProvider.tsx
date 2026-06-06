@@ -2,8 +2,8 @@
 // Build Trigger: Applying refined tenant extraction logic to exclude Vercel domains.
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
-import { db } from '@/lib/offline/db'
+import { supabase } from '../lib/supabase'
+import { db } from '../lib/offline/db'
 
 interface School {
   id: string

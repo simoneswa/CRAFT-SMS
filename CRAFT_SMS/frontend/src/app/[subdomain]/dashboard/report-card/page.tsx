@@ -12,11 +12,11 @@ import {
   Calendar
 } from 'lucide-react'
 import { useRouter, useParams } from 'next/navigation'
-import { useTenant } from '@/providers/TenantProvider'
-import { useAuth } from '@/providers/AuthProvider'
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
-import { fetchAPI } from '@/lib/api'
-import { generatePDFFromElement } from '@/lib/pdfGenerator'
+import { useTenant } from '../../../../providers/TenantProvider'
+import { useAuth } from '../../../../providers/AuthProvider'
+import { DashboardLayout } from '../../../../components/dashboard/DashboardLayout'
+import { fetchAPI } from '../../../../lib/api'
+import { generatePDFFromElement } from '../../../../lib/pdfGenerator'
 
 export default function ReportCardPage() {
   const router = useRouter()

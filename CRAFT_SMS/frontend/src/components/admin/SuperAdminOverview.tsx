@@ -14,8 +14,8 @@ import {
   KeyRound,
   Wrench
 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
-import { useToast } from '@/providers/ToastProvider'
+import { supabase } from '../../lib/supabase'
+import { useToast } from '../../providers/ToastProvider'
 
 export function SuperAdminOverview() {
   const [metrics, setMetrics] = useState<any>({})

@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { LayoutDashboard, Users, CreditCard, Bell, Trophy, Settings, Zap, BookOpen, ClipboardCheck } from 'lucide-react'
-import { useAuth } from '@/providers/AuthProvider'
+import { useAuth } from '../../providers/AuthProvider'
 
 export default function SchoolDashboard() {
   const params = useParams()

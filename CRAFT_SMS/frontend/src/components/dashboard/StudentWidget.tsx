@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Trophy, Zap, Clock, ChevronRight, AlertTriangle } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { useTenant } from '@/providers/TenantProvider';
+import { supabase } from '../../lib/supabase';
+import { useTenant } from '../../providers/TenantProvider';
 
 export function StudentWidget() {
   const [grades, setGrades] = useState<any[]>([]);
