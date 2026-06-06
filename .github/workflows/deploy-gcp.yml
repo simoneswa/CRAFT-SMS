@@ -64,9 +64,8 @@ jobs:
       # ----------------------------------------------------------------
       - name: Enable required GCP APIs
         run: |
-          set -e
           PROJECT="${{ secrets.GCP_PROJECT_ID }}"
-          echo "Enabling required APIs for project: $PROJECT"
+          echo "Attempting to enable required APIs for project: $PROJECT"
           gcloud services enable \
             cloudfunctions.googleapis.com \
             eventarc.googleapis.com \
@@ -77,8 +76,8 @@ jobs:
             cloudscheduler.googleapis.com \
             artifactregistry.googleapis.com \
             --project="$PROJECT" \
-            --quiet
-          echo "All required APIs enabled."
+            --quiet || echo "WARNING: Could not enable APIs automatically. Ensure APIs are enabled in GCP Console."
+          echo "API enablement step complete."
 
       # ----------------------------------------------------------------
       # 3. Build frontend
