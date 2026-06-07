@@ -206,3 +206,17 @@ jobs:
           fi
         env:
           FIREBASE_CLI_EXPERIMENTS: webframeworks
+
+      # ----------------------------------------------------------------
+      # 8. Grant public invoker access to SSR Cloud Run service
+      # ----------------------------------------------------------------
+      - name: Allow unauthenticated access to SSR Cloud Run service
+        run: |
+          echo "Granting allUsers roles/run.invoker on ssrcraftsms5bb1c..."
+          gcloud run services add-iam-policy-binding ssrcraftsms5bb1c \
+            --region=us-central1 \
+            --member=allUsers \
+            --role=roles/run.invoker \
+            --project=craft-sms-5bb1c \
+            --quiet
+          echo "Done. Firebase Hosting can now invoke the SSR function publicly."
