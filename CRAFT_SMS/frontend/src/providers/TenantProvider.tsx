@@ -44,11 +44,11 @@ function extractSubdomain(): string | null {
   // Strip port
   const host = hostname.split(':')[0]
 
-  // --- Vercel deployments (Production & Preview) ---
-  // Exclude all .vercel.app hostnames from tenant resolution.
+  // --- Vercel & Firebase Hosting deployments (Production & Previews) ---
+  // Exclude all .vercel.app, .web.app, and .firebaseapp.com hostnames from tenant resolution.
   // This ensures that the root project URL and all previews load the landing page.
-  if (host.endsWith('.vercel.app')) {
-    console.log('[TenantProvider] vercel domain detected — bypassing tenant resolution')
+  if (host.endsWith('.vercel.app') || host.endsWith('.web.app') || host.endsWith('.firebaseapp.com')) {
+    console.log('[TenantProvider] platform deployment domain detected — bypassing tenant resolution')
     return null
   }
 

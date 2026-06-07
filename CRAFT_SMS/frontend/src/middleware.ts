@@ -40,10 +40,11 @@ export function middleware(request: NextRequest) {
 
   // 2. Hostname Exclusions (Bypass Tenant Rewriting COMPLETELY)
   const isVercel = hostname.includes('.vercel.app')
+  const isFirebase = hostname.includes('.web.app') || hostname.includes('.firebaseapp.com')
   const isRoot = hostname === rootDomain || hostname === `www.${rootDomain}`
   const isLocalRoot = hostname === 'localhost:3000' || hostname === '127.0.0.1:3000' || hostname === 'localhost' || hostname === '127.0.0.1'
 
-  if (isVercel || isRoot || isLocalRoot) {
+  if (isVercel || isFirebase || isRoot || isLocalRoot) {
     console.log(`[MIDDLEWARE_BYPASS] Reason: System/Root Host | Host: ${hostname}`)
     return NextResponse.next()
   }
