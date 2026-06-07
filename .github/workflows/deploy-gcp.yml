@@ -192,6 +192,7 @@ jobs:
             --project craft-sms-5bb1c \
             --only hosting \
             --non-interactive \
+            --force \
             --debug >> /tmp/fb_output.txt 2>&1 || EXIT_CODE=$?
 
           echo "=== Sending output to webhook ==="
