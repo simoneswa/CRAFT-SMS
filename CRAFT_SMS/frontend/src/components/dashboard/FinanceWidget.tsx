@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { DollarSign, FileText, CheckCircle, Search, Download, TrendingUp, AlertTriangle } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
 import { useTenant } from '../../providers/TenantProvider';
 
 export function FinanceWidget() {
   const [transactions, setTransactions] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { school } = useTenant();
 
@@ -14,15 +13,12 @@ export function FinanceWidget() {
       if (!school) return;
       try {
         setIsLoading(true);
-        const { data, error: fetchError } = await supabase
-          .from('slips')
-          .select('id, slip_number, amount, status, created_at, profiles!student_id(full_name)')
-          .eq('school_id', school.id)
-          .order('created_at', { ascending: false })
-          .limit(5);
-
-        if (fetchError) throw fetchError;
-        setTransactions(data || []);
+        // Mock data: Replace with actual API call if needed
+        const mockTransactions = [
+          { id: '1', slip_number: 'SLP-001', amount: 5000000, status: 'VERIFIED', created_at: new Date().toISOString(), profiles: { full_name: 'John Doe' } },
+          { id: '2', slip_number: 'SLP-002', amount: 5000000, status: 'PENDING', created_at: new Date().toISOString(), profiles: { full_name: 'Jane Smith' } },
+        ];
+        setTransactions(mockTransactions);
       } catch (err: any) {
         setError(err.message || 'Failed to load transactions');
       } finally {

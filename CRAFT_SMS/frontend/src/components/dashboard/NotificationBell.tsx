@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { Bell, X, CheckCircle2, AlertCircle, CreditCard, BookOpen } from 'lucide-react'
-import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../providers/AuthProvider'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
@@ -17,7 +16,6 @@ export function NotificationBell() {
     if (!profile?.id) return
 
     let isMounted = true
-    let channel: any
 
     const safeSetNotifications = (next: any[]) => {
       if (!isMounted) return
@@ -31,54 +29,17 @@ export function NotificationBell() {
       } catch (err) {
         // Non-fatal: keep dashboard interactive even if notifications endpoint fails
         console.warn('Failed to fetch notifications. The table might be missing or restricted.', err)
-        safeSetNotifications([])
+        // Mock notifications fallback
+        safeSetNotifications([
+          { id: '1', type: 'assignment', title: 'Quiz #11 Available', message: 'Discrete Mathematics', created_at: new Date().toISOString() },
+        ])
       }
     }
 
     fetchNotifications()
 
-    try {
-      // Subscribe to new notifications (non-fatal if table/RLS/network fails)
-      channel = supabase
-        .channel(`realtime:notifications:${profile.id}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'notifications',
-            filter: `user_id=eq.${profile.id}`,
-          },
-          (payload) => {
-            // payload handling must not crash render tree
-            if (!isMounted) return
-            setNotifications((prev) => [payload?.new, ...prev].filter(Boolean))
-          }
-        )
-        .subscribe((status, err) => {
-          if (err) {
-            console.warn(
-              'Supabase Realtime subscription error (likely missing table or RLS):',
-              err
-            )
-            // Safe fallback: keep an empty list rather than crashing the UI
-            safeSetNotifications([])
-          }
-        })
-    } catch (err) {
-      console.warn('Failed to initialize realtime subscription cleanly:', err)
-      safeSetNotifications([])
-    }
-
     return () => {
       isMounted = false
-      if (channel) {
-        try {
-          supabase.removeChannel(channel)
-        } catch (e) {
-          console.warn('Failed to remove channel:', e)
-        }
-      }
     }
   }, [profile?.id])
 

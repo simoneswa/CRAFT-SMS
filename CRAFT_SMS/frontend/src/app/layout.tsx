@@ -4,7 +4,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { useEffect } from "react";
 import { TenantProvider } from "../providers/TenantProvider";
-import { AuthProvider } from "../providers/AuthProvider";
 import { ToastProvider } from "../providers/ToastProvider";
 import { DemoModeProvider } from "../providers/DemoModeProvider";
 
@@ -20,34 +19,32 @@ export default function RootLayout({
 }>) {
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      let refreshing = false
-      // Single reload on SW controller change (prevents double-reload loops)
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
         if (!refreshing) {
-          refreshing = true
-          console.log('[SW] Controller changed — reloading for fresh cache')
-          window.location.reload()
+          refreshing = true;
+          console.log('[SW] Controller changed — reloading for fresh cache');
+          window.location.reload();
         }
-      })
+      });
 
       navigator.serviceWorker
         .register("/sw.js")
         .then((registration) => {
-          console.log("SW registered:", registration.scope)
-          registration.update()
+          console.log("SW registered:", registration.scope);
+          registration.update();
 
           registration.onupdatefound = () => {
-            const installingWorker = registration.installing
+            const installingWorker = registration.installing;
             if (installingWorker) {
               installingWorker.onstatechange = () => {
-                if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  console.log('[SW] New version installed — sending SKIP_WAITING')
-                  // Tell the waiting SW to activate immediately
-                  installingWorker.postMessage({ type: 'SKIP_WAITING' })
+                if (installingWorker.state === "installed" && navigator.serviceWorker.controller) {
+                  console.log('[SW] New version installed — sending SKIP_WAITING');
+                  installingWorker.postMessage({ type: "SKIP_WAITING" });
                 }
-              }
+              };
             }
-          }
+          };
         })
         .catch((err) => console.error("SW registration failed:", err));
     }
@@ -62,16 +59,12 @@ export default function RootLayout({
         <meta httpEquiv="Pragma" content="no-cache" />
         <meta httpEquiv="Expires" content="0" />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
-        <AuthProvider>
-          <TenantProvider>
-            <ToastProvider>
-              <DemoModeProvider>
-                {children}
-              </DemoModeProvider>
-            </ToastProvider>
-          </TenantProvider>
-        </AuthProvider>
+      <body className={`${inter.variable} font-sans antialiased bg-[var(--brand-surface)] text-[var(--brand-heading)]`}>
+        <TenantProvider>
+          <ToastProvider>
+            <DemoModeProvider>{children}</DemoModeProvider>
+          </ToastProvider>
+        </TenantProvider>
       </body>
     </html>
   );

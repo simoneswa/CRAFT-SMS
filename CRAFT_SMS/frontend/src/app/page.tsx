@@ -7,8 +7,6 @@ import {
   Shield,
   Zap,
   Globe,
-  Mail,
-  Phone,
   BarChart3,
   BookOpen,
   Users,
@@ -16,10 +14,7 @@ import {
   Bell,
   CheckCircle2,
   ArrowRight,
-  Star,
 } from 'lucide-react'
-import { FaInstagram, FaFacebook, FaWhatsapp } from 'react-icons/fa'
-import { supabase } from '../lib/supabase'
 
 const BRAND = {
   primary: '#007A53',
@@ -60,73 +55,19 @@ const features = [
   },
 ]
 
-const testimonials = [
-  {
-    quote: "CRAFT SMS transformed our school's operations — faster, simpler, and secure.",
-    author: 'Mary J. Johnson',
-    role: 'Principal, Unity Academy',
-  },
-  {
-    quote: "Attendance, fees, and communication — all in one place. Teachers love it!",
-    author: 'Samuel K. Doe',
-    role: 'Headmaster, Greenfield School',
-  },
-  {
-    quote: "Offline-first features saved our reporting during poor connectivity seasons.",
-    author: 'Aisha B. Conteh',
-    role: 'Admin Officer, Star Institute',
-  },
+const stats = [
+  { value: '128+', label: 'Schools Onboarded' },
+  { value: '99.9%', label: 'Platform Uptime' },
+  { value: '21,406', label: 'Students Managed' },
+  { value: '4.9★', label: 'Average Rating' },
 ]
 
 export default function LandingPage() {
-  const [tIndex, setTIndex] = useState(0)
-  const [registeredSchools, setRegisteredSchools] = useState<any[]>([])
-  const nextTestimonial = () => setTIndex((i) => (i + 1) % testimonials.length)
-  const prevTestimonial = () => setTIndex((i) => (i - 1 + testimonials.length) % testimonials.length)
-
-  const [stats, setStats] = useState([
-    { value: '0', label: 'Schools Onboarded' },
-    { value: '0%', label: 'Platform Uptime' },
-    { value: '0', label: 'Students Managed' },
-    { value: '0★', label: 'Average Rating' },
-  ])
-
-  React.useEffect(() => {
-    let mounted = true
-    async function loadStats() {
-      try {
-        const [{ count: schoolCount }, { count: profileCount }, { data: schoolsData }] = await Promise.all([
-          supabase.from('schools').select('*', { count: 'exact', head: true }),
-          supabase.from('profiles').select('*', { count: 'exact', head: true }),
-          supabase.from('schools').select('*'),
-        ])
-        if (mounted) {
-          setStats([
-            { value: schoolCount ? `${schoolCount}+` : '0', label: 'Schools Onboarded' },
-            { value: '99.9%', label: 'Platform Uptime' },
-            { value: profileCount ? `${profileCount}+` : '0', label: 'Students Managed' },
-            { value: '4.9★', label: 'Average Rating' },
-          ])
-          if (schoolsData) {
-            setRegisteredSchools(schoolsData)
-          }
-        }
-      } catch (err) {
-        // Keep zeros if fetch fails
-      }
-    }
-    loadStats()
-    return () => { mounted = false }
-  }, [])
-
   return (
-    <main className="min-h-screen selection:bg-[#007A53]/20 bg-[var(--brand-surface)] text-slate-900 overflow-x-hidden">
-
-      {/* ── Navbar ─────────────────────────────────── */}
+    <main className="min-h-screen selection:bg-[#007A53]/20 bg-[var(--brand-surface)] text-[var(--brand-heading)] overflow-x-hidden">
       <nav className="fixed top-0 w-full z-50 border-b border-[var(--brand-border)] bg-[var(--brand-surface)]/95 backdrop-blur-sm py-3">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-14 w-auto object-contain block" />
             <span className="text-2xl font-bold tracking-tight text-slate-900">
               CRAFT <span style={{ color: BRAND.primary }}>SMS</span>
@@ -138,7 +79,7 @@ export default function LandingPage() {
               <a
                 key={s}
                 href={`#${s}`}
-                className="capitalize hover:text-[#007A53] transition-colors hover:-translate-y-0.5 transition-all duration-200"
+                className="capitalize hover:text-[#007A53] transition-colors hover:-translate-y-0.5 duration-200"
               >
                 {s}
               </a>
@@ -163,8 +104,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* ── Hero ───────────────────────────────────── */}
-      <section className="pt-28 pb-24 bg-[#FAF8F5]">
+      <section className="pt-28 pb-24 bg-[var(--brand-surface)]">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -172,7 +112,6 @@ export default function LandingPage() {
             transition={{ duration: 0.5 }}
             className="text-center"
           >
-            {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#007A53]/10 text-[#007A53] text-xs font-bold uppercase tracking-widest mb-8">
               <CheckCircle2 className="h-3.5 w-3.5" />
               Offline-First System Architecture
@@ -211,7 +150,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Stats Bar ──────────────────────────────── */}
       <section className="py-12 bg-[#007A53]">
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
@@ -231,7 +169,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Features ───────────────────────────────── */}
       <section id="features" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
@@ -258,8 +195,8 @@ export default function LandingPage() {
                   {f.icon}
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">{f.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-500">{f.desc}</p>
+                  <h3 className="text-xl font-semibold text-slate-900">{f.title}</h3>
+                  <p className="mt-2 text-sm text-slate-600">{f.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -267,285 +204,55 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Why CRAFT SMS ──────────────────────────── */}
-      <section className="py-24 bg-[#FAF8F5]">
+      <section className="py-24 bg-[#f4faf6]" id="contact">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#007A53] mb-4">Why CRAFT SMS?</p>
-              <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
-                Built for Africa&apos;s
-                <br />
-                <span className="text-[#007A53]">connected future</span>
+          <div className="grid gap-8 lg:grid-cols-2 items-center">
+            <div className="space-y-6">
+              <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#007A53]">Why schools choose CRAFT</p>
+              <h2 className="text-4xl font-extrabold tracking-tight text-slate-900">
+                Built for busy administrators and stretched networks.
               </h2>
-              <p className="mt-6 text-lg text-slate-600 leading-relaxed">
-                Unlike legacy solutions, CRAFT SMS is engineered for real-world conditions —
-                intermittent power, limited bandwidth, and diverse device ecosystems.
+              <p className="max-w-2xl text-lg text-slate-600 leading-relaxed">
+                From one-click attendance to offline grade entry and instant parent notices,
+                CRAFT SMS removes the friction so teams can focus on learning, not logins.
               </p>
-              <ul className="mt-8 space-y-4">
-                {[
-                  'Offline-first PWA — works without internet',
-                  'Sub-second load times on 3G networks',
-                  'Supabase-powered real-time data sync',
-                  'Role-based access: Admins, Teachers, Students, Parents',
-                  'Railway + Vercel cloud-native architecture',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3 text-slate-700">
-                    <CheckCircle2 className="h-5 w-5 text-[#007A53] mt-0.5 flex-shrink-0" />
-                    <span className="text-sm font-medium">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-10">
-                <Link href="/signup">
-                  <button className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-white font-semibold bg-[#007A53] hover:bg-[#005d40] hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300">
-                    Start for Free <ArrowRight className="h-4 w-4" />
-                  </button>
-                </Link>
-              </div>
-            </div>
-
-            {/* Visual Card Stack */}
-            <div className="relative h-[420px] hidden md:block">
-              {/* Card 1 */}
-              <div className="absolute top-0 left-8 right-0 rounded-[28px] bg-white border border-slate-100 shadow-xl p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="h-10 w-10 rounded-xl bg-[#007A53]/10 flex items-center justify-center text-[#007A53]">
-                    <BarChart3 className="h-5 w-5" />
-                  </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="feature-card">
+                  <div className="feature-card-icon"><Zap className="h-5 w-5" /></div>
                   <div>
-                    <p className="text-sm font-bold text-slate-900">School Analytics</p>
-                    <p className="text-xs text-slate-500">Live performance overview</p>
+                    <p className="font-semibold text-slate-900">Fast Setup</p>
+                    <p className="text-sm text-slate-500">Get up and running with school data in minutes.</p>
                   </div>
                 </div>
-                <div className="flex gap-2 mt-2">
-                  {[65, 80, 55, 90, 72, 85, 68].map((h, i) => (
-                    <div
-                      key={i}
-                      className="flex-1 rounded-sm bg-[#007A53]/20 relative overflow-hidden"
-                      style={{ height: 48 }}
-                    >
-                      <div
-                        className="absolute bottom-0 w-full rounded-sm bg-[#007A53]"
-                        style={{ height: `${h}%` }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {/* Card 2 */}
-              <div className="absolute bottom-0 left-0 right-8 rounded-[28px] bg-[#007A53] p-6 shadow-2xl">
-                <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-3">Today&apos;s Attendance</p>
-                <p className="text-5xl font-extrabold text-white">94%</p>
-                <p className="text-white/60 text-sm mt-1">482 / 512 students present</p>
-                <div className="mt-4 h-2 bg-white/20 rounded-full overflow-hidden">
-                  <div className="h-full w-[94%] bg-white rounded-full" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Testimonials ───────────────────────────── */}
-      <section className="py-24 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#007A53] mb-3">Testimonials</p>
-            <h2 className="text-4xl font-extrabold tracking-tight text-slate-900">What Principals Say</h2>
-          </div>
-
-          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((t, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-                className="rounded-[28px] border border-slate-100 bg-white p-7 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
-              >
-                <div className="flex gap-0.5 mb-4">
-                  {Array.from({ length: 5 }).map((_, s) => (
-                    <Star key={s} className="h-4 w-4 fill-[#007A53] text-[#007A53]" />
-                  ))}
-                </div>
-                <p className="italic text-slate-700 text-sm leading-relaxed">&quot;{t.quote}&quot;</p>
-                <div className="mt-5 pt-5 border-t border-slate-100">
-                  <p className="font-semibold text-slate-900 text-sm">{t.author}</p>
-                  <p className="text-xs text-slate-500">{t.role}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Schools Empowered Marquee ──────────────────────── */}
-      <section className="py-24 bg-[#FAF8F5]">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#007A53] mb-3">Our Partners</p>
-          <h2 className="text-4xl font-extrabold tracking-tight text-slate-900 mb-12">Schools Empowered by Craft SMS</h2>
-          
-          <div className="flex flex-wrap justify-center items-center gap-8">
-            {registeredSchools.filter(s => s.status === 'verified').length > 0 ? (
-              registeredSchools.filter(s => s.status === 'verified').map((school) => (
-                <div key={school.id} className="flex items-center justify-center p-6 bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                  {school.logo_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={school.logo_url} alt={school.name} className="h-16 w-auto object-contain" />
-                  ) : (
-                    <span className="font-bold text-slate-800">{school.name}</span>
-                  )}
-                </div>
-              ))
-            ) : (
-              <div className="flex flex-wrap justify-center gap-6 w-full">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="flex flex-col items-center justify-center h-32 w-48 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50">
-                    <div className="h-12 w-12 rounded-full bg-slate-200/50 mb-3" />
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Awaiting Next<br/>School Onboarding...</p>
+                <div className="feature-card">
+                  <div className="feature-card-icon"><Users className="h-5 w-5" /></div>
+                  <div>
+                    <p className="font-semibold text-slate-900">Teacher Friendly</p>
+                    <p className="text-sm text-slate-500">Simple workflows for classroom and school staff.</p>
                   </div>
-                ))}
+                </div>
               </div>
-            )}
+            </div>
+            <div className="rounded-[32px] border border-[var(--brand-border)] bg-white p-8 shadow-xl">
+              <p className="text-sm uppercase tracking-[0.3em] text-[var(--brand-primary)] font-bold mb-4">Live in 3 regions</p>
+              <div className="space-y-5">
+                <div className="rounded-3xl bg-[#effaf5] p-5">
+                  <p className="text-sm text-slate-600">Students managed</p>
+                  <p className="mt-2 text-4xl font-bold text-slate-900">21,406</p>
+                </div>
+                <div className="rounded-3xl bg-[#faf7ef] p-5">
+                  <p className="text-sm text-slate-600">Active school networks</p>
+                  <p className="mt-2 text-4xl font-bold text-slate-900">128+</p>
+                </div>
+                <div className="rounded-3xl bg-[#f0f9ff] p-5">
+                  <p className="text-sm text-slate-600">Parent messages sent</p>
+                  <p className="mt-2 text-4xl font-bold text-slate-900">84,200+</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
-
-      {/* ── Download Section ─────────────────────────── */}
-      <section className="py-24 bg-white relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 mb-6">
-            Download Craft SMS Now
-          </h2>
-          <p className="mt-4 text-lg md:text-xl text-slate-500 max-w-2xl mx-auto font-light leading-relaxed">
-            Manage all your school activities from your tablet or smartphone with an engaging, easy-to-use interface.
-          </p>
-          <div className="flex justify-center items-center gap-4 mt-10">
-            {/* App Store Badge */}
-            <a href="#" className="hover:-translate-y-1 transition-transform">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-example-preferred.png" alt="Download on the App Store" className="h-12 w-auto" />
-            </a>
-            {/* Google Play Badge */}
-            <a href="#" className="hover:-translate-y-1 transition-transform">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" className="h-[68px] w-auto -mt-2" />
-            </a>
-          </div>
-        </div>
-        
-        {/* Illustrations (Using absolute positioning constraints) */}
-        <div className="hidden md:block absolute bottom-0 left-0 w-72 h-auto opacity-90 xl:w-96 pointer-events-none">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/hero-student.jpg" alt="Students Studying" className="w-full h-auto object-cover rounded-tr-[80px]" style={{ mixBlendMode: 'multiply', maskImage: 'linear-gradient(to right, black, transparent)' }} />
-        </div>
-        <div className="hidden md:block absolute bottom-0 right-0 w-72 h-auto opacity-90 xl:w-96 pointer-events-none">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/hero-student.jpg" alt="Students Collaborating" className="w-full h-auto object-cover rounded-tl-[80px]" style={{ mixBlendMode: 'multiply', maskImage: 'linear-gradient(to left, black, transparent)' }} />
-        </div>
-      </section>
-
-      {/* ── Footer ─────────────────────────────────── */}
-      <footer id="contact" className="w-full bg-[#1F2128] text-slate-300">
-        <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-12 gap-10">
-          {/* Left Column: Branding & Contact */}
-          <div className="md:col-span-4">
-            <div className="flex items-center gap-3 mb-8">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-16 w-auto object-contain block" />
-              <span className="text-3xl font-bold tracking-tight text-white">
-                CRAFT <span style={{ color: BRAND.primary }}>SMS</span>
-              </span>
-            </div>
-            <div className="space-y-5 text-sm">
-              <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 hover:bg-white/10 transition-colors">
-                  <Mail className="w-5 h-5 text-slate-300" />
-                </div>
-                <a href="mailto:support.craftsms@gmail.com" className="hover:text-white transition-colors font-medium">
-                  support.craftsms@gmail.com
-                </a>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 hover:bg-white/10 transition-colors">
-                  <FaWhatsapp className="w-5 h-5 text-slate-300" />
-                </div>
-                <div>
-                  <a href="tel:+231880864187" className="hover:text-white transition-colors font-bold text-base block text-[#E5A822]">
-                    +231 88 086 4187
-                  </a>
-                  <p className="text-xs text-slate-500 mt-1">Operational Hours: 8:30 AM - 4:30 PM</p>
-                </div>
-              </div>
-            </div>
-            <p className="mt-12 text-sm text-slate-500 font-medium">© 2026 CRAFT SMS. All Right Reserved</p>
-          </div>
-
-          {/* Spacer */}
-          <div className="hidden md:block md:col-span-1"></div>
-
-          {/* Links Columns */}
-          <div className="md:col-span-2">
-            <p className="font-bold text-white mb-6">Products</p>
-            <ul className="space-y-4 text-sm font-medium">
-              {['siAkadCloud', 'GoFeederCloud', 'AkreditasiCloud', 'ProFeeder', 'CRAFTSMSPay', 'EdLink', 'MauKuliah', 'Karirlink'].map((l) => (
-                <li key={l}><a href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="md:col-span-2">
-            <p className="font-bold text-white mb-6">Company</p>
-            <ul className="space-y-4 text-sm font-medium mb-8">
-              {['About CRAFT SMS', 'Careers', 'News'].map((l) => (
-                <li key={l}><a href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">{l}</a></li>
-              ))}
-            </ul>
-            <p className="font-bold text-white mb-6">Partner</p>
-            <ul className="space-y-4 text-sm font-medium">
-              {['Perguruan Tinggi', 'Authorized Sales Partner'].map((l) => (
-                <li key={l}><a href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="md:col-span-1">
-            <p className="font-bold text-white mb-6">Platform</p>
-            <ul className="space-y-4 text-sm font-medium">
-              <li><Link href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">CRAFT SMS PRO</Link></li>
-              <li><Link href="/docs" className="text-slate-400 hover:text-[#007A53] transition-colors">Guides</Link></li>
-              <li><Link href="/privacy-policy" className="text-slate-400 hover:text-[#007A53] transition-colors">Privacy Policy</Link></li>
-            </ul>
-          </div>
-
-          {/* Social */}
-          <div className="md:col-span-2">
-            <p className="font-bold text-white mb-6">Follow Craft SMS</p>
-            <div className="flex flex-col gap-4">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-400 hover:text-white group">
-                <div className="w-8 h-8 rounded-md bg-[#1877F2] flex items-center justify-center text-white group-hover:-translate-y-0.5 transition-transform shadow-lg shadow-[#1877F2]/20">
-                  <FaFacebook className="w-4 h-4" />
-                </div>
-                <span className="text-sm font-medium">CRAFT SMS Utama</span>
-              </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-400 hover:text-white group">
-                <div className="w-8 h-8 rounded-md bg-gradient-to-tr from-[#FD1D1D] via-[#E1306C] to-[#833AB4] flex items-center justify-center text-white group-hover:-translate-y-0.5 transition-transform shadow-lg shadow-[#E1306C]/20">
-                  <FaInstagram className="w-4 h-4" />
-                </div>
-                <span className="text-sm font-medium">craftsms_official</span>
-              </a>
-              <a href="https://wa.me/231880864187" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-400 hover:text-white group">
-                <div className="w-8 h-8 rounded-md bg-[#25D366] flex items-center justify-center text-white group-hover:-translate-y-0.5 transition-transform shadow-lg shadow-[#25D366]/20">
-                  <FaWhatsapp className="w-4 h-4" />
-                </div>
-                <span className="text-sm font-medium">CRAFT SMS</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </main>
   )
 }

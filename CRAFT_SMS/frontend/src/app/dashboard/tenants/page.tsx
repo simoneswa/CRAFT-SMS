@@ -13,7 +13,6 @@ import {
   MoreVertical,
   X
 } from 'lucide-react'
-import { supabase } from '../../../lib/supabase'
 import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
 
 export default function TenantsPage() {
@@ -254,4 +253,5 @@ export default function TenantsPage() {
     </>
   )
 }
+
 

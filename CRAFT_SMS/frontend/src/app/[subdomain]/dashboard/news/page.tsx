@@ -4,7 +4,7 @@ import { DashboardLayout } from '../../../../components/dashboard/DashboardLayou
 import { useState, useEffect } from 'react'
 import { Bell, Clock, User, Megaphone } from 'lucide-react'
 import { useTenant } from '../../../../providers/TenantProvider'
-import { createClient } from '../../../../utils/supabase'
+import { fetchAPI } from '../../../../lib/api'
 
 
 export default function NewsFeedPage() {
@@ -14,18 +14,14 @@ export default function NewsFeedPage() {
 
   useEffect(() => {
     if (school?.id) {
-      const supabase = createClient()
-      // Fetch school-specific news or global news
-      supabase
-        .from('news_feed')
-
-        .select('*, profiles(full_name, role)')
-        .or(`school_id.eq.${school.id},is_global.eq.true`)
-        .order('created_at', { ascending: false })
-        .then(({ data }) => {
+      fetchAPI(`/tenants/schools/${school.id}/news`)
+        .then((data) => {
           setNews(data || [])
-          setIsLoading(false)
         })
+        .catch((err) => {
+          console.error('[NewsFeed] Failed to load news:', err)
+        })
+        .finally(() => setIsLoading(false))
     }
   }, [school])
 
@@ -87,3 +83,4 @@ export default function NewsFeedPage() {
     </DashboardLayout>
   )
 }
+

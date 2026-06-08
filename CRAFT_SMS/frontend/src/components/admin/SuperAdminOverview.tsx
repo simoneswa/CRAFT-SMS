@@ -14,7 +14,6 @@ import {
   KeyRound,
   Wrench
 } from 'lucide-react'
-import { supabase } from '../../lib/supabase'
 import { useToast } from '../../providers/ToastProvider'
 
 export function SuperAdminOverview() {
@@ -238,3 +237,4 @@ export function SuperAdminOverview() {
     </div>
   )
 }
+

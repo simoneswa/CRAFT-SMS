@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { getCurrentToken } from './firebaseAuth'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
@@ -13,15 +13,14 @@ if (!API_BASE_URL) {
 }
 
 export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
-  const { data: { session } } = await supabase.auth.getSession()
-  
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as any || {}),
   }
 
-  if (session?.access_token) {
-    headers['Authorization'] = `Bearer ${session.access_token}`
+  const token = await getCurrentToken()
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
   }
 
   // Ensure robust base URL format (remove trailing slash or /v1 suffix if misconfigured)
@@ -53,3 +52,4 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
 
   return response.json()
 }
+

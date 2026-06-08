@@ -18,7 +18,6 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { useTenant } from '../../../../providers/TenantProvider'
-import { supabase } from '../../../../lib/supabase'
 import { fetchAPI } from '../../../../lib/api'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -73,17 +72,10 @@ export default function AcademicControlCenter() {
         case 'CATEGORIES': endpoint = '/academic/grade-categories'; break
       }
       
-      const { data: resp, error: apiError } = await supabase
-        .from(
-          activeTab === 'TERMS' ? 'academic_terms' :
-          activeTab === 'SUBJECTS' ? 'subjects' :
-          activeTab === 'CLASSES' ? 'classes' : 'grade_categories'
-        )
-        .insert({ ...formData, school_id: school?.id })
-        .select()
-        .single()
-
-      if (apiError) throw apiError
+      const resp = await fetchAPI(endpoint, {
+        method: 'POST',
+        body: JSON.stringify({ ...formData, school_id: school?.id })
+      })
 
       setShowModal(false)
       setFormData({})
@@ -335,4 +327,5 @@ export default function AcademicControlCenter() {
     </DashboardLayout>
   )
 }
+
 

@@ -22,7 +22,6 @@ import { useTenant } from '../../../providers/TenantProvider'
 import { useAuth } from '../../../providers/AuthProvider'
 import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
 import { fetchAPI } from '../../../lib/api'
-import { supabase } from '../../../lib/supabase'
 
 import { ParentDashboardWidget } from '../../../components/dashboard/ParentDashboardWidget'
 import { StudentWidget } from '../../../components/dashboard/StudentWidget'

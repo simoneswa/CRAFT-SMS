@@ -2,7 +2,7 @@
 // Build Trigger: Applying refined tenant extraction logic to exclude Vercel domains.
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { fetchAPI } from '../lib/api'
 import { db } from '../lib/offline/db'
 
 interface School {
@@ -38,18 +38,18 @@ const TenantContext = createContext<TenantContextType>({
  *   localhost:3000                               → null          (root, no tenant)
  */
 function extractSubdomain(): string | null {
-  const hostname = window.location.hostname
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : ''
   console.log('[TenantProvider] window.location.hostname =', hostname)
 
   // Strip port
-  const host = hostname.split(':')[0]
+  const host = hostname.split(':')[0] || ''
 
   // --- Vercel & Firebase Hosting deployments (Production & Previews) ---
   // Exclude all .vercel.app, .web.app, and .firebaseapp.com hostnames from tenant resolution.
   // This ensures that the root project URL and all previews load the landing page.
   if (host.endsWith('.vercel.app') || host.endsWith('.web.app') || host.endsWith('.firebaseapp.com')) {
-    console.log('[TenantProvider] platform deployment domain detected — bypassing tenant resolution')
-    return null
+    console.log('[TenantProvider] platform deployment domain detected — falling back to "demo"')
+    return 'demo'
   }
 
   // --- Custom root domain ---
@@ -76,9 +76,9 @@ function extractSubdomain(): string | null {
     }
   }
 
-  // Bare localhost — root, no tenant
-  console.log('[TenantProvider] bare localhost — no tenant')
-  return null
+  // Bare localhost — fallback to demo for local testing
+  console.log('[TenantProvider] bare localhost — falling back to "demo"')
+  return 'demo'
 }
 
 export function TenantProvider({ children }: { children: React.ReactNode }) {
@@ -88,6 +88,9 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
   const [subdomain, setSubdomain] = useState<string | null>(null)
 
   useEffect(() => {
+    // Only run on client side (window is defined)
+    if (typeof window === 'undefined') return
+
     const detectedSubdomain = extractSubdomain()
     setSubdomain(detectedSubdomain)
 
@@ -102,31 +105,13 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         `[TenantProvider] fetching school for subdomain="${detectedSubdomain}" (attempt ${attempt})`
       )
       try {
-        const { data, error: queryError } = await supabase
-          .from('schools')
-          .select('*')
-          .eq('subdomain', detectedSubdomain)
-          .eq('is_active', true)
-          .single()
+        // Resolve school via backend API (Firebase-authenticated or Public depending on backend route)
+        const data = await fetchAPI(`/tenants/by-subdomain?subdomain=${detectedSubdomain}`, { method: 'GET' })
 
-        console.log('[TenantProvider] Supabase result:', { data, queryError })
-
-        if (queryError) {
-          // PGRST116 = no rows → this subdomain doesn't exist in DB
-          if (queryError.code === 'PGRST116') {
-            console.warn('[TenantProvider] No active school found for subdomain:', detectedSubdomain)
-            setError(`No active school found for "${detectedSubdomain}"`)
-            return
-          }
-
-          // Transient error → retry once after 1.5s
-          if (attempt < 2) {
-            console.warn('[TenantProvider] Transient error, retrying in 1.5s…', queryError.message)
-            setTimeout(() => fetchSchool(2), 1500)
-            return
-          }
-
-          throw queryError
+        if (!data) {
+          console.warn('[TenantProvider] No active school found for subdomain:', detectedSubdomain)
+          setError(`No active school found for "${detectedSubdomain}"`)
+          return
         }
 
         // ✅ School found

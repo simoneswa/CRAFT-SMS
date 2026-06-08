@@ -3,7 +3,6 @@
 import { DashboardLayout } from '../../../../components/dashboard/DashboardLayout'
 import { Trophy, Medal, Star, Flame } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { supabase } from '../../../../lib/supabase'
 import { useTenant } from '../../../../providers/TenantProvider'
 
 export default function LeaderboardPage() {
@@ -120,3 +119,4 @@ export default function LeaderboardPage() {
     </DashboardLayout>
   )
 }
+

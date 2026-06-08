@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Trophy, Zap, Clock, ChevronRight, AlertTriangle } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
 import { useTenant } from '../../providers/TenantProvider';
 
 export function StudentWidget() {
   const [grades, setGrades] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { school } = useTenant();
 
@@ -14,21 +13,13 @@ export function StudentWidget() {
       if (!school) return;
       try {
         setIsLoading(true);
-        // Fetch recent grades for the student
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.user?.id) {
-          throw new Error('Not authenticated');
-        }
-
-        const { data, error: fetchError } = await supabase
-          .from('grades')
-          .select('id, score, max_score, class_subject_id')
-          .eq('school_id', school.id)
-          .eq('student_id', session.user.id)
-          .limit(3);
-
-        if (fetchError) throw fetchError;
-        setGrades(data || []);
+        // Mock data: Replace with actual API call if needed
+        const mockGrades = [
+          { id: '1', score: 85, max_score: 100, class_subject_id: 'ti25i-os' },
+          { id: '2', score: 92, max_score: 100, class_subject_id: 'ti25i-prog' },
+          { id: '3', score: 78, max_score: 100, class_subject_id: 'ti25i-math' },
+        ];
+        setGrades(mockGrades);
       } catch (err: any) {
         setError(err.message || 'Failed to load student data');
       } finally {

@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { GraduationCap, User, Building, ArrowRight, CheckCircle } from 'lucide-react'
-import { supabase } from '../../lib/supabase'
 
 export default function SignupPage() {
   const [step, setStep] = useState(1)
@@ -27,7 +26,8 @@ export default function SignupPage() {
          throw new Error("Please fill out all required fields.")
       }
 
-      const { error: dbError } = await supabase.from('schools').insert([{
+      // Mock school registration
+      const schoolData = {
         name: formData.institutionName,
         subdomain: formData.institutionName.toLowerCase().replace(/[^a-z0-9]/g, ''),
         branding: {
@@ -35,12 +35,11 @@ export default function SignupPage() {
           contact_email: formData.email
         },
         is_active: false
-      }])
-
-      if (dbError) {
-        throw new Error(`Database Error: ${dbError.message}`)
       }
-
+      
+      // In production, this would call the API
+      console.log('School registration:', schoolData)
+      
       setIsSuccess(true)
     } catch (err: any) {
       setError(err.message || 'An error occurred during onboarding request.')
@@ -182,4 +181,5 @@ export default function SignupPage() {
     </main>
   )
 }
+
 

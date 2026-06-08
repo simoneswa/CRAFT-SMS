@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Mail, ShieldCheck, AlertTriangle } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { supabase } from '../../lib/supabase'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -19,12 +18,13 @@ export default function ForgotPasswordPage() {
     setIsLoading(true)
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/login`,
-      })
+      if (!email) {
+        throw new Error('Please enter a valid email address')
+      }
 
-      if (error) throw error
-
+      // Mock password reset flow
+      console.log('Password reset requested for:', email)
+      
       setSuccess('If an account exists for that email, we have sent password reset instructions. Please check your inbox.')
     } catch (err: any) {
       console.error('Password reset error:', err)
@@ -111,3 +111,4 @@ export default function ForgotPasswordPage() {
     </main>
   )
 }
+

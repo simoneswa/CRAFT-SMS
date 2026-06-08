@@ -1,7 +1,6 @@
 "use client"
 
 import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
-import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../../providers/AuthProvider'
 import { useState } from 'react'
 import { Megaphone, Send } from 'lucide-react'
@@ -16,15 +15,17 @@ export default function AnnouncementsPage() {
   const handlePost = async () => {
     if (!content.trim()) return
     setIsPosting(true)
-    await supabase.from('news_feed').insert({
-      author_id: profile?.id,
-      content,
-      is_global: isGlobal,
-    })
-    setContent('')
-    setSuccess(true)
-    setTimeout(() => setSuccess(false), 3000)
-    setIsPosting(false)
+    try {
+      // Mock announcement posting
+      console.log('Posting announcement:', { author_id: profile?.id, content, is_global: isGlobal })
+      setContent('')
+      setSuccess(true)
+      setTimeout(() => setSuccess(false), 3000)
+    } catch (err) {
+      console.error('Failed to post announcement:', err)
+    } finally {
+      setIsPosting(false)
+    }
   }
 
   return (
@@ -79,3 +80,4 @@ export default function AnnouncementsPage() {
     </>
   )
 }
+

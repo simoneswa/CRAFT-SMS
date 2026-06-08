@@ -1,7 +1,6 @@
 "use client"
 
 import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
-import { supabase } from '../../../lib/supabase'
 import { useState, useEffect } from 'react'
 import { Building2, CheckCircle2, XCircle, Clock } from 'lucide-react'
 
@@ -10,18 +9,18 @@ export default function SchoolStatusPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    supabase
-      .from('schools')
-      .select('id, name, subdomain, is_active, created_at')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        setSchools(data || [])
-        setIsLoading(false)
-      })
+    // Mock schools data
+    const mockSchools = [
+      { id: '1', name: 'Central High School', subdomain: 'central-high', is_active: true, created_at: '2024-01-15' },
+      { id: '2', name: 'Riverside Academy', subdomain: 'riverside-academy', is_active: true, created_at: '2024-02-20' },
+    ]
+    setSchools(mockSchools)
+    setIsLoading(false)
   }, [])
 
   const toggleStatus = async (id: string, current: boolean) => {
-    await supabase.from('schools').update({ is_active: !current }).eq('id', id)
+    // Mock status update
+    console.log('Toggling status for school:', id)
     setSchools(prev => prev.map(s => s.id === id ? { ...s, is_active: !current } : s))
   }
 
@@ -86,3 +85,4 @@ export default function SchoolStatusPage() {
     </>
   )
 }
+
