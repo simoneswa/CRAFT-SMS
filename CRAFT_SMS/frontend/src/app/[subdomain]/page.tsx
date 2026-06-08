@@ -1,59 +1,73 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
-import { motion } from 'framer-motion'
-import Link from 'next/link'
-import { LayoutDashboard, Users, CreditCard, Bell, Trophy, Settings, Zap, BookOpen, ClipboardCheck } from 'lucide-react'
+import React from 'react'
 import { useAuth } from '../../providers/AuthProvider'
+import StudentDashboard from '../../components/dashboard/StudentDashboard'
+import TeacherDashboard from '../../components/dashboard/TeacherDashboard'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
+import { LayoutDashboard, Users, CreditCard, Bell, Trophy, Settings, Zap, BookOpen, ClipboardCheck } from 'lucide-react'
+import { CraftLogo } from '../../components/ui/CraftLogo'
 
+/**
+ * Root [subdomain] page – renders role-specific Edlink-inspired dashboards.
+ * 
+ * - STUDENT  → StudentDashboard (light emerald Edlink layout)
+ * - TEACHER  → TeacherDashboard (light emerald Edlink instructor layout)
+ * - Others   → Legacy admin/business sidebar layout (preserved)
+ */
 export default function SchoolDashboard() {
   const params = useParams()
   const subdomain = params.subdomain as string
-  const { profile } = useAuth()
+  const { profile, isLoading } = useAuth()
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   const role = profile?.role || 'STUDENT'
+
+  // Render Edlink-inspired dashboards for Student and Teacher roles
+  if (role === 'STUDENT') return <StudentDashboard />
+  if (role === 'TEACHER') return <TeacherDashboard />
+
+  // ── Legacy admin/business/parent layout (preserved from original) ──────────
   const schoolName = subdomain.charAt(0).toUpperCase() + subdomain.slice(1) + " School"
 
-  // Contextual Sidebar Navigation
   const getNavItems = () => {
     const base = [
       { icon: LayoutDashboard, label: 'Overview', href: `/${subdomain}/dashboard`, active: true },
       { icon: Bell, label: 'News Feed', href: `/${subdomain}/dashboard/news` },
     ]
 
-    if (role === 'STUDENT') {
-      return [
-        ...base,
-        { icon: BookOpen, label: 'My Courses', href: `/${subdomain}/dashboard/courses` },
-        { icon: CreditCard, label: 'Financial Status', href: `/${subdomain}/dashboard/finance` },
-        { icon: Trophy, label: 'Leaderboard', href: `/${subdomain}/dashboard/gamification` },
-      ]
-    } else if (role === 'BUSINESS') {
+    if (role === 'BUSINESS') {
       return [
         ...base,
         { icon: CreditCard, label: 'Payments & Slips', href: `/${subdomain}/dashboard/finance` },
         { icon: Users, label: 'Student Balances', href: `/${subdomain}/dashboard/students` },
       ]
-    } else {
-      // Admin / Super Admin / Teacher
-      return [
-        ...base,
-        { icon: Users, label: 'Directory', href: `/${subdomain}/dashboard/students` },
-        { icon: CreditCard, label: 'Financials', href: `/${subdomain}/dashboard/finance` },
-        { icon: ClipboardCheck, label: 'Attendance', href: `/${subdomain}/dashboard/attendance` },
-        { icon: Trophy, label: 'Gamification', href: `/${subdomain}/dashboard/gamification` },
-        { icon: Settings, label: 'Settings', href: `/${subdomain}/dashboard/settings` },
-      ]
     }
+    // Admin / Super Admin / Parent
+    return [
+      ...base,
+      { icon: Users, label: 'Directory', href: `/${subdomain}/dashboard/students` },
+      { icon: CreditCard, label: 'Financials', href: `/${subdomain}/dashboard/finance` },
+      { icon: ClipboardCheck, label: 'Attendance', href: `/${subdomain}/dashboard/attendance` },
+      { icon: Trophy, label: 'Gamification', href: `/${subdomain}/dashboard/gamification` },
+      { icon: Settings, label: 'Settings', href: `/${subdomain}/dashboard/settings` },
+    ]
   }
 
   return (
     <div className="min-h-screen bg-[#030712] text-white flex">
       {/* Sidebar */}
-      <aside className="w-72 border-r border-white/5 bg-black/40 backdrop-blur-2xl p-8 flex flex-col gap-12 hidden md:flex">
+      <aside className="w-72 border-r border-white/5 bg-black/40 backdrop-blur-2xl p-8 flex-col gap-12 hidden md:flex">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-teal-500 rounded-lg" />
+          <CraftLogo className="h-10 w-auto" />
           <span className="font-bold text-xl tracking-tight uppercase">{subdomain}</span>
         </div>
 
@@ -62,8 +76,8 @@ export default function SchoolDashboard() {
             <Link key={i} href={item.href}>
               <button
                 className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all text-sm font-medium ${
-                  item.active 
-                  ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20' 
+                  item.active
+                  ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -89,7 +103,7 @@ export default function SchoolDashboard() {
             <h1 className="text-3xl font-bold mb-2">{schoolName}</h1>
             <p className="text-gray-400">Welcome back, {profile?.full_name || role}</p>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <button className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5">
               <Bell className="w-5 h-5 text-gray-400" />
@@ -98,42 +112,7 @@ export default function SchoolDashboard() {
           </div>
         </header>
 
-        {/* Dynamic Dashboard Differentiation */}
-        {role === 'STUDENT' ? (
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Link href={`/${subdomain}/dashboard/grades`} className="premium-card hover:border-teal-500/40 transition-all cursor-pointer">
-                <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">Academic Record</p>
-                <h3 className="text-lg font-bold mb-1 text-teal-400">View Grades &rarr;</h3>
-                <span className="text-xs text-gray-500">GPA and subject scores</span>
-              </Link>
-              <Link href={`/${subdomain}/dashboard/attendance`} className="premium-card hover:border-blue-500/40 transition-all cursor-pointer">
-                <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">Attendance</p>
-                <h3 className="text-lg font-bold mb-1 text-blue-400">View Record &rarr;</h3>
-                <span className="text-xs text-gray-500">Presence and absence history</span>
-              </Link>
-              <Link href={`/${subdomain}/dashboard/finance`} className="premium-card hover:border-emerald-500/40 transition-all cursor-pointer">
-                <p className="text-gray-400 text-xs font-medium mb-1 uppercase tracking-wider">Financial Status</p>
-                <h3 className="text-lg font-bold mb-1 text-emerald-400">View Slips &rarr;</h3>
-                <span className="text-xs text-gray-500">Payment slips and balances</span>
-              </Link>
-            </div>
-
-            <div className="premium-card">
-              <h3 className="text-lg font-bold mb-6">My Courses</h3>
-              <div className="flex flex-col gap-4">
-                <Link href={`/${subdomain}/dashboard/grades`} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
-                  <span className="font-bold">View All Grades & Courses</span>
-                  <span className="text-teal-400 text-sm font-bold">&rarr;</span>
-                </Link>
-                <Link href={`/${subdomain}/dashboard/gamification`} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
-                  <span className="font-bold">Leaderboard Ranking</span>
-                  <span className="text-teal-400 text-sm font-bold">&rarr;</span>
-                </Link>
-              </div>
-            </div>
-          </div>
-        ) : role === 'BUSINESS' ? (
+        {role === 'BUSINESS' ? (
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Link href={`/${subdomain}/dashboard/finance?filter=PENDING`} className="premium-card hover:border-amber-500/40 transition-all cursor-pointer">
