@@ -12,6 +12,7 @@ import {
 import { useAuth } from '../../providers/AuthProvider'
 import { useTenant } from '../../providers/TenantProvider'
 import { CraftLogo } from '../ui/CraftLogo'
+import { fetchAPI } from '../../lib/api'
 
 /**
  * TeacherDashboard — Instructor Portal
@@ -21,13 +22,9 @@ import { CraftLogo } from '../ui/CraftLogo'
  * - Assigned Classes with student rosters
  * - Grading & action queue
  * - Teaching schedule overview
- * 
- * This dashboard is COMPLETELY SEPARATE from StudentDashboard.
- * No student-specific features (attendance tracking from student POV,
- * personal course enrollment, todo deadlines) appear here.
  */
 
-// ─── Types for backend data (will be populated from API) ───────────────────
+// ─── Types for backend data ───────────────────────────────────────────────
 
 interface LessonPlan {
   id: string
@@ -101,11 +98,86 @@ export default function TeacherDashboard() {
   const [searchQuery, setSearchQuery] = useState('')
   const [planFilter, setPlanFilter] = useState<string>('all')
 
-  // These will be populated from the backend API when real data is available
   const [lessonPlans, setLessonPlans] = useState<LessonPlan[]>([])
   const [assignedClasses, setAssignedClasses] = useState<AssignedClass[]>([])
   const [gradingTasks, setGradingTasks] = useState<GradingTask[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadInstructorData() {
+      if (!profile?.id) return
+      setIsLoading(true)
+      try {
+        const [plansRes, classesRes, tasksRes] = await Promise.all([
+          fetchAPI('/lesson-plans/').catch(() => []),
+          fetchAPI('/academic/classes/').catch(() => []), // Ensure endpoint exists or returns [] if not 
+          fetchAPI('/notifications').catch(() => []) // Temporary placeholder for tasks
+        ])
+
+        if (!isMounted) return
+
+        if (Array.isArray(plansRes)) {
+            // Map the lesson plans to our frontend model
+            const mappedPlans = plansRes.map((p: any) => ({
+                id: p.id,
+                topic: p.topic || 'Untitled Plan',
+                sub_topic: p.sub_topic || '',
+                subject_name: p.subject_name || 'Subject Pending',
+                class_name: p.class_name || 'Class Pending',
+                week_number: p.week_number || 1,
+                status: p.status || 'draft',
+                submitted_at: p.submitted_at,
+                approved_at: p.approved_at,
+                created_at: p.created_at
+            }))
+            setLessonPlans(mappedPlans)
+        }
+
+        if (Array.isArray(classesRes)) {
+            const mappedClasses = classesRes.map((c: any) => ({
+                id: c.id,
+                name: c.name || 'Unnamed Class',
+                department: c.grade_level || 'General',
+                subject: 'Assigned Subject',
+                enrolled_students: c.enrolled_count || 0,
+                schedule: c.room_number ? `Room ${c.room_number}` : 'TBA',
+                room: c.room_number || 'TBA'
+            }))
+            setAssignedClasses(mappedClasses)
+        }
+
+        if (Array.isArray(tasksRes)) {
+             // Mock transforming notifications into grading tasks as a temporary fallback if no grading endpoint
+             const mappedTasks = tasksRes
+                .filter((n: any) => n.type === 'ACADEMIC')
+                .map((n: any) => ({
+                    id: n.id,
+                    title: n.title,
+                    class_name: n.message,
+                    pending_count: 1,
+                    due_date: 'Pending',
+                    type: 'assignment' as const
+                }))
+             setGradingTasks(mappedTasks)
+        }
+
+      } catch (error) {
+        console.error("Failed to load instructor data", error)
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    loadInstructorData()
+
+    return () => {
+      isMounted = false
+    }
+  }, [profile?.id])
 
   // Filtered data
   const filteredPlans = lessonPlans.filter(p => {
@@ -192,19 +264,19 @@ export default function TeacherDashboard() {
             <h3 className="font-bold text-sm mb-4">My Overview</h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-emerald-50 rounded-lg p-3 text-center">
-                <p className="text-2xl font-black text-emerald-600">{assignedClasses.length}</p>
+                <p className="text-2xl font-black text-emerald-600">{isLoading ? '-' : assignedClasses.length}</p>
                 <p className="text-[10px] text-emerald-700 font-medium uppercase">Classes</p>
               </div>
               <div className="bg-blue-50 rounded-lg p-3 text-center">
-                <p className="text-2xl font-black text-blue-600">{lessonPlans.length}</p>
+                <p className="text-2xl font-black text-blue-600">{isLoading ? '-' : lessonPlans.length}</p>
                 <p className="text-[10px] text-blue-700 font-medium uppercase">Lesson Plans</p>
               </div>
               <div className="bg-amber-50 rounded-lg p-3 text-center">
-                <p className="text-2xl font-black text-amber-600">{draftPlansCount}</p>
+                <p className="text-2xl font-black text-amber-600">{isLoading ? '-' : draftPlansCount}</p>
                 <p className="text-[10px] text-amber-700 font-medium uppercase">Drafts</p>
               </div>
               <div className="bg-purple-50 rounded-lg p-3 text-center">
-                <p className="text-2xl font-black text-purple-600">{pendingGradingCount}</p>
+                <p className="text-2xl font-black text-purple-600">{isLoading ? '-' : pendingGradingCount}</p>
                 <p className="text-[10px] text-purple-700 font-medium uppercase">To Grade</p>
               </div>
             </div>
@@ -214,14 +286,18 @@ export default function TeacherDashboard() {
           <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
             <div className="flex items-center space-x-2 mb-4">
               <h3 className="font-bold text-sm">Grading Queue</h3>
-              {gradingTasks.length > 0 && (
+              {gradingTasks.length > 0 && !isLoading && (
                 <span className="bg-rose-100 text-rose-600 font-bold text-xs px-1.5 py-0.5 rounded-full">
                   {gradingTasks.length}
                 </span>
               )}
             </div>
 
-            {gradingTasks.length > 0 ? (
+            {isLoading ? (
+               <div className="py-6 text-center">
+                   <div className="w-6 h-6 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-2" />
+               </div>
+            ) : gradingTasks.length > 0 ? (
               <div className="space-y-3">
                 {gradingTasks.map((task, i) => {
                   const TaskIcon = getTaskTypeIcon(task.type)
@@ -358,174 +434,184 @@ export default function TeacherDashboard() {
             )}
           </div>
 
-          {/* ─── TAB: LESSON PLANS ─────────────────────────────────────── */}
-          {activeTab === 'lesson-plans' && (
+          {/* Data Rendering Based on Loading State */}
+          {isLoading ? (
+             <div className="py-20 text-center">
+                 <div className="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4" />
+                 <p className="text-sm text-slate-400">Loading your instructor dashboard...</p>
+             </div>
+          ) : (
             <>
-              {filteredPlans.length > 0 ? (
-                <div className="space-y-3">
-                  {filteredPlans.map((plan, i) => {
-                    const badge = getStatusBadge(plan.status)
-                    return (
-                      <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-1">
-                              <h3 className="font-bold text-slate-800 text-sm">{plan.topic}</h3>
-                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${badge.bg} ${badge.text}`}>
-                                {badge.label}
-                              </span>
-                            </div>
-                            {plan.sub_topic && (
-                              <p className="text-[11px] text-slate-400 mb-2">{plan.sub_topic}</p>
-                            )}
-                            <div className="flex flex-wrap gap-4 text-xs text-slate-500">
-                              <span className="flex items-center space-x-1">
-                                <BookOpen size={12} className="text-slate-400" />
-                                <span>{plan.subject_name}</span>
-                              </span>
-                              <span className="flex items-center space-x-1">
-                                <Users size={12} className="text-slate-400" />
-                                <span>{plan.class_name}</span>
-                              </span>
-                              <span className="flex items-center space-x-1">
-                                <Calendar size={12} className="text-slate-400" />
-                                <span>Week {plan.week_number}</span>
-                              </span>
+              {/* ─── TAB: LESSON PLANS ─────────────────────────────────────── */}
+              {activeTab === 'lesson-plans' && (
+                <>
+                  {filteredPlans.length > 0 ? (
+                    <div className="space-y-3">
+                      {filteredPlans.map((plan, i) => {
+                        const badge = getStatusBadge(plan.status)
+                        return (
+                          <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-2 mb-1">
+                                  <h3 className="font-bold text-slate-800 text-sm">{plan.topic}</h3>
+                                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${badge.bg} ${badge.text}`}>
+                                    {badge.label}
+                                  </span>
+                                </div>
+                                {plan.sub_topic && (
+                                  <p className="text-[11px] text-slate-400 mb-2">{plan.sub_topic}</p>
+                                )}
+                                <div className="flex flex-wrap gap-4 text-xs text-slate-500">
+                                  <span className="flex items-center space-x-1">
+                                    <BookOpen size={12} className="text-slate-400" />
+                                    <span>{plan.subject_name}</span>
+                                  </span>
+                                  <span className="flex items-center space-x-1">
+                                    <Users size={12} className="text-slate-400" />
+                                    <span>{plan.class_name}</span>
+                                  </span>
+                                  <span className="flex items-center space-x-1">
+                                    <Calendar size={12} className="text-slate-400" />
+                                    <span>Week {plan.week_number}</span>
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2 ml-4">
+                                {plan.status === 'draft' && (
+                                  <button className="text-[10px] font-bold px-3 py-1.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors flex items-center space-x-1">
+                                    <Send size={10} />
+                                    <span>Submit</span>
+                                  </button>
+                                )}
+                                <button className="text-[10px] font-bold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors flex items-center space-x-1">
+                                  <Eye size={10} />
+                                  <span>View</span>
+                                </button>
+                              </div>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2 ml-4">
-                            {plan.status === 'draft' && (
-                              <button className="text-[10px] font-bold px-3 py-1.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors flex items-center space-x-1">
-                                <Send size={10} />
-                                <span>Submit</span>
-                              </button>
-                            )}
-                            <button className="text-[10px] font-bold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors flex items-center space-x-1">
-                              <Eye size={10} />
-                              <span>View</span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div className="bg-white rounded-xl border border-slate-100 p-12 text-center">
-                  <BookOpen size={36} className="mx-auto mb-3 text-slate-300" />
-                  <h4 className="text-sm font-bold text-slate-600 mb-1">No Lesson Plans Yet</h4>
-                  <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                    Create your first lesson plan to start organizing your curriculum. Plans can be submitted for administrative review and approval.
-                  </p>
-                  <button className="mt-4 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg inline-flex items-center space-x-1.5 transition-colors">
-                    <Plus size={14} />
-                    <span>Create First Lesson Plan</span>
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* ─── TAB: ASSIGNED CLASSES ─────────────────────────────────── */}
-          {activeTab === 'classes' && (
-            <>
-              {filteredClasses.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {filteredClasses.map((cls, i) => (
-                    <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="font-bold text-slate-800 text-sm">{cls.name}</h3>
-                          <p className="text-[11px] text-slate-400 font-medium">{cls.department}</p>
-                        </div>
-                        <div className="bg-emerald-50 text-emerald-700 font-bold text-xs px-2 py-1 rounded-lg">
-                          {cls.enrolled_students} students
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 text-xs text-slate-500 mb-4">
-                        <div className="flex items-center space-x-2">
-                          <BookOpen size={13} className="text-slate-400" />
-                          <span>{cls.subject}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Clock size={13} className="text-slate-400" />
-                          <span>{cls.schedule}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Layers size={13} className="text-slate-400" />
-                          <span>Room: {cls.room}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-2 pt-3 border-t border-slate-100">
-                        <Link href={`/${subdomain}/dashboard/attendance`} className="flex-1">
-                          <button className="w-full text-[10px] font-bold py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
-                            Take Attendance
-                          </button>
-                        </Link>
-                        <Link href={`/${subdomain}/dashboard/gradebook`} className="flex-1">
-                          <button className="w-full text-[10px] font-bold py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors">
-                            Gradebook
-                          </button>
-                        </Link>
-                      </div>
+                        )
+                      })}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-white rounded-xl border border-slate-100 p-12 text-center">
-                  <Users size={36} className="mx-auto mb-3 text-slate-300" />
-                  <h4 className="text-sm font-bold text-slate-600 mb-1">No Classes Assigned</h4>
-                  <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                    Your assigned classes will appear here once the school administrator assigns you to classes for the current term.
-                  </p>
-                </div>
+                  ) : (
+                    <div className="bg-white rounded-xl border border-slate-100 p-12 text-center">
+                      <BookOpen size={36} className="mx-auto mb-3 text-slate-300" />
+                      <h4 className="text-sm font-bold text-slate-600 mb-1">No Lesson Plans Yet</h4>
+                      <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                        Create your first lesson plan to start organizing your curriculum. Plans can be submitted for administrative review and approval.
+                      </p>
+                      <button className="mt-4 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg inline-flex items-center space-x-1.5 transition-colors">
+                        <Plus size={14} />
+                        <span>Create First Lesson Plan</span>
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
-            </>
-          )}
 
-          {/* ─── TAB: GRADING ─────────────────────────────────────────── */}
-          {activeTab === 'grading' && (
-            <>
-              {gradingTasks.length > 0 ? (
-                <div className="space-y-3">
-                  {gradingTasks.map((task, i) => {
-                    const TaskIcon = getTaskTypeIcon(task.type)
-                    return (
-                      <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
-                              <TaskIcon size={20} />
-                            </div>
+              {/* ─── TAB: ASSIGNED CLASSES ─────────────────────────────────── */}
+              {activeTab === 'classes' && (
+                <>
+                  {filteredClasses.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {filteredClasses.map((cls, i) => (
+                        <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                          <div className="flex items-start justify-between mb-3">
                             <div>
-                              <h3 className="font-bold text-slate-800 text-sm">{task.title}</h3>
-                              <p className="text-[11px] text-slate-400 font-medium">{task.class_name}</p>
+                              <h3 className="font-bold text-slate-800 text-sm">{cls.name}</h3>
+                              <p className="text-[11px] text-slate-400 font-medium">{cls.department}</p>
+                            </div>
+                            <div className="bg-emerald-50 text-emerald-700 font-bold text-xs px-2 py-1 rounded-lg">
+                              {cls.enrolled_students} students
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-sm font-bold text-amber-600">{task.pending_count} pending</p>
-                            <p className="text-[10px] text-slate-400">Due: {task.due_date}</p>
+
+                          <div className="space-y-2 text-xs text-slate-500 mb-4">
+                            <div className="flex items-center space-x-2">
+                              <BookOpen size={13} className="text-slate-400" />
+                              <span>{cls.subject}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Clock size={13} className="text-slate-400" />
+                              <span>{cls.schedule}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Layers size={13} className="text-slate-400" />
+                              <span>Room: {cls.room}</span>
+                            </div>
                           </div>
-                          <Link href={`/${subdomain}/dashboard/gradebook`}>
-                            <button className="ml-4 text-[10px] font-bold px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors">
-                              Start Grading
-                            </button>
-                          </Link>
+
+                          <div className="flex items-center space-x-2 pt-3 border-t border-slate-100">
+                            <Link href={`/${subdomain}/dashboard/attendance`} className="flex-1">
+                              <button className="w-full text-[10px] font-bold py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
+                                Take Attendance
+                              </button>
+                            </Link>
+                            <Link href={`/${subdomain}/dashboard/gradebook`} className="flex-1">
+                              <button className="w-full text-[10px] font-bold py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors">
+                                Gradebook
+                              </button>
+                            </Link>
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div className="bg-white rounded-xl border border-slate-100 p-12 text-center">
-                  <CheckCircle2 size={36} className="mx-auto mb-3 text-emerald-400" />
-                  <h4 className="text-sm font-bold text-slate-600 mb-1">All Caught Up!</h4>
-                  <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                    No grading tasks pending. New submissions will appear here when students submit their work.
-                  </p>
-                </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-xl border border-slate-100 p-12 text-center">
+                      <Users size={36} className="mx-auto mb-3 text-slate-300" />
+                      <h4 className="text-sm font-bold text-slate-600 mb-1">No Classes Assigned</h4>
+                      <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                        Your assigned classes will appear here once the school administrator assigns you to classes for the current term.
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* ─── TAB: GRADING ─────────────────────────────────────────── */}
+              {activeTab === 'grading' && (
+                <>
+                  {gradingTasks.length > 0 ? (
+                    <div className="space-y-3">
+                      {gradingTasks.map((task, i) => {
+                        const TaskIcon = getTaskTypeIcon(task.type)
+                        return (
+                          <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-4">
+                                <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                                  <TaskIcon size={20} />
+                                </div>
+                                <div>
+                                  <h3 className="font-bold text-slate-800 text-sm">{task.title}</h3>
+                                  <p className="text-[11px] text-slate-400 font-medium">{task.class_name}</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm font-bold text-amber-600">{task.pending_count} pending</p>
+                                <p className="text-[10px] text-slate-400">Due: {task.due_date}</p>
+                              </div>
+                              <Link href={`/${subdomain}/dashboard/gradebook`}>
+                                <button className="ml-4 text-[10px] font-bold px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors">
+                                  Start Grading
+                                </button>
+                              </Link>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-xl border border-slate-100 p-12 text-center">
+                      <CheckCircle2 size={36} className="mx-auto mb-3 text-emerald-400" />
+                      <h4 className="text-sm font-bold text-slate-600 mb-1">All Caught Up!</h4>
+                      <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                        No grading tasks pending. New submissions will appear here when students submit their work.
+                      </p>
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}

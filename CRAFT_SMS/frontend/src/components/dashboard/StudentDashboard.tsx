@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import {
@@ -11,27 +11,7 @@ import {
 import { useAuth } from '../../providers/AuthProvider'
 import { useTenant } from '../../providers/TenantProvider'
 import { CraftLogo } from '../ui/CraftLogo'
-
-const WEEK_DAYS: { day: string; num: string }[] = []
-
-const TODO_ITEMS: {
-  icon: any;
-  iconBg: string;
-  iconColor: string;
-  title: string;
-  course: string;
-  deadline: string;
-}[] = []
-
-const COURSES: {
-  name: string;
-  department: string;
-  instructor: string;
-  time: string;
-  attendance: number;
-  totalSessions: number;
-  tags: string[];
-}[] = []
+import { fetchAPI } from '../../lib/api'
 
 function getTagStyle(tag: string) {
   if (tag.includes('Project')) return 'bg-amber-50 text-amber-600'
@@ -48,12 +28,98 @@ export default function StudentDashboard() {
   const [searchQuery, setSearchQuery] = useState('')
   const [semester, setSemester] = useState('2025/2026 Even')
 
-  const todayIndex = 5 // Saturday as "active" day
+  // Real data state
+  const [courses, setCourses] = useState<any[]>([])
+  const [todoItems, setTodoItems] = useState<any[]>([])
+  const [schedule, setSchedule] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const filteredCourses = COURSES.filter(c =>
+  const todayIndex = new Date().getDay() // Current day index (0 = Sunday, 6 = Saturday)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadStudentData() {
+      if (!profile?.id) return
+      setIsLoading(true)
+      try {
+        // Attempt to fetch real academic data from backend
+        // In the future, this should be mapped to the exact endpoints (e.g., /api/academic/enrollments)
+        const [gradesRes, notificationsRes] = await Promise.all([
+          fetchAPI(`/academic/grades/student/${profile.id}`).catch(() => []),
+          fetchAPI(`/notifications`).catch(() => [])
+        ])
+
+        if (!isMounted) return
+
+        // Map grades to courses as a fallback for now if no direct enrollment endpoint exists
+        if (gradesRes && Array.isArray(gradesRes)) {
+          const uniqueSubjects = new Map()
+          gradesRes.forEach((grade: any) => {
+            const subjectName = grade.class_subjects?.subjects?.name || 'Unknown Subject'
+            if (!uniqueSubjects.has(subjectName)) {
+              uniqueSubjects.set(subjectName, {
+                name: subjectName,
+                department: 'General',
+                instructor: 'Assigned Instructor',
+                time: 'TBA',
+                attendance: 0,
+                totalSessions: 0,
+                tags: []
+              })
+            }
+          })
+          setCourses(Array.from(uniqueSubjects.values()))
+        }
+
+        if (notificationsRes && Array.isArray(notificationsRes)) {
+          const mappedTodos = notificationsRes
+            .filter((n: any) => n.type === 'ACADEMIC')
+            .map((n: any) => ({
+              icon: BookOpen,
+              iconBg: 'bg-emerald-50',
+              iconColor: 'text-emerald-600',
+              title: n.title,
+              course: n.message,
+              deadline: n.created_at
+            }))
+          setTodoItems(mappedTodos)
+        }
+
+      } catch (error) {
+        console.error("Failed to load student data", error)
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    loadStudentData()
+
+    return () => {
+      isMounted = false
+    }
+  }, [profile?.id])
+
+  const filteredCourses = courses.filter(c =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.instructor.toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+  const weekDays = [
+    { day: 'Sun', num: '0' },
+    { day: 'Mon', num: '0' },
+    { day: 'Tue', num: '0' },
+    { day: 'Wed', num: '0' },
+    { day: 'Thu', num: '0' },
+    { day: 'Fri', num: '0' },
+    { day: 'Sat', num: '0' },
+  ].map((d, idx) => {
+    const date = new Date()
+    date.setDate(date.getDate() - date.getDay() + idx)
+    return { day: d.day, num: date.getDate().toString() }
+  })
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-700 font-sans">
@@ -93,7 +159,9 @@ export default function StudentDashboard() {
         <div className="flex items-center space-x-4">
           <div className="relative cursor-pointer p-1.5 hover:bg-white/10 rounded-full">
             <Bell size={20} />
-            <span className="absolute top-1 right-1 bg-amber-500 text-[10px] font-bold px-1 rounded-full text-white">1</span>
+            {todoItems.length > 0 && (
+               <span className="absolute top-1 right-1 bg-amber-500 text-[10px] font-bold px-1 rounded-full text-white">{todoItems.length}</span>
+            )}
           </div>
           <div className="flex items-center space-x-2 border-l border-white/20 pl-4 cursor-pointer">
             <div className="w-8 h-8 rounded-full bg-emerald-700 overflow-hidden border border-white flex items-center justify-center text-white font-bold text-xs">
@@ -117,14 +185,14 @@ export default function StudentDashboard() {
           <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
             <div className="flex justify-between items-center mb-3">
               <h3 className="font-bold text-sm">This Week&apos;s Schedule</h3>
-              <span className="text-[11px] text-slate-400 font-medium">Today: June 14, 2026</span>
+              <span className="text-[11px] text-slate-400 font-medium">Today</span>
             </div>
 
             {/* 7 Day Strip */}
             <div className="grid grid-cols-7 gap-1 text-center mb-6 text-xs border-b border-slate-100 pb-3">
-              {WEEK_DAYS.map(({ day, num }, i) => (
+              {weekDays.map(({ day, num }, i) => (
                 <div
-                  key={num}
+                  key={i}
                   className={`p-1 ${i === todayIndex ? 'bg-emerald-50 rounded-md border border-emerald-200' : ''}`}
                 >
                   <p className={`text-[10px] ${i === todayIndex ? 'text-emerald-600 font-bold' : 'text-slate-400'}`}>{day}</p>
@@ -133,36 +201,56 @@ export default function StudentDashboard() {
               ))}
             </div>
 
-            {/* Empty State Schedule */}
-            <div className="py-8 flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-2 text-slate-300">
-                <Calendar size={28} />
-              </div>
-              <p className="text-xs text-slate-400 max-w-[180px]">There are no classes scheduled on this date.</p>
-            </div>
+            {/* Schedule State */}
+            {schedule.length === 0 ? (
+                <div className="py-8 flex flex-col items-center justify-center text-center">
+                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-2 text-slate-300">
+                    <Calendar size={28} />
+                </div>
+                <p className="text-xs text-slate-400 max-w-[180px]">There are no classes scheduled on this date.</p>
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    {schedule.map((item, i) => (
+                        <div key={i} className="p-3 bg-slate-50 rounded-lg text-xs">
+                            <p className="font-bold text-slate-800">{item.name}</p>
+                            <p className="text-slate-500 mt-1"><Clock size={12} className="inline mr-1" />{item.time}</p>
+                        </div>
+                    ))}
+                </div>
+            )}
           </div>
 
           {/* Todo List Widget */}
           <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
             <div className="flex items-center space-x-2 mb-4">
               <h3 className="font-bold text-sm">Needs to be done</h3>
-              <span className="bg-rose-100 text-rose-600 font-bold text-xs px-1.5 py-0.5 rounded-full">{TODO_ITEMS.length}</span>
+              {todoItems.length > 0 && (
+                 <span className="bg-rose-100 text-rose-600 font-bold text-xs px-1.5 py-0.5 rounded-full">{todoItems.length}</span>
+              )}
             </div>
 
-            <div className="space-y-4">
-              {TODO_ITEMS.map((item, i) => (
-                <div key={i} className="flex items-start space-x-3 p-2 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
-                  <div className={`p-2 ${item.iconBg} ${item.iconColor} rounded-lg mt-0.5`}>
-                    <item.icon size={16} />
-                  </div>
-                  <div className="text-xs">
-                    <h4 className="font-bold text-slate-800">{item.title}</h4>
-                    <p className="text-slate-400 text-[11px] font-medium">{item.course}</p>
-                    <p className="text-rose-500 font-medium mt-1 text-[10px]">{item.deadline}</p>
-                  </div>
+            {todoItems.length > 0 ? (
+                <div className="space-y-4">
+                {todoItems.map((item, i) => (
+                    <div key={i} className="flex items-start space-x-3 p-2 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
+                    <div className={`p-2 ${item.iconBg} ${item.iconColor} rounded-lg mt-0.5`}>
+                        <item.icon size={16} />
+                    </div>
+                    <div className="text-xs">
+                        <h4 className="font-bold text-slate-800">{item.title}</h4>
+                        <p className="text-slate-400 text-[11px] font-medium">{item.course}</p>
+                        <p className="text-rose-500 font-medium mt-1 text-[10px]">{item.deadline}</p>
+                    </div>
+                    </div>
+                ))}
                 </div>
-              ))}
-            </div>
+            ) : (
+                <div className="py-6 text-center">
+                    <CheckSquare size={24} className="mx-auto mb-2 text-emerald-400" />
+                    <p className="text-xs text-slate-400">You are all caught up!</p>
+                </div>
+            )}
           </div>
         </aside>
 
@@ -210,57 +298,64 @@ export default function StudentDashboard() {
           </div>
 
           {/* Grid Layout for Academic Classes */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredCourses.map((course, i) => {
-              const pct = course.totalSessions > 0
-                ? Math.round((course.attendance / course.totalSessions) * 100)
-                : 0
-              return (
-                <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-                  <div>
-                    <h3 className="font-bold text-slate-800 text-sm hover:text-emerald-600 cursor-pointer">{course.name}</h3>
-                    <p className="text-[11px] text-slate-400 font-medium">{course.department}</p>
+          {isLoading ? (
+             <div className="py-20 text-center">
+                 <div className="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4" />
+                 <p className="text-sm text-slate-400">Loading your academic data...</p>
+             </div>
+          ) : filteredCourses.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredCourses.map((course, i) => {
+                const pct = course.totalSessions > 0
+                  ? Math.round((course.attendance / course.totalSessions) * 100)
+                  : 0
+                return (
+                  <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition-shadow">
+                    <div>
+                      <h3 className="font-bold text-slate-800 text-sm hover:text-emerald-600 cursor-pointer">{course.name}</h3>
+                      <p className="text-[11px] text-slate-400 font-medium">{course.department}</p>
 
-                    {/* Learning tags */}
-                    <div className="flex flex-wrap gap-1.5 my-4">
-                      {course.tags.map((tag, ti) => (
-                        <span key={ti} className={`text-[10px] font-bold px-2 py-0.5 rounded ${getTagStyle(tag)}`}>
-                          {tag}
-                        </span>
-                      ))}
+                      {/* Learning tags */}
+                      {course.tags && course.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 my-4">
+                          {course.tags.map((tag: string, ti: number) => (
+                              <span key={ti} className={`text-[10px] font-bold px-2 py-0.5 rounded ${getTagStyle(tag)}`}>
+                              {tag}
+                              </span>
+                          ))}
+                          </div>
+                      )}
+
+                      <div className="space-y-1.5 text-xs text-slate-500 mb-6 mt-4">
+                        <div className="flex items-center space-x-2">
+                          <User size={13} className="text-slate-400" />
+                          <span>{course.instructor}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Clock size={13} className="text-slate-400" />
+                          <span>{course.time}</span>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="space-y-1.5 text-xs text-slate-500 mb-6">
-                      <div className="flex items-center space-x-2">
-                        <User size={13} className="text-slate-400" />
-                        <span>{course.instructor}</span>
+                    {/* Progress Footer */}
+                    <div className="border-t border-slate-100 pt-3 text-xs">
+                      <div className="flex justify-between items-center mb-1 text-[11px] text-slate-400">
+                        <span>Attendance: {course.attendance} of {course.totalSessions} sessions</span>
+                        <span className="font-bold text-slate-600">{pct}%</span>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Clock size={13} className="text-slate-400" />
-                        <span>{course.time}</span>
+                      <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-emerald-500 h-full rounded-full transition-all" style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   </div>
-
-                  {/* Progress Footer */}
-                  <div className="border-t border-slate-100 pt-3 text-xs">
-                    <div className="flex justify-between items-center mb-1 text-[11px] text-slate-400">
-                      <span>Attendance: {course.attendance} of {course.totalSessions} sessions</span>
-                      <span className="font-bold text-slate-600">{pct}%</span>
-                    </div>
-                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-emerald-500 h-full rounded-full transition-all" style={{ width: `${pct}%` }} />
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
-          {filteredCourses.length === 0 && (
+                )
+              })}
+            </div>
+          ) : (
             <div className="bg-white rounded-xl border border-slate-100 p-12 text-center text-slate-400 text-sm">
               <Search size={28} className="mx-auto mb-3 opacity-40" />
-              <p>No courses match your search.</p>
+              <p>No courses found for the selected term.</p>
             </div>
           )}
         </main>
