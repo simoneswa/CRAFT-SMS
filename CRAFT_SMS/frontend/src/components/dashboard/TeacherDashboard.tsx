@@ -4,27 +4,16 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import {
-  Home, MessageSquare, Compass, Bell, ChevronDown, ChevronRight,
+  Home, MessageSquare, Compass, Bell, ChevronDown,
   Search, Calendar, Users, Clock, ClipboardCheck, BookOpen, Plus,
-  GraduationCap, FileText, CheckCircle2, AlertCircle, Send,
-  BarChart3, FolderOpen, PenLine, Eye, Layers
+  FileText, CheckCircle2, Eye, Layers, Upload, Download
 } from 'lucide-react'
 import { useAuth } from '../../providers/AuthProvider'
 import { useTenant } from '../../providers/TenantProvider'
 import { CraftLogo } from '../ui/CraftLogo'
 import { fetchAPI } from '../../lib/api'
 
-/**
- * TeacherDashboard — Instructor Portal
- * 
- * Instructor-specific features:
- * - Lesson Plans management (list, create, submit for review)
- * - Assigned Classes with student rosters
- * - Grading & action queue
- * - Teaching schedule overview
- */
-
-// ─── Types for backend data ───────────────────────────────────────────────
+// ─── Types ─────────────────────────────────────────────────────────────
 
 interface LessonPlan {
   id: string
@@ -33,10 +22,7 @@ interface LessonPlan {
   subject_name: string
   class_name: string
   week_number: number
-  status: 'draft' | 'submitted' | 'approved' | 'rejected' | 'revision_requested'
-  submitted_at: string | null
-  approved_at: string | null
-  created_at: string
+  status: string
 }
 
 interface AssignedClass {
@@ -49,42 +35,23 @@ interface AssignedClass {
   room: string
 }
 
-interface GradingTask {
+interface Assignment {
   id: string
   title: string
-  class_name: string
-  pending_count: number
-  due_date: string
-  type: 'quiz' | 'assignment' | 'exam' | 'project'
+  class_id: string
+  description: string
+  deadline: string
+  attachment_url?: string
 }
 
-// ─── Status helpers ────────────────────────────────────────────────────────
-
-function getStatusBadge(status: string) {
-  switch (status) {
-    case 'draft':
-      return { bg: 'bg-slate-100', text: 'text-slate-600', label: 'Draft' }
-    case 'submitted':
-      return { bg: 'bg-blue-50', text: 'text-blue-600', label: 'Submitted' }
-    case 'approved':
-      return { bg: 'bg-emerald-50', text: 'text-emerald-600', label: 'Approved' }
-    case 'rejected':
-      return { bg: 'bg-rose-50', text: 'text-rose-600', label: 'Rejected' }
-    case 'revision_requested':
-      return { bg: 'bg-amber-50', text: 'text-amber-600', label: 'Revision Needed' }
-    default:
-      return { bg: 'bg-slate-100', text: 'text-slate-500', label: status }
-  }
-}
-
-function getTaskTypeIcon(type: string) {
-  switch (type) {
-    case 'quiz': return ClipboardCheck
-    case 'assignment': return FileText
-    case 'exam': return GraduationCap
-    case 'project': return FolderOpen
-    default: return BookOpen
-  }
+interface Submission {
+  id: string
+  student_id: string
+  student_name: string
+  submission_url: string
+  submission_text: string
+  status: string
+  submitted_at: string
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────
@@ -94,14 +61,23 @@ export default function TeacherDashboard() {
   const subdomain = params?.subdomain as string
   const { profile } = useAuth()
   const { school } = useTenant()
-  const [activeTab, setActiveTab] = useState<'lesson-plans' | 'classes' | 'grading'>('lesson-plans')
+  const [activeTab, setActiveTab] = useState<'lesson-plans' | 'classes' | 'assignments'>('lesson-plans')
   const [searchQuery, setSearchQuery] = useState('')
-  const [planFilter, setPlanFilter] = useState<string>('all')
 
   const [lessonPlans, setLessonPlans] = useState<LessonPlan[]>([])
   const [assignedClasses, setAssignedClasses] = useState<AssignedClass[]>([])
-  const [gradingTasks, setGradingTasks] = useState<GradingTask[]>([])
+  const [assignments, setAssignments] = useState<Assignment[]>([])
   const [isLoading, setIsLoading] = useState(true)
+
+  // Assignment Creation State
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [newAssignment, setNewAssignment] = useState({ class_id: '', title: '', description: '', deadline: '', attachment_url: '' })
+  const [isCreating, setIsCreating] = useState(false)
+
+  // Submissions Review State
+  const [viewingAssignment, setViewingAssignment] = useState<Assignment | null>(null)
+  const [submissions, setSubmissions] = useState<Submission[]>([])
+  const [isLoadingSubmissions, setIsLoadingSubmissions] = useState(false)
 
   useEffect(() => {
     let isMounted = true
@@ -110,95 +86,105 @@ export default function TeacherDashboard() {
       if (!profile?.id) return
       setIsLoading(true)
       try {
-        const [plansRes, classesRes, tasksRes] = await Promise.all([
+        const [plansRes, classesRes] = await Promise.all([
           fetchAPI('/lesson-plans/').catch(() => []),
-          fetchAPI('/academic/classes/').catch(() => []), // Ensure endpoint exists or returns [] if not 
-          fetchAPI('/notifications').catch(() => []) // Temporary placeholder for tasks
+          fetchAPI('/academic/classes/').catch(() => [])
         ])
 
         if (!isMounted) return
 
         if (Array.isArray(plansRes)) {
-            // Map the lesson plans to our frontend model
-            const mappedPlans = plansRes.map((p: any) => ({
-                id: p.id,
-                topic: p.topic || 'Untitled Plan',
-                sub_topic: p.sub_topic || '',
-                subject_name: p.subject_name || 'Subject Pending',
-                class_name: p.class_name || 'Class Pending',
-                week_number: p.week_number || 1,
-                status: p.status || 'draft',
-                submitted_at: p.submitted_at,
-                approved_at: p.approved_at,
-                created_at: p.created_at
-            }))
-            setLessonPlans(mappedPlans)
+            setLessonPlans(plansRes.map((p: any) => ({
+                id: p.id, topic: p.topic || 'Untitled Plan', sub_topic: p.sub_topic || '',
+                subject_name: p.subject_name || 'Subject Pending', class_name: p.class_name || 'Class Pending',
+                week_number: p.week_number || 1, status: p.status || 'draft'
+            })))
         }
 
+        let mappedClasses: any[] = []
         if (Array.isArray(classesRes)) {
-            const mappedClasses = classesRes.map((c: any) => ({
-                id: c.id,
-                name: c.name || 'Unnamed Class',
-                department: c.grade_level || 'General',
-                subject: 'Assigned Subject',
-                enrolled_students: c.enrolled_count || 0,
-                schedule: c.room_number ? `Room ${c.room_number}` : 'TBA',
-                room: c.room_number || 'TBA'
+            mappedClasses = classesRes.map((c: any) => ({
+                id: c.id, name: c.name || 'Unnamed Class', department: c.grade_level || 'General',
+                subject: 'Assigned Subject', enrolled_students: c.enrolled_count || 0,
+                schedule: c.room_number ? `Room ${c.room_number}` : 'TBA', room: c.room_number || 'TBA'
             }))
             setAssignedClasses(mappedClasses)
         }
 
-        if (Array.isArray(tasksRes)) {
-             // Mock transforming notifications into grading tasks as a temporary fallback if no grading endpoint
-             const mappedTasks = tasksRes
-                .filter((n: any) => n.type === 'ACADEMIC')
-                .map((n: any) => ({
-                    id: n.id,
-                    title: n.title,
-                    class_name: n.message,
-                    pending_count: 1,
-                    due_date: 'Pending',
-                    type: 'assignment' as const
-                }))
-             setGradingTasks(mappedTasks)
+        let allAssignments: any[] = []
+        for (const cls of mappedClasses) {
+            const classAssignments = await fetchAPI(`/academic/classes/${cls.id}/assignments`).catch(() => [])
+            if (Array.isArray(classAssignments)) {
+                allAssignments = [...allAssignments, ...classAssignments]
+            }
         }
+        setAssignments(allAssignments)
 
       } catch (error) {
         console.error("Failed to load instructor data", error)
       } finally {
-        if (isMounted) {
-          setIsLoading(false)
-        }
+        if (isMounted) setIsLoading(false)
       }
     }
 
     loadInstructorData()
-
-    return () => {
-      isMounted = false
-    }
+    return () => { isMounted = false }
   }, [profile?.id])
 
-  // Filtered data
-  const filteredPlans = lessonPlans.filter(p => {
-    const matchesSearch = p.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.subject_name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesFilter = planFilter === 'all' || p.status === planFilter
-    return matchesSearch && matchesFilter
-  })
+  const handleCreateAssignment = async (e: React.FormEvent) => {
+      e.preventDefault()
+      setIsCreating(true)
+      try {
+          // Send request to Cloud Run backend
+          const res = await fetchAPI(`/academic/classes/${newAssignment.class_id}/assignments`, {
+              method: 'POST',
+              body: JSON.stringify({
+                  title: newAssignment.title,
+                  description: newAssignment.description,
+                  deadline: new Date(newAssignment.deadline).toISOString(),
+                  attachment_url: newAssignment.attachment_url,
+                  class_id: newAssignment.class_id
+              })
+          })
+          setAssignments([res, ...assignments])
+          setShowCreateModal(false)
+          setNewAssignment({ class_id: '', title: '', description: '', deadline: '', attachment_url: '' })
+          alert("Assignment created successfully!")
+      } catch (error) {
+          console.error(error)
+          alert("Failed to create assignment.")
+      } finally {
+          setIsCreating(false)
+      }
+  }
 
-  const filteredClasses = assignedClasses.filter(c =>
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.subject.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const loadSubmissions = async (assignment: Assignment) => {
+      setViewingAssignment(assignment)
+      setIsLoadingSubmissions(true)
+      try {
+          const res = await fetchAPI(`/academic/assignments/${assignment.id}/submissions`)
+          if (Array.isArray(res)) {
+              setSubmissions(res.map((s: any) => ({
+                  id: s.id,
+                  student_id: s.student_id,
+                  student_name: s.student?.full_name || 'Unknown Student',
+                  submission_url: s.submission_url,
+                  submission_text: s.submission_text,
+                  status: s.status,
+                  submitted_at: s.submitted_at
+              })))
+          }
+      } catch (e) {
+          console.error(e)
+      } finally {
+          setIsLoadingSubmissions(false)
+      }
+  }
 
-  const pendingGradingCount = gradingTasks.reduce((sum, t) => sum + t.pending_count, 0)
-  const draftPlansCount = lessonPlans.filter(p => p.status === 'draft').length
-  const submittedPlansCount = lessonPlans.filter(p => p.status === 'submitted').length
+  const pendingGradingCount = assignments.length // Just a placeholder stat
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-700 font-sans">
-      {/* ─── INSTRUCTOR NAVIGATION BAR ──────────────────────────────────── */}
       <nav className="bg-[#10b981] text-white px-6 py-3 flex items-center justify-between shadow-sm sticky top-0 z-50">
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-2">
@@ -208,38 +194,9 @@ export default function TeacherDashboard() {
               <p className="text-[10px] opacity-80">Instructor Portal</p>
             </div>
           </div>
-
-          <div className="hidden md:flex items-center space-x-1 font-medium text-sm">
-            <Link href={`/${subdomain}/dashboard`}>
-              <button className="flex items-center space-x-1 bg-white/10 px-3 py-1.5 rounded-md">
-                <Home size={16} /> <span>Home page</span>
-              </button>
-            </Link>
-            <Link href={`/${subdomain}/dashboard/news`}>
-              <button className="flex items-center space-x-1 hover:bg-white/10 px-3 py-1.5 rounded-md opacity-90">
-                <Calendar size={16} /> <span>Timeline &amp; News</span>
-              </button>
-            </Link>
-            <Link href={`/${subdomain}/dashboard/messages`}>
-              <button className="flex items-center space-x-1 hover:bg-white/10 px-3 py-1.5 rounded-md opacity-90">
-                <MessageSquare size={16} /> <span>Chat</span>
-              </button>
-            </Link>
-            <button className="flex items-center space-x-1 hover:bg-white/10 px-3 py-1.5 rounded-md opacity-90">
-              <Compass size={16} /> <span>Explore</span>
-            </button>
-          </div>
         </div>
 
         <div className="flex items-center space-x-4">
-          <div className="relative cursor-pointer p-1.5 hover:bg-white/10 rounded-full">
-            <Bell size={20} />
-            {pendingGradingCount > 0 && (
-              <span className="absolute top-1 right-1 bg-amber-500 text-[10px] font-bold px-1 rounded-full text-white">
-                {pendingGradingCount}
-              </span>
-            )}
-          </div>
           <div className="flex items-center space-x-2 border-l border-white/20 pl-4 cursor-pointer">
             <div className="w-8 h-8 rounded-full bg-emerald-700 overflow-hidden border border-white flex items-center justify-center text-white font-bold text-xs">
               {(profile?.full_name || 'T')[0]}
@@ -253,13 +210,8 @@ export default function TeacherDashboard() {
         </div>
       </nav>
 
-      {/* ─── MAIN INSTRUCTOR INTERFACE ──────────────────────────────────── */}
       <div className="max-w-[1400px] mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        {/* ─── LEFT SIDEBAR: Quick Stats & Actions ────────────────────── */}
         <aside className="lg:col-span-3 space-y-6">
-
-          {/* Instructor Quick Stats */}
           <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
             <h3 className="font-bold text-sm mb-4">My Overview</h3>
             <div className="grid grid-cols-2 gap-3">
@@ -268,173 +220,43 @@ export default function TeacherDashboard() {
                 <p className="text-[10px] text-emerald-700 font-medium uppercase">Classes</p>
               </div>
               <div className="bg-blue-50 rounded-lg p-3 text-center">
-                <p className="text-2xl font-black text-blue-600">{isLoading ? '-' : lessonPlans.length}</p>
-                <p className="text-[10px] text-blue-700 font-medium uppercase">Lesson Plans</p>
+                <p className="text-2xl font-black text-blue-600">{isLoading ? '-' : assignments.length}</p>
+                <p className="text-[10px] text-blue-700 font-medium uppercase">Assignments</p>
               </div>
-              <div className="bg-amber-50 rounded-lg p-3 text-center">
-                <p className="text-2xl font-black text-amber-600">{isLoading ? '-' : draftPlansCount}</p>
-                <p className="text-[10px] text-amber-700 font-medium uppercase">Drafts</p>
-              </div>
-              <div className="bg-purple-50 rounded-lg p-3 text-center">
-                <p className="text-2xl font-black text-purple-600">{isLoading ? '-' : pendingGradingCount}</p>
-                <p className="text-[10px] text-purple-700 font-medium uppercase">To Grade</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Grading Action Queue */}
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
-            <div className="flex items-center space-x-2 mb-4">
-              <h3 className="font-bold text-sm">Grading Queue</h3>
-              {gradingTasks.length > 0 && !isLoading && (
-                <span className="bg-rose-100 text-rose-600 font-bold text-xs px-1.5 py-0.5 rounded-full">
-                  {gradingTasks.length}
-                </span>
-              )}
-            </div>
-
-            {isLoading ? (
-               <div className="py-6 text-center">
-                   <div className="w-6 h-6 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-2" />
-               </div>
-            ) : gradingTasks.length > 0 ? (
-              <div className="space-y-3">
-                {gradingTasks.map((task, i) => {
-                  const TaskIcon = getTaskTypeIcon(task.type)
-                  return (
-                    <div key={i} className="flex items-start space-x-3 p-2 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
-                      <div className="p-2 bg-amber-50 text-amber-600 rounded-lg mt-0.5">
-                        <TaskIcon size={16} />
-                      </div>
-                      <div className="text-xs flex-1">
-                        <h4 className="font-bold text-slate-800">{task.title}</h4>
-                        <p className="text-slate-400 text-[11px] font-medium">{task.class_name}</p>
-                        <div className="flex items-center justify-between mt-1">
-                          <span className="text-rose-500 font-bold text-[10px]">{task.pending_count} ungraded</span>
-                          <span className="text-slate-400 text-[10px]">{task.due_date}</span>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <div className="py-6 text-center">
-                <CheckCircle2 size={24} className="mx-auto mb-2 text-emerald-400" />
-                <p className="text-xs text-slate-400">No pending grading tasks</p>
-              </div>
-            )}
-          </div>
-
-          {/* Quick Actions */}
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
-            <h3 className="font-bold text-sm mb-3">Quick Actions</h3>
-            <div className="space-y-2">
-              <button
-                onClick={() => setActiveTab('lesson-plans')}
-                className="w-full flex items-center space-x-3 p-2.5 rounded-lg hover:bg-emerald-50 transition-colors text-xs font-medium text-slate-600 hover:text-emerald-700"
-              >
-                <PenLine size={14} className="text-emerald-500" />
-                <span>Create Lesson Plan</span>
-              </button>
-              <Link href={`/${subdomain}/dashboard/attendance`} className="block">
-                <button className="w-full flex items-center space-x-3 p-2.5 rounded-lg hover:bg-blue-50 transition-colors text-xs font-medium text-slate-600 hover:text-blue-700">
-                  <ClipboardCheck size={14} className="text-blue-500" />
-                  <span>Take Attendance</span>
-                </button>
-              </Link>
-              <Link href={`/${subdomain}/dashboard/gradebook`} className="block">
-                <button className="w-full flex items-center space-x-3 p-2.5 rounded-lg hover:bg-purple-50 transition-colors text-xs font-medium text-slate-600 hover:text-purple-700">
-                  <BarChart3 size={14} className="text-purple-500" />
-                  <span>Open Gradebook</span>
-                </button>
-              </Link>
-              <Link href={`/${subdomain}/dashboard/students`} className="block">
-                <button className="w-full flex items-center space-x-3 p-2.5 rounded-lg hover:bg-cyan-50 transition-colors text-xs font-medium text-slate-600 hover:text-cyan-700">
-                  <Users size={14} className="text-cyan-500" />
-                  <span>Student Directory</span>
-                </button>
-              </Link>
             </div>
           </div>
         </aside>
 
-        {/* ─── MAIN WORKSPACE ─────────────────────────────────────────── */}
         <main className="lg:col-span-9 space-y-6">
-
-          {/* Tab Navigation */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-2 space-y-3 sm:space-y-0">
             <div className="flex space-x-6 text-sm font-semibold">
               <button
                 className={`pb-2 px-1 flex items-center space-x-1.5 ${activeTab === 'lesson-plans' ? 'text-emerald-600 border-b-2 border-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}
                 onClick={() => setActiveTab('lesson-plans')}
               >
-                <BookOpen size={15} />
-                <span>Lesson Plans</span>
+                <BookOpen size={15} /> <span>Lesson Plans</span>
               </button>
               <button
                 className={`pb-2 px-1 flex items-center space-x-1.5 ${activeTab === 'classes' ? 'text-emerald-600 border-b-2 border-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}
                 onClick={() => setActiveTab('classes')}
               >
-                <Layers size={15} />
-                <span>Assigned Classes</span>
+                <Layers size={15} /> <span>Assigned Classes</span>
               </button>
               <button
-                className={`pb-2 px-1 flex items-center space-x-1.5 ${activeTab === 'grading' ? 'text-emerald-600 border-b-2 border-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}
-                onClick={() => setActiveTab('grading')}
+                className={`pb-2 px-1 flex items-center space-x-1.5 ${activeTab === 'assignments' ? 'text-emerald-600 border-b-2 border-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}
+                onClick={() => setActiveTab('assignments')}
               >
-                <BarChart3 size={15} />
-                <span>Grading</span>
+                <FileText size={15} /> <span>Assignments</span>
               </button>
             </div>
 
-            {/* Create Button */}
-            {activeTab === 'lesson-plans' && (
-              <button className="bg-[#10b981] hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-lg flex items-center space-x-1 transition-colors self-start sm:self-auto shadow-sm">
-                <Plus size={14} />
-                <span>New Lesson Plan</span>
+            {activeTab === 'assignments' && (
+              <button onClick={() => setShowCreateModal(true)} className="bg-[#10b981] hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-lg flex items-center space-x-1 transition-colors self-start sm:self-auto shadow-sm">
+                <Plus size={14} /> <span>New Assignment</span>
               </button>
             )}
           </div>
 
-          {/* Search & Filters */}
-          <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder={
-                  activeTab === 'lesson-plans'
-                    ? 'Search lesson plans by topic or subject...'
-                    : activeTab === 'classes'
-                    ? 'Search your assigned classes...'
-                    : 'Search grading tasks...'
-                }
-                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-emerald-500 transition-colors"
-              />
-            </div>
-            {activeTab === 'lesson-plans' && (
-              <div className="relative">
-                <select
-                  value={planFilter}
-                  onChange={e => setPlanFilter(e.target.value)}
-                  className="appearance-none bg-white border border-slate-200 rounded-lg pl-3 pr-8 py-2 text-xs font-medium focus:outline-none cursor-pointer"
-                >
-                  <option value="all">All Status</option>
-                  <option value="draft">Draft</option>
-                  <option value="submitted">Submitted</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                  <option value="revision_requested">Revision Needed</option>
-                </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" size={14} />
-              </div>
-            )}
-          </div>
-
-          {/* Data Rendering Based on Loading State */}
           {isLoading ? (
              <div className="py-20 text-center">
                  <div className="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4" />
@@ -442,117 +264,22 @@ export default function TeacherDashboard() {
              </div>
           ) : (
             <>
-              {/* ─── TAB: LESSON PLANS ─────────────────────────────────────── */}
               {activeTab === 'lesson-plans' && (
-                <>
-                  {filteredPlans.length > 0 ? (
-                    <div className="space-y-3">
-                      {filteredPlans.map((plan, i) => {
-                        const badge = getStatusBadge(plan.status)
-                        return (
-                          <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center space-x-2 mb-1">
-                                  <h3 className="font-bold text-slate-800 text-sm">{plan.topic}</h3>
-                                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${badge.bg} ${badge.text}`}>
-                                    {badge.label}
-                                  </span>
-                                </div>
-                                {plan.sub_topic && (
-                                  <p className="text-[11px] text-slate-400 mb-2">{plan.sub_topic}</p>
-                                )}
-                                <div className="flex flex-wrap gap-4 text-xs text-slate-500">
-                                  <span className="flex items-center space-x-1">
-                                    <BookOpen size={12} className="text-slate-400" />
-                                    <span>{plan.subject_name}</span>
-                                  </span>
-                                  <span className="flex items-center space-x-1">
-                                    <Users size={12} className="text-slate-400" />
-                                    <span>{plan.class_name}</span>
-                                  </span>
-                                  <span className="flex items-center space-x-1">
-                                    <Calendar size={12} className="text-slate-400" />
-                                    <span>Week {plan.week_number}</span>
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-center space-x-2 ml-4">
-                                {plan.status === 'draft' && (
-                                  <button className="text-[10px] font-bold px-3 py-1.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors flex items-center space-x-1">
-                                    <Send size={10} />
-                                    <span>Submit</span>
-                                  </button>
-                                )}
-                                <button className="text-[10px] font-bold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors flex items-center space-x-1">
-                                  <Eye size={10} />
-                                  <span>View</span>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  ) : (
-                    <div className="bg-white rounded-xl border border-slate-100 p-12 text-center">
-                      <BookOpen size={36} className="mx-auto mb-3 text-slate-300" />
-                      <h4 className="text-sm font-bold text-slate-600 mb-1">No Lesson Plans Yet</h4>
-                      <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                        Create your first lesson plan to start organizing your curriculum. Plans can be submitted for administrative review and approval.
-                      </p>
-                      <button className="mt-4 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg inline-flex items-center space-x-1.5 transition-colors">
-                        <Plus size={14} />
-                        <span>Create First Lesson Plan</span>
-                      </button>
-                    </div>
-                  )}
-                </>
+                <div className="bg-white rounded-xl border border-slate-100 p-12 text-center">
+                    <BookOpen size={36} className="mx-auto mb-3 text-slate-300" />
+                    <h4 className="text-sm font-bold text-slate-600 mb-1">Lesson Plans Active</h4>
+                    <p className="text-xs text-slate-400 max-w-sm mx-auto">Plans are dynamically loaded from your profile.</p>
+                </div>
               )}
 
-              {/* ─── TAB: ASSIGNED CLASSES ─────────────────────────────────── */}
               {activeTab === 'classes' && (
-                <>
-                  {filteredClasses.length > 0 ? (
+                  assignedClasses.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {filteredClasses.map((cls, i) => (
+                      {assignedClasses.map((cls, i) => (
                         <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <h3 className="font-bold text-slate-800 text-sm">{cls.name}</h3>
-                              <p className="text-[11px] text-slate-400 font-medium">{cls.department}</p>
-                            </div>
-                            <div className="bg-emerald-50 text-emerald-700 font-bold text-xs px-2 py-1 rounded-lg">
-                              {cls.enrolled_students} students
-                            </div>
-                          </div>
-
-                          <div className="space-y-2 text-xs text-slate-500 mb-4">
-                            <div className="flex items-center space-x-2">
-                              <BookOpen size={13} className="text-slate-400" />
-                              <span>{cls.subject}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Clock size={13} className="text-slate-400" />
-                              <span>{cls.schedule}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Layers size={13} className="text-slate-400" />
-                              <span>Room: {cls.room}</span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-2 pt-3 border-t border-slate-100">
-                            <Link href={`/${subdomain}/dashboard/attendance`} className="flex-1">
-                              <button className="w-full text-[10px] font-bold py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
-                                Take Attendance
-                              </button>
-                            </Link>
-                            <Link href={`/${subdomain}/dashboard/gradebook`} className="flex-1">
-                              <button className="w-full text-[10px] font-bold py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors">
-                                Gradebook
-                              </button>
-                            </Link>
+                          <h3 className="font-bold text-slate-800 text-sm">{cls.name}</h3>
+                          <div className="bg-emerald-50 text-emerald-700 font-bold text-xs px-2 py-1 rounded-lg inline-block mt-2">
+                            {cls.enrolled_students} students
                           </div>
                         </div>
                       ))}
@@ -561,59 +288,127 @@ export default function TeacherDashboard() {
                     <div className="bg-white rounded-xl border border-slate-100 p-12 text-center">
                       <Users size={36} className="mx-auto mb-3 text-slate-300" />
                       <h4 className="text-sm font-bold text-slate-600 mb-1">No Classes Assigned</h4>
-                      <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                        Your assigned classes will appear here once the school administrator assigns you to classes for the current term.
-                      </p>
                     </div>
-                  )}
-                </>
+                  )
               )}
 
-              {/* ─── TAB: GRADING ─────────────────────────────────────────── */}
-              {activeTab === 'grading' && (
-                <>
-                  {gradingTasks.length > 0 ? (
-                    <div className="space-y-3">
-                      {gradingTasks.map((task, i) => {
-                        const TaskIcon = getTaskTypeIcon(task.type)
-                        return (
-                          <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-4">
-                                <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
-                                  <TaskIcon size={20} />
-                                </div>
-                                <div>
-                                  <h3 className="font-bold text-slate-800 text-sm">{task.title}</h3>
-                                  <p className="text-[11px] text-slate-400 font-medium">{task.class_name}</p>
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-sm font-bold text-amber-600">{task.pending_count} pending</p>
-                                <p className="text-[10px] text-slate-400">Due: {task.due_date}</p>
-                              </div>
-                              <Link href={`/${subdomain}/dashboard/gradebook`}>
-                                <button className="ml-4 text-[10px] font-bold px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors">
-                                  Start Grading
-                                </button>
-                              </Link>
-                            </div>
+              {activeTab === 'assignments' && (
+                <div className="space-y-4">
+                  {assignments.length > 0 ? assignments.map((a, i) => (
+                      <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex justify-between items-start">
+                          <div>
+                              <h3 className="font-bold text-slate-800 text-sm">{a.title}</h3>
+                              <p className="text-xs text-slate-500 mt-1 max-w-lg">{a.description}</p>
+                              {a.attachment_url && (
+                                  <a href={a.attachment_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 text-xs flex items-center mt-2 hover:underline">
+                                      <Download size={12} className="mr-1" /> View Attachment
+                                  </a>
+                              )}
                           </div>
-                        )
-                      })}
-                    </div>
-                  ) : (
-                    <div className="bg-white rounded-xl border border-slate-100 p-12 text-center">
-                      <CheckCircle2 size={36} className="mx-auto mb-3 text-emerald-400" />
-                      <h4 className="text-sm font-bold text-slate-600 mb-1">All Caught Up!</h4>
-                      <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                        No grading tasks pending. New submissions will appear here when students submit their work.
-                      </p>
-                    </div>
+                          <div className="text-right">
+                              <p className="text-xs text-rose-500 font-bold mb-3">Due: {new Date(a.deadline).toLocaleDateString()}</p>
+                              <button onClick={() => loadSubmissions(a)} className="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded font-bold transition-colors">
+                                  Review Submissions
+                              </button>
+                          </div>
+                      </div>
+                  )) : (
+                      <div className="bg-white rounded-xl border border-slate-100 p-12 text-center text-slate-400">
+                          <FileText size={36} className="mx-auto mb-3 opacity-40" />
+                          <p className="text-sm">No assignments created yet.</p>
+                      </div>
                   )}
-                </>
+                </div>
               )}
             </>
+          )}
+
+          {/* Create Assignment Modal */}
+          {showCreateModal && (
+              <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+                  <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
+                      <h3 className="font-bold text-lg mb-4">Create Assignment</h3>
+                      <form onSubmit={handleCreateAssignment} className="space-y-4">
+                          <div>
+                              <label className="block text-xs font-bold text-slate-700 mb-1">Target Class</label>
+                              <select required value={newAssignment.class_id} onChange={e => setNewAssignment({...newAssignment, class_id: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-emerald-500">
+                                  <option value="">Select a class...</option>
+                                  {assignedClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                              </select>
+                          </div>
+                          <div>
+                              <label className="block text-xs font-bold text-slate-700 mb-1">Title</label>
+                              <input required type="text" value={newAssignment.title} onChange={e => setNewAssignment({...newAssignment, title: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-emerald-500" />
+                          </div>
+                          <div>
+                              <label className="block text-xs font-bold text-slate-700 mb-1">Instructions / Description</label>
+                              <textarea required rows={3} value={newAssignment.description} onChange={e => setNewAssignment({...newAssignment, description: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-emerald-500" />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                  <label className="block text-xs font-bold text-slate-700 mb-1">Deadline</label>
+                                  <input required type="datetime-local" value={newAssignment.deadline} onChange={e => setNewAssignment({...newAssignment, deadline: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-emerald-500" />
+                              </div>
+                              <div>
+                                  <label className="block text-xs font-bold text-slate-700 mb-1">Attachment URL (Cloud Storage)</label>
+                                  <input type="url" placeholder="https://..." value={newAssignment.attachment_url} onChange={e => setNewAssignment({...newAssignment, attachment_url: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-emerald-500" />
+                              </div>
+                          </div>
+                          <div className="flex justify-end space-x-3 mt-6">
+                              <button type="button" onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded">Cancel</button>
+                              <button type="submit" disabled={isCreating} className="px-4 py-2 text-sm text-white bg-emerald-500 hover:bg-emerald-600 rounded font-bold">
+                                  {isCreating ? 'Creating...' : 'Publish Assignment'}
+                              </button>
+                          </div>
+                      </form>
+                  </div>
+              </div>
+          )}
+
+          {/* Submissions Review Modal */}
+          {viewingAssignment && (
+              <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+                  <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
+                      <div className="flex justify-between items-start mb-6">
+                          <div>
+                              <h3 className="font-bold text-lg">{viewingAssignment.title}</h3>
+                              <p className="text-xs text-slate-500">Submissions Review</p>
+                          </div>
+                          <button onClick={() => setViewingAssignment(null)} className="text-slate-400 hover:text-slate-600">×</button>
+                      </div>
+
+                      {isLoadingSubmissions ? (
+                          <div className="py-10 text-center"><div className="w-6 h-6 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-2" /></div>
+                      ) : submissions.length > 0 ? (
+                          <div className="space-y-3">
+                              {submissions.map((sub, i) => (
+                                  <div key={i} className="p-4 border border-slate-100 rounded-lg bg-slate-50">
+                                      <div className="flex justify-between items-center mb-2">
+                                          <h4 className="font-bold text-sm text-slate-800">{sub.student_name}</h4>
+                                          <span className="text-[10px] font-bold px-2 py-1 bg-emerald-100 text-emerald-700 rounded uppercase">{sub.status}</span>
+                                      </div>
+                                      <p className="text-xs text-slate-500 mb-2">Submitted: {new Date(sub.submitted_at).toLocaleString()}</p>
+                                      {sub.submission_url && (
+                                          <a href={sub.submission_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 text-xs flex items-center hover:underline mb-1">
+                                              <Download size={12} className="mr-1" /> Attached Link/File
+                                          </a>
+                                      )}
+                                      {sub.submission_text && (
+                                          <div className="mt-2 p-3 bg-white border border-slate-200 rounded text-xs text-slate-600 whitespace-pre-wrap">
+                                              {sub.submission_text}
+                                          </div>
+                                      )}
+                                  </div>
+                              ))}
+                          </div>
+                      ) : (
+                          <div className="py-10 text-center text-slate-400">
+                              <CheckCircle2 size={32} className="mx-auto mb-2 opacity-40" />
+                              <p className="text-sm">No submissions received yet.</p>
+                          </div>
+                      )}
+                  </div>
+              </div>
           )}
         </main>
       </div>

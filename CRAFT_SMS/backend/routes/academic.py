@@ -68,6 +68,20 @@ class AttendanceBatchReq(BaseModel):
     entries: List[AttendanceEntry]
 
 
+class AssignmentReq(BaseModel):
+    class_id: str
+    title: str
+    description: str
+    deadline: str
+    attachment_url: Optional[str] = None
+
+
+class SubmissionReq(BaseModel):
+    submission_url: Optional[str] = None
+    submission_text: Optional[str] = None
+
+
+
 # --- ACADEMIC TERMS ---
 @router.get("/terms")
 async def get_terms(
@@ -470,3 +484,106 @@ async def get_student_grades(
         })
 
     return enriched
+
+
+# --- ASSIGNMENTS & SUBMISSIONS ---
+@router.post("/classes/{class_id}/assignments")
+async def create_assignment(
+    class_id: str,
+    req: AssignmentReq,
+    user=Depends(RoleChecker(["TEACHER", "SCHOOL_ADMIN"])),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
+    school_id = user["profile"]["school_id"]
+    new_assignment = await db.insert("assignments", {
+        "school_id": school_id,
+        "class_id": class_id,
+        "teacher_id": user["profile"]["id"],
+        "title": req.title,
+        "description": req.description,
+        "deadline": req.deadline,
+        "attachment_url": req.attachment_url
+    })
+    
+    # Notify students in the class
+    students = await get_class_students(class_id, "current_term", user=user, db=db) # Mock term for notifications
+    for student in students:
+        await db.insert("notifications", {
+            "school_id": school_id,
+            "user_id": student["id"],
+            "title": f"New Assignment: {req.title}",
+            "message": req.description[:100],
+            "type": "ACADEMIC"
+        })
+    
+    return new_assignment
+
+
+@router.get("/classes/{class_id}/assignments")
+async def get_class_assignments(
+    class_id: str,
+    user=Depends(get_current_user),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
+    school_id = user["profile"]["school_id"]
+    assignments = await db.fetch_many("assignments", {"class_id": class_id, "school_id": school_id})
+    return assignments
+
+
+@router.post("/assignments/{assignment_id}/submissions")
+async def submit_assignment(
+    assignment_id: str,
+    req: SubmissionReq,
+    user=Depends(RoleChecker(["STUDENT"])),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
+    school_id = user["profile"]["school_id"]
+    student_id = user["profile"]["id"]
+    
+    # Check if assignment exists
+    assignment = await db.fetch_one("assignments", {"id": assignment_id})
+    if not assignment:
+        raise HTTPException(status_code=404, detail="Assignment not found")
+        
+    submission_data = {
+        "school_id": school_id,
+        "assignment_id": assignment_id,
+        "student_id": student_id,
+        "submission_url": req.submission_url,
+        "submission_text": req.submission_text,
+        "status": "SUBMITTED"
+    }
+    
+    existing = await db.fetch_one("assignment_submissions", {
+        "assignment_id": assignment_id,
+        "student_id": student_id
+    })
+    
+    if existing:
+        await db.update("assignment_submissions", {"id": existing["id"]}, submission_data)
+        return {"status": "updated", "submission": existing["id"]}
+    else:
+        new_sub = await db.insert("assignment_submissions", submission_data)
+        return {"status": "created", "submission": new_sub}
+
+
+@router.get("/assignments/{assignment_id}/submissions")
+async def get_assignment_submissions(
+    assignment_id: str,
+    user=Depends(RoleChecker(["TEACHER", "SCHOOL_ADMIN"])),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
+    school_id = user["profile"]["school_id"]
+    submissions = await db.fetch_many("assignment_submissions", {"assignment_id": assignment_id, "school_id": school_id})
+    
+    # Enrich with student profiles
+    enriched = []
+    for sub in submissions:
+        student = await db.fetch_one("profiles", {"id": sub["student_id"]})
+        enriched.append({
+            **sub,
+            "student": student
+        })
+        
+    return enriched
+

@@ -6,35 +6,35 @@ import { useParams } from 'next/navigation'
 import {
   Home, MessageSquare, Compass, Bell, ChevronDown,
   Search, Calendar, User, Clock, CheckSquare, BookOpen,
-  Eye, GraduationCap
+  Eye, GraduationCap, FileText, Upload, Link as LinkIcon
 } from 'lucide-react'
 import { useAuth } from '../../providers/AuthProvider'
 import { useTenant } from '../../providers/TenantProvider'
 import { CraftLogo } from '../ui/CraftLogo'
 import { fetchAPI } from '../../lib/api'
 
-function getTagStyle(tag: string) {
-  if (tag.includes('Project')) return 'bg-amber-50 text-amber-600'
-  if (tag.includes('Case')) return 'bg-cyan-50 text-cyan-600'
-  return 'bg-indigo-50 text-indigo-600'
-}
-
 export default function StudentDashboard() {
   const params = useParams()
   const subdomain = params?.subdomain as string
   const { profile } = useAuth()
   const { school } = useTenant()
-  const [activeTab, setActiveTab] = useState<'academic' | 'personal'>('academic')
+  const [activeTab, setActiveTab] = useState<'academic' | 'assignments'>('academic')
   const [searchQuery, setSearchQuery] = useState('')
-  const [semester, setSemester] = useState('2025/2026 Even')
 
   // Real data state
   const [courses, setCourses] = useState<any[]>([])
   const [todoItems, setTodoItems] = useState<any[]>([])
+  const [assignments, setAssignments] = useState<any[]>([])
   const [schedule, setSchedule] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  const todayIndex = new Date().getDay() // Current day index (0 = Sunday, 6 = Saturday)
+  // Submission State
+  const [selectedAssignment, setSelectedAssignment] = useState<any>(null)
+  const [submissionUrl, setSubmissionUrl] = useState('')
+  const [submissionText, setSubmissionText] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const todayIndex = new Date().getDay()
 
   useEffect(() => {
     let isMounted = true
@@ -43,22 +43,18 @@ export default function StudentDashboard() {
       if (!profile?.id) return
       setIsLoading(true)
       try {
-        // Attempt to fetch real academic data from backend
-        // In the future, this should be mapped to the exact endpoints (e.g., /api/academic/enrollments)
-        const [gradesRes, notificationsRes] = await Promise.all([
-          fetchAPI(`/academic/grades/student/${profile.id}`).catch(() => []),
-          fetchAPI(`/notifications`).catch(() => [])
-        ])
-
-        if (!isMounted) return
-
-        // Map grades to courses as a fallback for now if no direct enrollment endpoint exists
+        // Fetch grades to extract enrolled courses
+        const gradesRes = await fetchAPI(`/academic/grades/student/${profile.id}`).catch(() => [])
+        
+        let uniqueClasses: any[] = []
         if (gradesRes && Array.isArray(gradesRes)) {
           const uniqueSubjects = new Map()
           gradesRes.forEach((grade: any) => {
+            const classId = grade.class_subject_id || 'unknown'
             const subjectName = grade.class_subjects?.subjects?.name || 'Unknown Subject'
             if (!uniqueSubjects.has(subjectName)) {
               uniqueSubjects.set(subjectName, {
+                class_id: classId,
                 name: subjectName,
                 department: 'General',
                 instructor: 'Assigned Instructor',
@@ -69,9 +65,23 @@ export default function StudentDashboard() {
               })
             }
           })
-          setCourses(Array.from(uniqueSubjects.values()))
+          uniqueClasses = Array.from(uniqueSubjects.values())
+          setCourses(uniqueClasses)
         }
 
+        // Fetch assignments for all classes
+        let allAssignments: any[] = []
+        for (const cls of uniqueClasses) {
+            if (cls.class_id !== 'unknown') {
+                const classAssignments = await fetchAPI(`/academic/classes/${cls.class_id}/assignments`).catch(() => [])
+                if (Array.isArray(classAssignments)) {
+                    allAssignments = [...allAssignments, ...classAssignments.map(a => ({ ...a, subject_name: cls.name }))]
+                }
+            }
+        }
+        setAssignments(allAssignments)
+
+        const notificationsRes = await fetchAPI(`/notifications`).catch(() => [])
         if (notificationsRes && Array.isArray(notificationsRes)) {
           const mappedTodos = notificationsRes
             .filter((n: any) => n.type === 'ACADEMIC')
@@ -89,9 +99,7 @@ export default function StudentDashboard() {
       } catch (error) {
         console.error("Failed to load student data", error)
       } finally {
-        if (isMounted) {
-          setIsLoading(false)
-        }
+        if (isMounted) setIsLoading(false)
       }
     }
 
@@ -102,10 +110,29 @@ export default function StudentDashboard() {
     }
   }, [profile?.id])
 
-  const filteredCourses = courses.filter(c =>
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.instructor.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const handleSubmission = async (e: React.FormEvent) => {
+      e.preventDefault()
+      if (!selectedAssignment) return
+      setIsSubmitting(true)
+      try {
+          await fetchAPI(`/academic/assignments/${selectedAssignment.id}/submissions`, {
+              method: 'POST',
+              body: JSON.stringify({
+                  submission_url: submissionUrl,
+                  submission_text: submissionText
+              })
+          })
+          alert("Assignment submitted successfully!")
+          setSelectedAssignment(null)
+          setSubmissionUrl('')
+          setSubmissionText('')
+      } catch (error) {
+          console.error(error)
+          alert("Failed to submit assignment.")
+      } finally {
+          setIsSubmitting(false)
+      }
+  }
 
   const weekDays = [
     { day: 'Sun', num: '0' },
@@ -123,7 +150,6 @@ export default function StudentDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-700 font-sans">
-      {/* 1. GLOBAL NAVIGATION BAR */}
       <nav className="bg-[#10b981] text-white px-6 py-3 flex items-center justify-between shadow-sm sticky top-0 z-50">
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-2">
@@ -132,27 +158,6 @@ export default function StudentDashboard() {
               <p className="font-bold">{school?.name || 'School'}</p>
               <p className="text-[10px] opacity-80">Student Portal</p>
             </div>
-          </div>
-
-          <div className="hidden md:flex items-center space-x-1 font-medium text-sm">
-            <Link href={`/${subdomain}/dashboard`}>
-              <button className="flex items-center space-x-1 bg-white/10 px-3 py-1.5 rounded-md">
-                <Home size={16} /> <span>Home page</span>
-              </button>
-            </Link>
-            <Link href={`/${subdomain}/dashboard/news`}>
-              <button className="flex items-center space-x-1 hover:bg-white/10 px-3 py-1.5 rounded-md opacity-90">
-                <Calendar size={16} /> <span>Timeline &amp; News</span>
-              </button>
-            </Link>
-            <Link href={`/${subdomain}/dashboard/messages`}>
-              <button className="flex items-center space-x-1 hover:bg-white/10 px-3 py-1.5 rounded-md opacity-90">
-                <MessageSquare size={16} /> <span>Chat</span>
-              </button>
-            </Link>
-            <button className="flex items-center space-x-1 hover:bg-white/10 px-3 py-1.5 rounded-md opacity-90">
-              <Compass size={16} /> <span>Explore</span>
-            </button>
           </div>
         </div>
 
@@ -171,192 +176,174 @@ export default function StudentDashboard() {
               <p className="font-bold leading-tight">{profile?.full_name || 'STUDENT'}</p>
               <p className="text-[10px] opacity-70">Student</p>
             </div>
-            <ChevronDown size={14} className="opacity-80" />
           </div>
         </div>
       </nav>
 
-      {/* MAIN TWO-COLUMN CONTAINER */}
       <div className="max-w-[1400px] mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        {/* 2. LEFT SIDEBAR */}
         <aside className="lg:col-span-3 space-y-6">
-          {/* Schedule Widget */}
           <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
             <div className="flex justify-between items-center mb-3">
               <h3 className="font-bold text-sm">This Week&apos;s Schedule</h3>
               <span className="text-[11px] text-slate-400 font-medium">Today</span>
             </div>
 
-            {/* 7 Day Strip */}
             <div className="grid grid-cols-7 gap-1 text-center mb-6 text-xs border-b border-slate-100 pb-3">
               {weekDays.map(({ day, num }, i) => (
-                <div
-                  key={i}
-                  className={`p-1 ${i === todayIndex ? 'bg-emerald-50 rounded-md border border-emerald-200' : ''}`}
-                >
+                <div key={i} className={`p-1 ${i === todayIndex ? 'bg-emerald-50 rounded-md border border-emerald-200' : ''}`}>
                   <p className={`text-[10px] ${i === todayIndex ? 'text-emerald-600 font-bold' : 'text-slate-400'}`}>{day}</p>
                   <p className={`mt-0.5 ${i === todayIndex ? 'font-black text-emerald-600' : 'font-semibold text-slate-700'}`}>{num}</p>
                 </div>
               ))}
             </div>
 
-            {/* Schedule State */}
             {schedule.length === 0 ? (
                 <div className="py-8 flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-2 text-slate-300">
-                    <Calendar size={28} />
+                    <Calendar size={28} className="text-slate-300 mb-2" />
+                    <p className="text-xs text-slate-400 max-w-[180px]">No classes scheduled for today.</p>
                 </div>
-                <p className="text-xs text-slate-400 max-w-[180px]">There are no classes scheduled on this date.</p>
-                </div>
-            ) : (
-                <div className="space-y-3">
-                    {schedule.map((item, i) => (
-                        <div key={i} className="p-3 bg-slate-50 rounded-lg text-xs">
-                            <p className="font-bold text-slate-800">{item.name}</p>
-                            <p className="text-slate-500 mt-1"><Clock size={12} className="inline mr-1" />{item.time}</p>
-                        </div>
-                    ))}
-                </div>
-            )}
+            ) : null}
           </div>
 
-          {/* Todo List Widget */}
           <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
-            <div className="flex items-center space-x-2 mb-4">
-              <h3 className="font-bold text-sm">Needs to be done</h3>
-              {todoItems.length > 0 && (
-                 <span className="bg-rose-100 text-rose-600 font-bold text-xs px-1.5 py-0.5 rounded-full">{todoItems.length}</span>
-              )}
-            </div>
-
+            <h3 className="font-bold text-sm mb-4">Todo List</h3>
             {todoItems.length > 0 ? (
                 <div className="space-y-4">
                 {todoItems.map((item, i) => (
-                    <div key={i} className="flex items-start space-x-3 p-2 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
-                    <div className={`p-2 ${item.iconBg} ${item.iconColor} rounded-lg mt-0.5`}>
-                        <item.icon size={16} />
-                    </div>
-                    <div className="text-xs">
-                        <h4 className="font-bold text-slate-800">{item.title}</h4>
-                        <p className="text-slate-400 text-[11px] font-medium">{item.course}</p>
-                        <p className="text-rose-500 font-medium mt-1 text-[10px]">{item.deadline}</p>
-                    </div>
+                    <div key={i} className="flex items-start space-x-3 p-2 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer text-xs">
+                        <div>
+                            <h4 className="font-bold text-slate-800">{item.title}</h4>
+                            <p className="text-slate-400 text-[11px] font-medium">{item.course}</p>
+                        </div>
                     </div>
                 ))}
                 </div>
             ) : (
                 <div className="py-6 text-center">
                     <CheckSquare size={24} className="mx-auto mb-2 text-emerald-400" />
-                    <p className="text-xs text-slate-400">You are all caught up!</p>
+                    <p className="text-xs text-slate-400">All caught up!</p>
                 </div>
             )}
           </div>
         </aside>
 
-        {/* 3. MAIN CONTENT AREA */}
         <main className="lg:col-span-9 space-y-6">
-          {/* Tabs Control */}
           <div className="border-b border-slate-200 flex space-x-6 text-sm font-semibold">
             <button
               className={`pb-2 px-1 ${activeTab === 'academic' ? 'text-emerald-600 border-b-2 border-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}
               onClick={() => setActiveTab('academic')}
             >
-              Academic Class
+              Academic Classes
             </button>
             <button
-              className={`pb-2 px-1 ${activeTab === 'personal' ? 'text-emerald-600 border-b-2 border-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}
-              onClick={() => setActiveTab('personal')}
+              className={`pb-2 px-1 ${activeTab === 'assignments' ? 'text-emerald-600 border-b-2 border-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}
+              onClick={() => setActiveTab('assignments')}
             >
-              Personal Class
+              Assignments
             </button>
           </div>
 
-          {/* Search and Filters Bar */}
-          <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search by course, class code, or lecturer name"
-                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-emerald-500 transition-colors"
-              />
-            </div>
-            <div className="relative">
-              <select
-                value={semester}
-                onChange={e => setSemester(e.target.value)}
-                className="appearance-none bg-white border border-slate-200 rounded-lg pl-3 pr-8 py-2 text-xs font-medium focus:outline-none cursor-pointer"
-              >
-                <option>2025/2026 Even</option>
-                <option>2025/2026 Odd</option>
-              </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" size={14} />
-            </div>
-          </div>
-
-          {/* Grid Layout for Academic Classes */}
           {isLoading ? (
              <div className="py-20 text-center">
                  <div className="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4" />
-                 <p className="text-sm text-slate-400">Loading your academic data...</p>
+                 <p className="text-sm text-slate-400">Loading your data...</p>
              </div>
-          ) : filteredCourses.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredCourses.map((course, i) => {
-                const pct = course.totalSessions > 0
-                  ? Math.round((course.attendance / course.totalSessions) * 100)
-                  : 0
-                return (
-                  <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <div>
-                      <h3 className="font-bold text-slate-800 text-sm hover:text-emerald-600 cursor-pointer">{course.name}</h3>
-                      <p className="text-[11px] text-slate-400 font-medium">{course.department}</p>
-
-                      {/* Learning tags */}
-                      {course.tags && course.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 my-4">
-                          {course.tags.map((tag: string, ti: number) => (
-                              <span key={ti} className={`text-[10px] font-bold px-2 py-0.5 rounded ${getTagStyle(tag)}`}>
-                              {tag}
-                              </span>
-                          ))}
+          ) : activeTab === 'academic' ? (
+             courses.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {courses.map((course, i) => (
+                    <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition-shadow">
+                        <h3 className="font-bold text-slate-800 text-sm">{course.name}</h3>
+                        <div className="space-y-1.5 text-xs text-slate-500 mb-6 mt-4">
+                          <div className="flex items-center space-x-2">
+                            <User size={13} className="text-slate-400" />
+                            <span>{course.instructor}</span>
                           </div>
-                      )}
-
-                      <div className="space-y-1.5 text-xs text-slate-500 mb-6 mt-4">
-                        <div className="flex items-center space-x-2">
-                          <User size={13} className="text-slate-400" />
-                          <span>{course.instructor}</span>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Clock size={13} className="text-slate-400" />
-                          <span>{course.time}</span>
-                        </div>
-                      </div>
                     </div>
-
-                    {/* Progress Footer */}
-                    <div className="border-t border-slate-100 pt-3 text-xs">
-                      <div className="flex justify-between items-center mb-1 text-[11px] text-slate-400">
-                        <span>Attendance: {course.attendance} of {course.totalSessions} sessions</span>
-                        <span className="font-bold text-slate-600">{pct}%</span>
-                      </div>
-                      <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-emerald-500 h-full rounded-full transition-all" style={{ width: `${pct}%` }} />
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+                  ))}
+                </div>
+             ) : (
+                <div className="bg-white rounded-xl border border-slate-100 p-12 text-center text-slate-400 text-sm">
+                  <Search size={28} className="mx-auto mb-3 opacity-40" />
+                  <p>No courses assigned for you yet.</p>
+                </div>
+             )
           ) : (
-            <div className="bg-white rounded-xl border border-slate-100 p-12 text-center text-slate-400 text-sm">
-              <Search size={28} className="mx-auto mb-3 opacity-40" />
-              <p>No courses found for the selected term.</p>
-            </div>
+             <div className="space-y-4">
+                {assignments.length > 0 ? assignments.map((a, i) => (
+                    <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h3 className="font-bold text-slate-800">{a.title}</h3>
+                                <p className="text-xs text-slate-500">{a.subject_name}</p>
+                                <p className="text-xs text-slate-600 mt-2">{a.description}</p>
+                                {a.attachment_url && (
+                                    <a href={a.attachment_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 text-xs flex items-center mt-2 hover:underline">
+                                        <FileText size={12} className="mr-1" /> View Attachment
+                                    </a>
+                                )}
+                            </div>
+                            <div className="text-right text-xs">
+                                <p className="text-rose-500 font-bold mb-2">Due: {new Date(a.deadline).toLocaleDateString()}</p>
+                                <button onClick={() => setSelectedAssignment(a)} className="bg-emerald-500 text-white px-4 py-2 rounded font-bold hover:bg-emerald-600">
+                                    Submit Work
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )) : (
+                    <div className="bg-white rounded-xl border border-slate-100 p-12 text-center text-slate-400 text-sm">
+                        <FileText size={28} className="mx-auto mb-3 opacity-40" />
+                        <p>No active assignments at the moment.</p>
+                    </div>
+                )}
+             </div>
+          )}
+
+          {/* Submission Modal */}
+          {selectedAssignment && (
+              <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+                  <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+                      <h3 className="font-bold text-lg mb-1">Submit Assignment</h3>
+                      <p className="text-xs text-slate-500 mb-4">{selectedAssignment.title}</p>
+                      
+                      <form onSubmit={handleSubmission} className="space-y-4">
+                          <div>
+                              <label className="block text-xs font-bold text-slate-700 mb-1">Submission URL</label>
+                              <div className="relative">
+                                  <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                                  <input 
+                                      type="url" 
+                                      value={submissionUrl}
+                                      onChange={e => setSubmissionUrl(e.target.value)}
+                                      placeholder="https://docs.google.com/..."
+                                      className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-emerald-500" 
+                                  />
+                              </div>
+                          </div>
+                          <div>
+                              <label className="block text-xs font-bold text-slate-700 mb-1">Or Text Answer</label>
+                              <textarea 
+                                  value={submissionText}
+                                  onChange={e => setSubmissionText(e.target.value)}
+                                  rows={4}
+                                  placeholder="Type your answer here..."
+                                  className="w-full p-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-emerald-500"
+                              />
+                          </div>
+                          <div className="flex justify-end space-x-3 mt-6">
+                              <button type="button" onClick={() => setSelectedAssignment(null)} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded">
+                                  Cancel
+                              </button>
+                              <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-sm text-white bg-emerald-500 hover:bg-emerald-600 rounded font-bold">
+                                  {isSubmitting ? 'Submitting...' : 'Confirm Submission'}
+                              </button>
+                          </div>
+                      </form>
+                  </div>
+              </div>
           )}
         </main>
       </div>
