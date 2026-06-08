@@ -81,7 +81,7 @@ export function SuperAdminOverview() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-32">
-        <div className="w-12 h-12 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
+        <div className="w-12 h-12 border-4 border-[var(--edlink-green-brand)]/20 border-t-teal-500 rounded-full animate-spin" />
       </div>
     )
   }
@@ -91,7 +91,7 @@ export function SuperAdminOverview() {
       <div className="premium-card text-center py-20">
         <AlertTriangle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
         <h3 className="text-xl font-bold text-rose-400 mb-2">Dashboard Error</h3>
-        <p className="text-gray-400 mb-6">{error}</p>
+        <p className="text-[var(--edlink-blue-text)]/70 mb-6">{error}</p>
         <button
           onClick={loadData}
           className="px-6 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
@@ -125,7 +125,7 @@ export function SuperAdminOverview() {
         <h1 className="text-3xl font-extrabold tracking-tight mb-2">
           Control <span className="gradient-text">Center</span>
         </h1>
-        <p className="text-gray-400">Global oversight and platform management.</p>
+        <p className="text-[var(--edlink-blue-text)]/70">Global oversight and platform management.</p>
       </header>
 
       {/* Global Stats */}
@@ -144,7 +144,7 @@ export function SuperAdminOverview() {
               </div>
               <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Live</span>
             </div>
-            <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">{stat.label}</p>
+            <p className="text-[var(--edlink-blue-text)]/70 text-xs font-bold uppercase tracking-widest mb-1">{stat.label}</p>
             <h3 className="text-3xl font-bold">{stat.value}</h3>
           </motion.div>
         ))}
@@ -156,19 +156,19 @@ export function SuperAdminOverview() {
           <div className="premium-card">
             <div className="flex items-center justify-between mb-8">
               <h3 className="text-xl font-bold flex items-center gap-3">
-                <ShieldAlert className="text-teal-400 w-6 h-6" />
+                <ShieldAlert className="text-[var(--edlink-green-brand)] w-6 h-6" />
                 Security & Activity Logs
               </h3>
               <button
                 onClick={() => { loadData(); showToast('Refreshing logs...', 'INFO') }}
-                className="text-teal-400 text-sm font-bold hover:underline flex items-center gap-2"
+                className="text-[var(--edlink-green-brand)] text-sm font-bold hover:underline flex items-center gap-2"
               >
                 Refresh <ArrowUpRight className="w-4 h-4" />
               </button>
             </div>
             <div className="space-y-4">
               {safeLogs.length === 0 ? (
-                <p className="text-gray-500 text-center py-4">No recent activity found.</p>
+                <p className="text-[var(--edlink-blue-text)]/70 text-center py-4">No recent activity found.</p>
               ) : (
                 safeLogs.slice(0, 5).map((log: any) => {
                   const safeAction = String(log?.action || 'UNKNOWN')
@@ -183,17 +183,17 @@ export function SuperAdminOverview() {
                       <div className="flex items-center gap-4">
                         <div
                           className={`w-2 h-2 rounded-full ${
-                            isError ? 'bg-rose-500' : isSuccess ? 'bg-emerald-500' : 'bg-teal-500'
+                            isError ? 'bg-rose-500' : isSuccess ? 'bg-[var(--edlink-green-brand)]' : 'bg-[var(--edlink-green-brand)]'
                           }`}
                         />
                         <div>
                           <p className="font-bold text-sm">{safeAction.replace(/_/g, ' ')}</p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-[var(--edlink-blue-text)]/70">
                             By: {log?.actor?.full_name || 'System'} | Target: {log?.target_id || 'N/A'}
                           </p>
                         </div>
                       </div>
-                      <span className="text-[10px] text-gray-600 font-bold uppercase">
+                      <span className="text-[10px] text-[var(--edlink-blue-text)]/70 font-bold uppercase">
                         {log?.created_at
                           ? new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                           : 'Unknown'}
@@ -210,7 +210,7 @@ export function SuperAdminOverview() {
         <div className="space-y-8">
           <div className="premium-card border-blue-500/20 bg-blue-500/5">
             <h3 className="text-lg font-bold mb-4">Support Toolbox</h3>
-            <p className="text-xs text-gray-400 mb-6">Need to assist a school admin? Use impersonation or manual overrides.</p>
+            <p className="text-xs text-[var(--edlink-blue-text)]/70 mb-6">Need to assist a school admin? Use impersonation or manual overrides.</p>
             <div className="space-y-3">
               <button
                 onClick={() => handleAction('Impersonation Mode')}

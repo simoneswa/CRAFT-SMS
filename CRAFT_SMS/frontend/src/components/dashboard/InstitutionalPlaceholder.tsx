@@ -35,7 +35,7 @@ export function InstitutionalPlaceholder({ title, subtitle, iconKey }: Placehold
         {iconKeyToElement(iconKey)}
       </div>
       <h1 className="text-2xl font-black uppercase tracking-tight text-white mb-2">{title}</h1>
-      <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] max-w-sm leading-relaxed">{subtitle}</p>
+      <p className="text-[var(--edlink-blue-text)]/70 font-bold uppercase tracking-widest text-[10px] max-w-sm leading-relaxed">{subtitle}</p>
       <div className="mt-12 flex gap-4">
         <div className="h-px w-12 bg-white/5 self-center" />
         <span className="text-[9px] font-black text-gray-700 uppercase tracking-[0.3em]">

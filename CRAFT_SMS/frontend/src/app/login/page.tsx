@@ -150,15 +150,15 @@ export default function LoginPage() {
                           <div className="flex items-center gap-2.5 bg-white rounded-xl px-3 py-2 border border-slate-100 shadow-sm">
                             <div className="h-7 w-7 rounded-lg bg-[#007A53] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">M</div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-[11px] font-semibold text-slate-800 truncate">Mathematics</p>
+                              <p className="text-[11px] font-semibold text-[var(--edlink-blue-text)] truncate">Mathematics</p>
                               <p className="text-[9px] text-slate-400">09:00 – 10:30</p>
                             </div>
-                            <span className="text-[8px] bg-emerald-50 text-[#007A53] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">Live</span>
+                            <span className="text-[8px] bg-[var(--edlink-green-brand)]/10 text-[#007A53] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">Live</span>
                           </div>
                           <div className="flex items-center gap-2.5 bg-white rounded-xl px-3 py-2 border border-slate-100 shadow-sm">
                             <div className="h-7 w-7 rounded-lg bg-[#006342] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">B</div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-[11px] font-semibold text-slate-800 truncate">Biology</p>
+                              <p className="text-[11px] font-semibold text-[var(--edlink-blue-text)] truncate">Biology</p>
                               <p className="text-[9px] text-slate-400">11:00 – 12:30</p>
                             </div>
                             <span className="text-[8px] bg-slate-100 text-slate-400 font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">Next</span>
@@ -167,7 +167,7 @@ export default function LoginPage() {
                         <div className="flex items-center gap-2.5 rounded-xl bg-[#007A53]/8 border border-[#007A53]/15 px-3 py-2">
                           <div className="h-7 w-7 rounded-lg bg-[#007A53]/20 flex items-center justify-center text-[#007A53] text-[10px] font-extrabold flex-shrink-0">92</div>
                           <div>
-                            <p className="text-[10px] font-semibold text-slate-700">Latest Grade — Mathematics</p>
+                            <p className="text-[10px] font-semibold text-[var(--edlink-blue-text)]">Latest Grade — Mathematics</p>
                             <p className="text-[9px] text-[#007A53] font-medium">Excellent Performance</p>
                           </div>
                         </div>
@@ -189,7 +189,7 @@ export default function LoginPage() {
             <div className="w-full max-w-xl rounded-[40px] bg-white p-8 shadow-[0_40px_120px_-48px_rgba(15,23,42,0.12)] sm:p-10">
               <div className="text-center">
                 <h2 className="text-4xl font-semibold text-slate-950">Welcome back!</h2>
-                <p className="mt-3 text-sm text-slate-500">Sign in to continue to your secure CRAFT SMS dashboard.</p>
+                <p className="mt-3 text-sm text-[var(--edlink-blue-text)]/70">Sign in to continue to your secure CRAFT SMS dashboard.</p>
               </div>
               <form onSubmit={handleLogin} className="mt-8 space-y-6">
                 {error && (
@@ -197,7 +197,7 @@ export default function LoginPage() {
                 )}
                 <div className="space-y-5">
                   <div className="space-y-2">
-                    <label htmlFor="school-email" className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">School Email</label>
+                    <label htmlFor="school-email" className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--edlink-blue-text)]/70">School Email</label>
                     <div className="relative">
                       <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                       <input
@@ -213,7 +213,7 @@ export default function LoginPage() {
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between gap-4">
-                      <label htmlFor="password" className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Password</label>
+                      <label htmlFor="password" className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--edlink-blue-text)]/70">Password</label>
                       <Link href="/forgot-password" className="text-sm font-semibold text-[var(--brand-primary)] hover:text-[#006342] transition">Forgot password?</Link>
                     </div>
                     <div className="relative">
@@ -250,7 +250,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={handleGoogleSignIn}
-                      className="ml-auto inline-flex items-center gap-2 rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]"
+                      className="ml-auto inline-flex items-center gap-2 rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-[var(--edlink-blue-text)] transition hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]"
                     >
                       <FcGoogle className="h-5 w-5" /> Sign in with Google
                     </button>
@@ -269,7 +269,7 @@ export default function LoginPage() {
                   </div>
                 )}
               </form>
-              <p className="mt-6 text-center text-sm text-slate-500">
+              <p className="mt-6 text-center text-sm text-[var(--edlink-blue-text)]/70">
                 Don&apos;t have an account? <Link href="/signup" className="font-semibold text-[var(--brand-primary)]">Create one</Link>
               </p>
             </div>

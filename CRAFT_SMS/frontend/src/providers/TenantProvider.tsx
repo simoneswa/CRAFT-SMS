@@ -174,13 +174,13 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
           </svg>
         </div>
         <h1 className="text-4xl font-bold mb-4 text-center">School Not Found</h1>
-        <p className="text-gray-400 text-center max-w-md mb-2">
-          The subdomain <code className="text-teal-400 font-mono">&quot;{subdomain}&quot;</code> doesn&apos;t match an active school.
+        <p className="text-[var(--edlink-blue-text)]/70 text-center max-w-md mb-2">
+          The subdomain <code className="text-[var(--edlink-green-brand)] font-mono">&quot;{subdomain}&quot;</code> doesn&apos;t match an active school.
         </p>
-        <p className="text-gray-600 text-center text-sm max-w-md mb-8">{error}</p>
+        <p className="text-[var(--edlink-blue-text)]/70 text-center text-sm max-w-md mb-8">{error}</p>
         <button
           onClick={() => window.location.href = '/'}
-          className="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-black font-bold transition-all shadow-lg shadow-teal-500/20"
+          className="px-6 py-3 rounded-xl bg-[var(--edlink-green-brand)] hover:bg-[var(--edlink-green-hover)] text-black font-bold transition-all shadow-lg shadow-teal-500/20"
         >
           Return to Global Directory
         </button>

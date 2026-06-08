@@ -77,10 +77,10 @@ export default function AnalyticsDashboard() {
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-3xl font-black uppercase tracking-tight text-white">Institutional <span className="gradient-text">Intelligence</span></h1>
-            <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] mt-1">Data-driven performance monitoring and operational health.</p>
+            <p className="text-[var(--edlink-blue-text)]/70 font-bold uppercase tracking-widest text-[10px] mt-1">Data-driven performance monitoring and operational health.</p>
           </div>
           <div className="flex gap-3">
-             <button onClick={loadAnalytics} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-white transition-all">
+             <button onClick={loadAnalytics} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-[var(--edlink-blue-text)]/70 hover:text-white transition-all">
                 Refresh Intelligence
              </button>
           </div>
@@ -88,7 +88,7 @@ export default function AnalyticsDashboard() {
 
         {isLoading ? (
            <div className="flex justify-center py-32">
-              <div className="w-12 h-12 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
+              <div className="w-12 h-12 border-4 border-[var(--edlink-green-brand)]/20 border-t-teal-500 rounded-full animate-spin" />
            </div>
         ) : (
            <>
@@ -122,8 +122,8 @@ export default function AnalyticsDashboard() {
                      <h3 className="text-sm font-black uppercase tracking-widest text-white">Revenue Acquisition Flow</h3>
                      <div className="flex gap-4">
                         <div className="flex items-center gap-2">
-                           <div className="w-3 h-3 rounded-full bg-teal-500" />
-                           <span className="text-[10px] font-bold text-gray-500 uppercase">Verified</span>
+                           <div className="w-3 h-3 rounded-full bg-[var(--edlink-green-brand)]" />
+                           <span className="text-[10px] font-bold text-[var(--edlink-blue-text)]/70 uppercase">Verified</span>
                         </div>
                      </div>
                   </div>
@@ -172,7 +172,7 @@ export default function AnalyticsDashboard() {
                            <AlertCircle className="w-5 h-5 text-[var(--accent)]" />
                            <h3 className="text-xs font-black uppercase tracking-widest text-white">At-Risk Student Watch</h3>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-gray-600" />
+                        <ChevronRight className="w-4 h-4 text-[var(--edlink-blue-text)]/70" />
                      </div>
 
                      <div className="space-y-4">
@@ -181,13 +181,13 @@ export default function AnalyticsDashboard() {
                               <div className="flex items-center justify-between">
                                  <div>
                                     <p className="text-xs font-bold text-white">{s.name}</p>
-                                    <p className="text-[9px] text-gray-500 font-bold uppercase tracking-[0.2em]">{s.risk_level}</p>
+                                    <p className="text-[9px] text-[var(--edlink-blue-text)]/70 font-bold uppercase tracking-[0.2em]">{s.risk_level}</p>
                                  </div>
                                  <div className="text-right">
                                     <p className="text-sm font-black text-[var(--accent)]">{s.average_grade}%</p>
                                  </div>
                               </div>
-                              <p className="text-[10px] text-gray-500 italic border-t border-white/[0.02] pt-2 mt-1">
+                              <p className="text-[10px] text-[var(--edlink-blue-text)]/70 italic border-t border-white/[0.02] pt-2 mt-1">
                                  {s.absences > 5 ? `⚠️ Operational Warning: ${s.absences} absences detected in last 30 days.` : 
                                   s.average_grade < 60 ? "📉 Academic Warning: Grade average significantly below threshold." :
                                   "🔍 Monitoring: Performance inconsistency detected."}
@@ -198,7 +198,7 @@ export default function AnalyticsDashboard() {
                   </div>
 
                   <div className="premium-card">
-                     <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-8">Attendance Periodicity</h3>
+                     <h3 className="text-[10px] font-black uppercase tracking-widest text-[var(--edlink-blue-text)]/70 mb-8">Attendance Periodicity</h3>
                      <div className="h-40 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                            <BarChart data={attendanceTrend}>

@@ -138,10 +138,10 @@ export default function StudentDashboard() {
 
   // ── RENDER ────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-700 font-sans">
+    <div className="min-h-screen bg-slate-50 text-[var(--edlink-blue-text)] font-sans">
 
       {/* NAV */}
-      <nav className="bg-[#10b981] text-white px-6 py-3 flex items-center justify-between shadow-sm sticky top-0 z-50">
+      <nav className="bg-[var(--edlink-green-brand)] text-white px-6 py-3 flex items-center justify-between shadow-sm sticky top-0 z-50">
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-2">
             <CraftLogo className="h-8 w-auto invert" />
@@ -201,9 +201,9 @@ export default function StudentDashboard() {
             </div>
             <div className="grid grid-cols-7 gap-1 text-center mb-4 text-xs border-b border-slate-100 pb-3">
               {weekDays.map(({ day, num }, i) => (
-                <div key={i} className={`p-1 ${i === todayIndex ? 'bg-emerald-50 rounded-md border border-emerald-200' : ''}`}>
-                  <p className={`text-[10px] ${i === todayIndex ? 'text-emerald-600 font-bold' : 'text-slate-400'}`}>{day}</p>
-                  <p className={`mt-0.5 ${i === todayIndex ? 'font-black text-emerald-600' : 'font-semibold text-slate-700'}`}>{num}</p>
+                <div key={i} className={`p-1 ${i === todayIndex ? 'bg-[var(--edlink-green-brand)]/10 rounded-md border border-[var(--edlink-divider-blue)]' : ''}`}>
+                  <p className={`text-[10px] ${i === todayIndex ? 'text-[var(--edlink-green-brand)] font-bold' : 'text-slate-400'}`}>{day}</p>
+                  <p className={`mt-0.5 ${i === todayIndex ? 'font-black text-[var(--edlink-green-brand)]' : 'font-semibold text-[var(--edlink-blue-text)]'}`}>{num}</p>
                 </div>
               ))}
             </div>
@@ -220,7 +220,7 @@ export default function StudentDashboard() {
               <div className="space-y-3">
                 {todoItems.map((item: any, i) => (
                   <div key={i} className="text-xs p-2 hover:bg-slate-50 rounded-lg">
-                    <p className="font-bold text-slate-800">{item.title}</p>
+                    <p className="font-bold text-[var(--edlink-blue-text)]">{item.title}</p>
                     <p className="text-slate-400 text-[11px] mt-0.5">{item.message}</p>
                   </div>
                 ))}
@@ -241,13 +241,13 @@ export default function StudentDashboard() {
           <div className="border-b border-slate-200 flex items-center justify-between">
             <div className="flex space-x-6 text-sm font-semibold">
               <button
-                className={`pb-2 px-1 ${activeTab === 'academic' ? 'text-emerald-600 border-b-2 border-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`pb-2 px-1 ${activeTab === 'academic' ? 'text-[var(--edlink-green-brand)] border-b-2 border-[var(--edlink-green-brand)]' : 'text-slate-400 hover:text-slate-600'}`}
                 onClick={() => setActiveTab('academic')}
               >
                 Academic Classes
               </button>
               <button
-                className={`pb-2 px-1 ${activeTab === 'assignments' ? 'text-emerald-600 border-b-2 border-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`pb-2 px-1 ${activeTab === 'assignments' ? 'text-[var(--edlink-green-brand)] border-b-2 border-[var(--edlink-green-brand)]' : 'text-slate-400 hover:text-slate-600'}`}
                 onClick={() => setActiveTab('assignments')}
               >
                 Assignments
@@ -267,7 +267,7 @@ export default function StudentDashboard() {
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Search courses..."
-                    className="pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-emerald-500"
+                    className="pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[var(--edlink-green-brand)]"
                   />
                 </div>
                 <div className="relative">
@@ -288,7 +288,7 @@ export default function StudentDashboard() {
           {/* Loading */}
           {isLoading ? (
             <div className="py-20 text-center">
-              <div className="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4" />
+              <div className="w-8 h-8 border-4 border-[var(--edlink-green-brand)]/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4" />
               <p className="text-sm text-slate-400">Loading your academic data...</p>
             </div>
 
@@ -298,9 +298,9 @@ export default function StudentDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredCourses.map((course: any, i: number) => (
                   <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                    <h3 className="font-bold text-slate-800 text-sm">{course.name}</h3>
+                    <h3 className="font-bold text-[var(--edlink-blue-text)] text-sm">{course.name}</h3>
                     <p className="text-[11px] text-slate-400 font-medium mt-0.5">{course.department}</p>
-                    <div className="flex items-center space-x-2 mt-4 text-xs text-slate-500">
+                    <div className="flex items-center space-x-2 mt-4 text-xs text-[var(--edlink-blue-text)]/70">
                       <User size={13} className="text-slate-400" />
                       <span>{course.instructor}</span>
                     </div>
@@ -321,8 +321,8 @@ export default function StudentDashboard() {
                 <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
                   <div className="flex justify-between items-start">
                     <div className="flex-1 pr-4">
-                      <h3 className="font-bold text-slate-800">{a.title}</h3>
-                      <p className="text-xs text-slate-500 mt-0.5">{a.subject_name}</p>
+                      <h3 className="font-bold text-[var(--edlink-blue-text)]">{a.title}</h3>
+                      <p className="text-xs text-[var(--edlink-blue-text)]/70 mt-0.5">{a.subject_name}</p>
                       <p className="text-xs text-slate-600 mt-2 leading-relaxed">{a.description}</p>
                       {a.attachment_url && (
                         <a
@@ -342,7 +342,7 @@ export default function StudentDashboard() {
                       </p>
                       <button
                         onClick={() => setSelectedAssignment(a)}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"
+                        className="bg-[var(--edlink-green-brand)] hover:bg-[var(--edlink-green-hover)] text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"
                       >
                         Submit Work
                       </button>
@@ -365,11 +365,11 @@ export default function StudentDashboard() {
         <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
             <h3 className="font-bold text-lg mb-1">Submit Assignment</h3>
-            <p className="text-xs text-slate-500 mb-5">{selectedAssignment.title}</p>
+            <p className="text-xs text-[var(--edlink-blue-text)]/70 mb-5">{selectedAssignment.title}</p>
 
             <form onSubmit={handleSubmission} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Submission URL</label>
+                <label className="block text-xs font-bold text-[var(--edlink-blue-text)] mb-1">Submission URL</label>
                 <div className="relative">
                   <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                   <input
@@ -377,18 +377,18 @@ export default function StudentDashboard() {
                     value={submissionUrl}
                     onChange={e => setSubmissionUrl(e.target.value)}
                     placeholder="https://docs.google.com/..."
-                    className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500"
+                    className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Or Text Answer</label>
+                <label className="block text-xs font-bold text-[var(--edlink-blue-text)] mb-1">Or Text Answer</label>
                 <textarea
                   value={submissionText}
                   onChange={e => setSubmissionText(e.target.value)}
                   rows={4}
                   placeholder="Type your answer here..."
-                  className="w-full p-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500"
+                  className="w-full p-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]"
                 />
               </div>
               <div className="flex justify-end space-x-3 pt-2">
@@ -402,7 +402,7 @@ export default function StudentDashboard() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 text-sm text-white bg-emerald-500 hover:bg-emerald-600 rounded-lg font-bold disabled:opacity-60"
+                  className="px-4 py-2 text-sm text-white bg-[var(--edlink-green-brand)] hover:bg-[var(--edlink-green-hover)] rounded-lg font-bold disabled:opacity-60"
                 >
                   {isSubmitting ? 'Submitting…' : 'Confirm Submission'}
                 </button>

@@ -61,7 +61,7 @@ export default function SystemSettingsPage() {
                   </div>
                   <button 
                     onClick={() => setSettings({...settings, allowNewRegistrations: !settings.allowNewRegistrations})}
-                    className={`w-12 h-6 rounded-full transition-all relative ${settings.allowNewRegistrations ? 'bg-teal-500' : 'bg-white/10'}`}
+                    className={`w-12 h-6 rounded-full transition-all relative ${settings.allowNewRegistrations ? 'bg-[var(--edlink-green-brand)]' : 'bg-white/10'}`}
                   >
                     <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${settings.allowNewRegistrations ? 'left-7' : 'left-1'}`} />
                   </button>
@@ -73,7 +73,7 @@ export default function SystemSettingsPage() {
                     type="number"
                     value={settings.apiRateLimit}
                     onChange={(e) => setSettings({...settings, apiRateLimit: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500/50 transition-all text-slate-900"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]/50 transition-all text-slate-900"
                   />
                 </div>
               </div>
@@ -93,7 +93,7 @@ export default function SystemSettingsPage() {
                 </div>
                 <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-xl">
                    <span className="text-sm text-slate-900 font-medium">IP Whitelisting for Super Admins</span>
-                   <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest bg-emerald-100 px-2 py-1 rounded">Active</span>
+                   <span className="text-[10px] font-bold text-[var(--edlink-green-brand)] uppercase tracking-widest bg-emerald-100 px-2 py-1 rounded">Active</span>
                 </div>
               </div>
             </div>
@@ -108,7 +108,7 @@ export default function SystemSettingsPage() {
               <button 
                 onClick={handleSave}
                 disabled={isSaving}
-                className="w-full py-4 bg-teal-500 hover:bg-teal-400 text-black font-extrabold rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-4 bg-[var(--edlink-green-brand)] hover:bg-[var(--edlink-green-hover)] text-black font-extrabold rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isSaving ? (
                   <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />

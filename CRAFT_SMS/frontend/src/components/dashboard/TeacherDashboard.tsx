@@ -184,8 +184,8 @@ export default function TeacherDashboard() {
   const pendingGradingCount = assignments.length // Just a placeholder stat
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-700 font-sans">
-      <nav className="bg-[#10b981] text-white px-6 py-3 flex items-center justify-between shadow-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-slate-50 text-[var(--edlink-blue-text)] font-sans">
+      <nav className="bg-[var(--edlink-green-brand)] text-white px-6 py-3 flex items-center justify-between shadow-sm sticky top-0 z-50">
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-2">
             <CraftLogo className="h-8 w-auto invert" />
@@ -215,8 +215,8 @@ export default function TeacherDashboard() {
           <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
             <h3 className="font-bold text-sm mb-4">My Overview</h3>
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-emerald-50 rounded-lg p-3 text-center">
-                <p className="text-2xl font-black text-emerald-600">{isLoading ? '-' : assignedClasses.length}</p>
+              <div className="bg-[var(--edlink-green-brand)]/10 rounded-lg p-3 text-center">
+                <p className="text-2xl font-black text-[var(--edlink-green-brand)]">{isLoading ? '-' : assignedClasses.length}</p>
                 <p className="text-[10px] text-emerald-700 font-medium uppercase">Classes</p>
               </div>
               <div className="bg-blue-50 rounded-lg p-3 text-center">
@@ -231,19 +231,19 @@ export default function TeacherDashboard() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-2 space-y-3 sm:space-y-0">
             <div className="flex space-x-6 text-sm font-semibold">
               <button
-                className={`pb-2 px-1 flex items-center space-x-1.5 ${activeTab === 'lesson-plans' ? 'text-emerald-600 border-b-2 border-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`pb-2 px-1 flex items-center space-x-1.5 ${activeTab === 'lesson-plans' ? 'text-[var(--edlink-green-brand)] border-b-2 border-[var(--edlink-green-brand)]' : 'text-slate-400 hover:text-slate-600'}`}
                 onClick={() => setActiveTab('lesson-plans')}
               >
                 <BookOpen size={15} /> <span>Lesson Plans</span>
               </button>
               <button
-                className={`pb-2 px-1 flex items-center space-x-1.5 ${activeTab === 'classes' ? 'text-emerald-600 border-b-2 border-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`pb-2 px-1 flex items-center space-x-1.5 ${activeTab === 'classes' ? 'text-[var(--edlink-green-brand)] border-b-2 border-[var(--edlink-green-brand)]' : 'text-slate-400 hover:text-slate-600'}`}
                 onClick={() => setActiveTab('classes')}
               >
                 <Layers size={15} /> <span>Assigned Classes</span>
               </button>
               <button
-                className={`pb-2 px-1 flex items-center space-x-1.5 ${activeTab === 'assignments' ? 'text-emerald-600 border-b-2 border-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`pb-2 px-1 flex items-center space-x-1.5 ${activeTab === 'assignments' ? 'text-[var(--edlink-green-brand)] border-b-2 border-[var(--edlink-green-brand)]' : 'text-slate-400 hover:text-slate-600'}`}
                 onClick={() => setActiveTab('assignments')}
               >
                 <FileText size={15} /> <span>Assignments</span>
@@ -251,7 +251,7 @@ export default function TeacherDashboard() {
             </div>
 
             {activeTab === 'assignments' && (
-              <button onClick={() => setShowCreateModal(true)} className="bg-[#10b981] hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-lg flex items-center space-x-1 transition-colors self-start sm:self-auto shadow-sm">
+              <button onClick={() => setShowCreateModal(true)} className="bg-[var(--edlink-green-brand)] hover:bg-[var(--edlink-green-hover)] text-white text-xs font-bold px-3 py-2 rounded-lg flex items-center space-x-1 transition-colors self-start sm:self-auto shadow-sm">
                 <Plus size={14} /> <span>New Assignment</span>
               </button>
             )}
@@ -259,7 +259,7 @@ export default function TeacherDashboard() {
 
           {isLoading ? (
              <div className="py-20 text-center">
-                 <div className="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4" />
+                 <div className="w-8 h-8 border-4 border-[var(--edlink-green-brand)]/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4" />
                  <p className="text-sm text-slate-400">Loading your instructor dashboard...</p>
              </div>
           ) : (
@@ -277,8 +277,8 @@ export default function TeacherDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {assignedClasses.map((cls, i) => (
                         <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                          <h3 className="font-bold text-slate-800 text-sm">{cls.name}</h3>
-                          <div className="bg-emerald-50 text-emerald-700 font-bold text-xs px-2 py-1 rounded-lg inline-block mt-2">
+                          <h3 className="font-bold text-[var(--edlink-blue-text)] text-sm">{cls.name}</h3>
+                          <div className="bg-[var(--edlink-green-brand)]/10 text-emerald-700 font-bold text-xs px-2 py-1 rounded-lg inline-block mt-2">
                             {cls.enrolled_students} students
                           </div>
                         </div>
@@ -297,8 +297,8 @@ export default function TeacherDashboard() {
                   {assignments.length > 0 ? assignments.map((a, i) => (
                       <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex justify-between items-start">
                           <div>
-                              <h3 className="font-bold text-slate-800 text-sm">{a.title}</h3>
-                              <p className="text-xs text-slate-500 mt-1 max-w-lg">{a.description}</p>
+                              <h3 className="font-bold text-[var(--edlink-blue-text)] text-sm">{a.title}</h3>
+                              <p className="text-xs text-[var(--edlink-blue-text)]/70 mt-1 max-w-lg">{a.description}</p>
                               {a.attachment_url && (
                                   <a href={a.attachment_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 text-xs flex items-center mt-2 hover:underline">
                                       <Download size={12} className="mr-1" /> View Attachment
@@ -330,33 +330,33 @@ export default function TeacherDashboard() {
                       <h3 className="font-bold text-lg mb-4">Create Assignment</h3>
                       <form onSubmit={handleCreateAssignment} className="space-y-4">
                           <div>
-                              <label className="block text-xs font-bold text-slate-700 mb-1">Target Class</label>
-                              <select required value={newAssignment.class_id} onChange={e => setNewAssignment({...newAssignment, class_id: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-emerald-500">
+                              <label className="block text-xs font-bold text-[var(--edlink-blue-text)] mb-1">Target Class</label>
+                              <select required value={newAssignment.class_id} onChange={e => setNewAssignment({...newAssignment, class_id: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]">
                                   <option value="">Select a class...</option>
                                   {assignedClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                               </select>
                           </div>
                           <div>
-                              <label className="block text-xs font-bold text-slate-700 mb-1">Title</label>
-                              <input required type="text" value={newAssignment.title} onChange={e => setNewAssignment({...newAssignment, title: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-emerald-500" />
+                              <label className="block text-xs font-bold text-[var(--edlink-blue-text)] mb-1">Title</label>
+                              <input required type="text" value={newAssignment.title} onChange={e => setNewAssignment({...newAssignment, title: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]" />
                           </div>
                           <div>
-                              <label className="block text-xs font-bold text-slate-700 mb-1">Instructions / Description</label>
-                              <textarea required rows={3} value={newAssignment.description} onChange={e => setNewAssignment({...newAssignment, description: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-emerald-500" />
+                              <label className="block text-xs font-bold text-[var(--edlink-blue-text)] mb-1">Instructions / Description</label>
+                              <textarea required rows={3} value={newAssignment.description} onChange={e => setNewAssignment({...newAssignment, description: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]" />
                           </div>
                           <div className="grid grid-cols-2 gap-4">
                               <div>
-                                  <label className="block text-xs font-bold text-slate-700 mb-1">Deadline</label>
-                                  <input required type="datetime-local" value={newAssignment.deadline} onChange={e => setNewAssignment({...newAssignment, deadline: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-emerald-500" />
+                                  <label className="block text-xs font-bold text-[var(--edlink-blue-text)] mb-1">Deadline</label>
+                                  <input required type="datetime-local" value={newAssignment.deadline} onChange={e => setNewAssignment({...newAssignment, deadline: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]" />
                               </div>
                               <div>
-                                  <label className="block text-xs font-bold text-slate-700 mb-1">Attachment URL (Cloud Storage)</label>
-                                  <input type="url" placeholder="https://..." value={newAssignment.attachment_url} onChange={e => setNewAssignment({...newAssignment, attachment_url: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-emerald-500" />
+                                  <label className="block text-xs font-bold text-[var(--edlink-blue-text)] mb-1">Attachment URL (Cloud Storage)</label>
+                                  <input type="url" placeholder="https://..." value={newAssignment.attachment_url} onChange={e => setNewAssignment({...newAssignment, attachment_url: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]" />
                               </div>
                           </div>
                           <div className="flex justify-end space-x-3 mt-6">
                               <button type="button" onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded">Cancel</button>
-                              <button type="submit" disabled={isCreating} className="px-4 py-2 text-sm text-white bg-emerald-500 hover:bg-emerald-600 rounded font-bold">
+                              <button type="submit" disabled={isCreating} className="px-4 py-2 text-sm text-white bg-[var(--edlink-green-brand)] hover:bg-[var(--edlink-green-hover)] rounded font-bold">
                                   {isCreating ? 'Creating...' : 'Publish Assignment'}
                               </button>
                           </div>
@@ -372,22 +372,22 @@ export default function TeacherDashboard() {
                       <div className="flex justify-between items-start mb-6">
                           <div>
                               <h3 className="font-bold text-lg">{viewingAssignment.title}</h3>
-                              <p className="text-xs text-slate-500">Submissions Review</p>
+                              <p className="text-xs text-[var(--edlink-blue-text)]/70">Submissions Review</p>
                           </div>
                           <button onClick={() => setViewingAssignment(null)} className="text-slate-400 hover:text-slate-600">×</button>
                       </div>
 
                       {isLoadingSubmissions ? (
-                          <div className="py-10 text-center"><div className="w-6 h-6 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-2" /></div>
+                          <div className="py-10 text-center"><div className="w-6 h-6 border-2 border-[var(--edlink-green-brand)]/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-2" /></div>
                       ) : submissions.length > 0 ? (
                           <div className="space-y-3">
                               {submissions.map((sub, i) => (
                                   <div key={i} className="p-4 border border-slate-100 rounded-lg bg-slate-50">
                                       <div className="flex justify-between items-center mb-2">
-                                          <h4 className="font-bold text-sm text-slate-800">{sub.student_name}</h4>
+                                          <h4 className="font-bold text-sm text-[var(--edlink-blue-text)]">{sub.student_name}</h4>
                                           <span className="text-[10px] font-bold px-2 py-1 bg-emerald-100 text-emerald-700 rounded uppercase">{sub.status}</span>
                                       </div>
-                                      <p className="text-xs text-slate-500 mb-2">Submitted: {new Date(sub.submitted_at).toLocaleString()}</p>
+                                      <p className="text-xs text-[var(--edlink-blue-text)]/70 mb-2">Submitted: {new Date(sub.submitted_at).toLocaleString()}</p>
                                       {sub.submission_url && (
                                           <a href={sub.submission_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 text-xs flex items-center hover:underline mb-1">
                                               <Download size={12} className="mr-1" /> Attached Link/File

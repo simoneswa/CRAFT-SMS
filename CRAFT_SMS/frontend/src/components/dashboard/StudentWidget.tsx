@@ -33,7 +33,7 @@ export function StudentWidget() {
     <div className="premium-card bg-white/[0.01] border-white/5">
       <div className="flex items-center justify-between mb-8">
         <h3 className="text-lg font-bold text-white">Course Progress & Assignments</h3>
-        <button className="text-teal-400 text-xs font-bold hover:text-teal-300 transition-all flex items-center gap-1">
+        <button className="text-[var(--edlink-green-brand)] text-xs font-bold hover:text-teal-300 transition-all flex items-center gap-1">
           Full Academic Report <ChevronRight className="w-3 h-3" />
         </button>
       </div>
@@ -41,19 +41,19 @@ export function StudentWidget() {
       <div className="space-y-6">
         {/* Progress Tracker */}
         <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/5 min-h-[150px]">
-          <h4 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">Current Term Progress</h4>
+          <h4 className="text-[10px] font-bold text-[var(--edlink-blue-text)]/70 uppercase tracking-widest mb-4">Current Term Progress</h4>
           
           {isLoading ? (
             <div className="flex justify-center items-center h-20">
-               <div className="w-6 h-6 border-2 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
+               <div className="w-6 h-6 border-2 border-[var(--edlink-green-brand)]/20 border-t-teal-500 rounded-full animate-spin" />
             </div>
           ) : error ? (
             <div className="flex flex-col items-center justify-center h-20 text-center">
               <AlertTriangle className="w-6 h-6 text-rose-500 mb-2" />
-              <p className="text-sm text-gray-400">Progress data unavailable.</p>
+              <p className="text-sm text-[var(--edlink-blue-text)]/70">Progress data unavailable.</p>
             </div>
           ) : grades.length === 0 ? (
-            <p className="text-center text-sm text-gray-500 py-4">No recent grades available.</p>
+            <p className="text-center text-sm text-[var(--edlink-blue-text)]/70 py-4">No recent grades available.</p>
           ) : (
             <div className="space-y-4">
               {grades.map((item, i) => {
@@ -61,7 +61,7 @@ export function StudentWidget() {
                 return (
                 <div key={item.id || i} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center font-black text-teal-400 text-xs">
+                    <div className="w-8 h-8 rounded-lg bg-[var(--edlink-green-brand)]/10 flex items-center justify-center font-black text-[var(--edlink-green-brand)] text-xs">
                       S
                     </div>
                     <div>
@@ -70,7 +70,7 @@ export function StudentWidget() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-bold text-emerald-400">{percentage}%</p>
-                    <p className="text-[9px] text-gray-600 font-bold uppercase">Stable</p>
+                    <p className="text-[9px] text-[var(--edlink-blue-text)]/70 font-bold uppercase">Stable</p>
                   </div>
                 </div>
               )})}
@@ -80,10 +80,10 @@ export function StudentWidget() {
 
         {/* Assignments */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="p-4 rounded-2xl bg-teal-500/5 border border-teal-500/10 hover:bg-teal-500/10 transition-colors cursor-pointer group">
-            <BookOpen className="w-5 h-5 text-teal-400 mb-3 group-hover:scale-110 transition-transform" />
+          <div className="p-4 rounded-2xl bg-[var(--edlink-green-brand)]/5 border border-[var(--edlink-green-brand)]/10 hover:bg-[var(--edlink-green-brand)]/10 transition-colors cursor-pointer group">
+            <BookOpen className="w-5 h-5 text-[var(--edlink-green-brand)] mb-3 group-hover:scale-110 transition-transform" />
             <p className="text-xl font-bold text-white mb-1">0</p>
-            <p className="text-[10px] font-bold text-teal-500/70 uppercase tracking-widest">Pending Assignments</p>
+            <p className="text-[10px] font-bold text-[var(--edlink-green-brand)]/70 uppercase tracking-widest">Pending Assignments</p>
           </div>
           <div className="p-4 rounded-2xl bg-purple-500/5 border border-purple-500/10 hover:bg-purple-500/10 transition-colors cursor-pointer group">
             <Trophy className="w-5 h-5 text-purple-400 mb-3 group-hover:scale-110 transition-transform" />

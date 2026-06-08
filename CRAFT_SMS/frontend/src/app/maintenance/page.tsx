@@ -28,20 +28,20 @@ export default function MaintenancePage() {
         <h1 className="text-4xl font-black mb-4 tracking-tight">System <span className="text-rose-400">Maintenance</span></h1>
         
         <div className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl mb-8">
-           <p className="text-gray-400 leading-relaxed mb-6">
+           <p className="text-[var(--edlink-blue-text)]/70 leading-relaxed mb-6">
              The CRAFT SMS platform is currently undergoing scheduled maintenance to upgrade our infrastructure and improve performance. Normal operations will resume shortly.
            </p>
            
            <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-white/5 rounded-2xl">
-                 <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Status</p>
+                 <p className="text-[10px] font-bold text-[var(--edlink-blue-text)]/70 uppercase tracking-widest mb-1">Status</p>
                  <p className="font-bold text-amber-400 flex items-center justify-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                     Upgrading
                  </p>
               </div>
               <div className="p-4 bg-white/5 rounded-2xl">
-                 <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Est. Return</p>
+                 <p className="text-[10px] font-bold text-[var(--edlink-blue-text)]/70 uppercase tracking-widest mb-1">Est. Return</p>
                  <p className="font-bold text-white">In 2 Hours</p>
               </div>
            </div>
@@ -54,7 +54,7 @@ export default function MaintenancePage() {
            Check Status Again
         </button>
 
-        <div className="mt-12 flex items-center justify-center gap-2 text-sm text-gray-500">
+        <div className="mt-12 flex items-center justify-center gap-2 text-sm text-[var(--edlink-blue-text)]/70">
            <Mail className="w-4 h-4" />
            Need emergency access? <a href="mailto:support@craftsms.com" className="text-rose-400 hover:underline">Contact Support</a>
         </div>

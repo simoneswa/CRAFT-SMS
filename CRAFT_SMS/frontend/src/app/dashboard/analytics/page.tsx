@@ -49,7 +49,7 @@ export default function AnalyticsPage() {
       <div className="space-y-8">
         <header>
           <h1 className="text-3xl font-bold mb-2">Global <span className="gradient-text">Analytics</span></h1>
-          <p className="text-gray-400">Platform-wide metrics across all tenants.</p>
+          <p className="text-[var(--edlink-blue-text)]/70">Platform-wide metrics across all tenants.</p>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -70,10 +70,10 @@ export default function AnalyticsPage() {
 
         <div className="premium-card">
           <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-teal-400" />
+            <TrendingUp className="w-5 h-5 text-[var(--edlink-green-brand)]" />
             Enrollment Trend
           </h3>
-          <div className="flex items-center justify-center h-40 text-gray-600 text-sm">
+          <div className="flex items-center justify-center h-40 text-[var(--edlink-blue-text)]/70 text-sm">
             Chart integration coming soon — connect to your preferred analytics provider.
           </div>
         </div>

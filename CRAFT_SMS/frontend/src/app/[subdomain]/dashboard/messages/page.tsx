@@ -119,19 +119,19 @@ export default function CommunicationCenter() {
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-3xl font-bold mb-1 text-white">Communication <span className="gradient-text">Center</span></h1>
-            <p className="text-gray-400">Institutional messaging and announcement broadcasts.</p>
+            <p className="text-[var(--edlink-blue-text)]/70">Institutional messaging and announcement broadcasts.</p>
           </div>
           <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 self-start">
             <button 
               onClick={() => setActiveTab('CHAT')}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'CHAT' ? 'bg-teal-500 text-black' : 'text-gray-400 hover:text-white'}`}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'CHAT' ? 'bg-[var(--edlink-green-brand)] text-black' : 'text-[var(--edlink-blue-text)]/70 hover:text-white'}`}
             >
               <User className="w-3.5 h-3.5" />
               Direct Messages
             </button>
             <button 
               onClick={() => setActiveTab('BROADCAST')}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'BROADCAST' ? 'bg-teal-500 text-black' : 'text-gray-400 hover:text-white'}`}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'BROADCAST' ? 'bg-[var(--edlink-green-brand)] text-black' : 'text-[var(--edlink-blue-text)]/70 hover:text-white'}`}
             >
               <Megaphone className="w-3.5 h-3.5" />
               School Broadcasts
@@ -144,11 +144,11 @@ export default function CommunicationCenter() {
            <div className="w-80 premium-card p-0 flex flex-col overflow-hidden shrink-0">
               <div className="p-4 border-b border-white/5">
                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--edlink-blue-text)]/70" />
                     <input 
                       type="text" 
                       placeholder="Search contacts..." 
-                      className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-teal-500/50 text-white"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]/50 text-white"
                     />
                  </div>
               </div>
@@ -159,14 +159,14 @@ export default function CommunicationCenter() {
                        <button
                          key={contact.id}
                          onClick={() => setSelectedContact(contact)}
-                         className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${selectedContact?.id === contact.id ? 'bg-teal-500/10 border border-teal-500/20' : 'hover:bg-white/5 border border-transparent'}`}
+                         className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${selectedContact?.id === contact.id ? 'bg-[var(--edlink-green-brand)]/10 border border-[var(--edlink-green-brand)]/20' : 'hover:bg-white/5 border border-transparent'}`}
                        >
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-gray-800 to-gray-700 border border-white/10 flex items-center justify-center font-bold text-xs text-gray-400 shrink-0">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-gray-800 to-gray-700 border border-white/10 flex items-center justify-center font-bold text-xs text-[var(--edlink-blue-text)]/70 shrink-0">
                              {contact.full_name?.charAt(0)}
                           </div>
                           <div className="text-left min-w-0">
                              <p className="font-bold text-sm text-white truncate">{contact.full_name}</p>
-                             <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">{contact.role}</p>
+                             <p className="text-[10px] text-[var(--edlink-blue-text)]/70 uppercase font-bold tracking-widest">{contact.role}</p>
                           </div>
                        </button>
                     ))
@@ -182,7 +182,7 @@ export default function CommunicationCenter() {
                           </div>
                           <div className="text-left min-w-0">
                              <p className="font-bold text-sm text-white truncate">{bc.title}</p>
-                             <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">{new Date(bc.created_at).toLocaleDateString()}</p>
+                             <p className="text-[10px] text-[var(--edlink-blue-text)]/70 uppercase font-bold tracking-widest">{new Date(bc.created_at).toLocaleDateString()}</p>
                           </div>
                        </button>
                     ))
@@ -205,16 +205,16 @@ export default function CommunicationCenter() {
                        <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
                           <div className="flex items-center gap-3">
                              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
-                                {activeTab === 'CHAT' ? <User className="w-5 h-5 text-teal-400" /> : <Megaphone className="w-5 h-5 text-amber-400" />}
+                                {activeTab === 'CHAT' ? <User className="w-5 h-5 text-[var(--edlink-green-brand)]" /> : <Megaphone className="w-5 h-5 text-amber-400" />}
                              </div>
                              <div>
                                 <h3 className="font-bold text-white">{activeTab === 'CHAT' ? selectedContact.full_name : selectedContact.title}</h3>
-                                <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">
+                                <p className="text-[10px] text-[var(--edlink-blue-text)]/70 uppercase font-bold tracking-widest">
                                    {activeTab === 'CHAT' ? selectedContact.role : `Broadcasted by ${selectedContact.profiles?.full_name || 'Admin'}`}
                                 </p>
                              </div>
                           </div>
-                          <button className="p-2 hover:bg-white/5 rounded-lg transition-all text-gray-500"><MoreVertical className="w-5 h-5" /></button>
+                          <button className="p-2 hover:bg-white/5 rounded-lg transition-all text-[var(--edlink-blue-text)]/70"><MoreVertical className="w-5 h-5" /></button>
                        </div>
 
                        {/* Content Area */}
@@ -223,10 +223,10 @@ export default function CommunicationCenter() {
                              messages.map((m, i) => (
                                 <div key={i} className={`flex ${m.sender_id === profile?.id ? 'justify-end' : 'justify-start'}`}>
                                    <div className={`max-w-[70%] p-4 rounded-2xl text-sm ${
-                                      m.sender_id === profile?.id ? 'bg-teal-500 text-black font-medium' : 'bg-white/5 border border-white/10 text-white'
+                                      m.sender_id === profile?.id ? 'bg-[var(--edlink-green-brand)] text-black font-medium' : 'bg-white/5 border border-white/10 text-white'
                                    }`}>
                                       {m.content}
-                                      <p className={`text-[9px] mt-2 font-bold uppercase tracking-widest ${m.sender_id === profile?.id ? 'text-black/50' : 'text-gray-500'}`}>
+                                      <p className={`text-[9px] mt-2 font-bold uppercase tracking-widest ${m.sender_id === profile?.id ? 'text-black/50' : 'text-[var(--edlink-blue-text)]/70'}`}>
                                          {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                       </p>
                                    </div>
@@ -251,14 +251,14 @@ export default function CommunicationCenter() {
                        {activeTab === 'CHAT' && (
                           <div className="p-4 border-t border-white/5 bg-white/[0.01]">
                              <form onSubmit={handleSendMessage} className="flex gap-3">
-                                <button type="button" className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all text-gray-500"><Paperclip className="w-5 h-5" /></button>
+                                <button type="button" className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all text-[var(--edlink-blue-text)]/70"><Paperclip className="w-5 h-5" /></button>
                                 <input 
                                   value={newMessage}
                                   onChange={e => setNewMessage(e.target.value)}
                                   placeholder="Type your message..." 
-                                  className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500/50 text-white"
+                                  className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]/50 text-white"
                                 />
-                                <button type="submit" className="p-3 bg-teal-500 hover:bg-teal-400 rounded-xl transition-all text-black shadow-lg shadow-teal-500/20">
+                                <button type="submit" className="p-3 bg-[var(--edlink-green-brand)] hover:bg-[var(--edlink-green-hover)] rounded-xl transition-all text-black shadow-lg shadow-teal-500/20">
                                    <Send className="w-5 h-5" />
                                 </button>
                              </form>
@@ -266,7 +266,7 @@ export default function CommunicationCenter() {
                        )}
                     </motion.div>
                  ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-12 text-center">
+                    <div className="flex-1 flex flex-col items-center justify-center text-[var(--edlink-blue-text)]/70 p-12 text-center">
                        <Users className="w-16 h-16 mb-6 opacity-20" />
                        <h3 className="text-xl font-medium text-white mb-2">No Active Thread</h3>
                        <p className="max-w-xs text-sm">Select a contact to start messaging or view school broadcasts.</p>

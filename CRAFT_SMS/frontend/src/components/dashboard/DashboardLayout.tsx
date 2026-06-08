@@ -103,10 +103,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <div className="flex justify-between items-center mb-10">
                 <div>
                    <h2 className="text-sm font-black uppercase tracking-[0.2em] text-white">Institutional <span className="text-[var(--accent)]">Command Center</span></h2>
-                   <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-1">Operational Observability Stream</p>
+                   <p className="text-[9px] text-[var(--edlink-blue-text)]/70 font-bold uppercase tracking-widest mt-1">Operational Observability Stream</p>
                 </div>
                 <button onClick={() => setIsCommandCenterOpen(false)} className="p-2 hover:bg-white/5 rounded-xl">
-                   <X className="w-5 h-5 text-gray-500" />
+                   <X className="w-5 h-5 text-[var(--edlink-blue-text)]/70" />
                 </button>
               </div>
 
@@ -114,15 +114,15 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                  {/* Sync Queue */}
                  <div className="p-6 bg-white/[0.02] border border-white/5 rounded-2xl">
                     <div className="flex justify-between items-center mb-6">
-                       <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-gray-400">
+                       <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[var(--edlink-blue-text)]/70">
                           <RefreshCw className={`w-4 h-4 ${pendingCount > 0 ? 'animate-spin' : ''}`} /> Sync Engine
                        </div>
-                       <span className={`text-[10px] font-black px-2 py-0.5 rounded ${pendingCount > 0 ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
+                       <span className={`text-[10px] font-black px-2 py-0.5 rounded ${pendingCount > 0 ? 'bg-amber-500/10 text-amber-400' : 'bg-[var(--edlink-green-brand)]/10 text-emerald-400'}`}>
                           {pendingCount > 0 ? 'SYNCHRONIZING' : 'STABLE'}
                        </span>
                     </div>
                     <div className="space-y-2">
-                       <div className="flex justify-between text-[10px] uppercase font-bold text-gray-600">
+                       <div className="flex justify-between text-[10px] uppercase font-bold text-[var(--edlink-blue-text)]/70">
                           <span>Mutation Queue</span>
                           <span className="text-white">{pendingCount} Pending</span>
                        </div>
@@ -138,11 +138,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                  {/* Connection State */}
                  <div className="p-6 bg-white/[0.02] border border-white/5 rounded-2xl">
-                    <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">
+                    <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[var(--edlink-blue-text)]/70 mb-4">
                        <Globe className="w-4 h-4" /> Realtime Link
                     </div>
                     <div className="flex items-center gap-2">
-                       <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-rose-500'} animate-pulse`} />
+                       <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-[var(--edlink-green-brand)] shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-rose-500'} animate-pulse`} />
                        <span className="text-[10px] font-black uppercase text-white tracking-widest">
                           {isOnline ? 'Active Connection' : 'Link Disconnected'}
                        </span>
@@ -165,7 +165,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <header className={`${isSuperAdmin ? 'border-b border-white/5 bg-black/20 text-white' : 'border-b border-[var(--brand-border)] bg-white/95 text-[var(--brand-heading)]'} backdrop-blur-md px-4 md:px-8 h-20 flex items-center justify-between sticky top-0 z-30`}>
           <div className="flex items-center gap-4 flex-1">
             <button 
-              className={`${isSuperAdmin ? 'text-gray-400 hover:bg-white/5' : 'text-[var(--brand-body)] hover:bg-[var(--brand-surface)]'} md:hidden p-2 rounded-lg`}
+              className={`${isSuperAdmin ? 'text-[var(--edlink-blue-text)]/70 hover:bg-white/5' : 'text-[var(--brand-body)] hover:bg-[var(--brand-surface)]'} md:hidden p-2 rounded-lg`}
               onClick={() => setIsSidebarOpen(true)}
             >
               <Menu className="w-5 h-5" />
@@ -203,14 +203,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                  ) : hasConflicts ? (
                    <CloudAlert className="w-5 h-5 text-rose-500 animate-pulse" />
                  ) : pendingCount > 0 ? (
-                   <Cloud className="w-5 h-5 text-teal-400 animate-pulse" />
+                   <Cloud className="w-5 h-5 text-[var(--edlink-green-brand)] animate-pulse" />
                  ) : (
-                   <Cloud className="w-5 h-5 text-emerald-500" />
+                   <Cloud className="w-5 h-5 text-[var(--edlink-green-brand)]" />
                  )}
                  {pendingCount > 0 && !hasConflicts && (
                     <span className="absolute -top-1 -right-1 flex h-3 w-3">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--edlink-green-brand)]"></span>
                     </span>
                  )}
                </button>
@@ -226,7 +226,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     Debug
                   </button>
                   <div className="absolute right-0 top-full mt-2 w-48 bg-black border border-white/10 rounded-xl p-2 hidden group-hover:block z-50 shadow-2xl">
-                    <p className="text-[10px] text-gray-500 font-bold uppercase mb-2 px-2">Offline Simulator</p>
+                    <p className="text-[10px] text-[var(--edlink-blue-text)]/70 font-bold uppercase mb-2 px-2">Offline Simulator</p>
                     <button 
                       onClick={() => SyncEngine.debugAddConflict()}
                       className="w-full text-left px-2 py-2 text-xs font-bold text-rose-400 hover:bg-white/5 rounded-lg"
@@ -240,7 +240,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-bold leading-none">{profile?.full_name || 'Loading...'}</p>
-                <p className="text-[10px] text-teal-400 font-bold uppercase tracking-widest mt-1">
+                <p className="text-[10px] text-[var(--edlink-green-brand)] font-bold uppercase tracking-widest mt-1">
                   {profile?.role?.replace('_', ' ') || 'Profile'}
                 </p>
               </div>

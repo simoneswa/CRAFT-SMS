@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function GuidesPage() {
   return (
-    <main className="min-h-screen bg-[#FAF8F5] text-slate-800">
+    <main className="min-h-screen bg-[#FAF8F5] text-[var(--edlink-blue-text)]">
       {/* Top Nav */}
       <nav className="border-b border-slate-200 bg-white/90 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
@@ -29,9 +29,9 @@ export default function GuidesPage() {
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-6 py-12 bg-[#FAF8F5] text-slate-800">
+      <div className="max-w-4xl mx-auto px-6 py-12 bg-[#FAF8F5] text-[var(--edlink-blue-text)]">
         <h1 className="text-3xl font-bold text-slate-900 mb-2">CRAFT SMS — Platform Operations Guide</h1>
-        <p className="text-sm text-slate-500 mb-6">Last Updated: May 27, 2026</p>
+        <p className="text-sm text-[var(--edlink-blue-text)]/70 mb-6">Last Updated: May 27, 2026</p>
         
         <section>
           <h2 className="text-2xl font-bold mt-8 mb-4 text-slate-900">SECTION: Introduction</h2>
@@ -68,8 +68,8 @@ export default function GuidesPage() {
             <li>Start frontend and backend services</li>
           </ol>
           <p className="mb-2 leading-relaxed text-slate-600 font-semibold">Development:</p>
-          <p className="mb-1 leading-relaxed text-slate-600">Frontend: <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-800">npm run dev</code></p>
-          <p className="mb-4 leading-relaxed text-slate-600">Backend: <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-800">uvicorn main:app --reload</code></p>
+          <p className="mb-1 leading-relaxed text-slate-600">Frontend: <code className="bg-slate-200 px-1 py-0.5 rounded text-[var(--edlink-blue-text)]">npm run dev</code></p>
+          <p className="mb-4 leading-relaxed text-slate-600">Backend: <code className="bg-slate-200 px-1 py-0.5 rounded text-[var(--edlink-blue-text)]">uvicorn main:app --reload</code></p>
           <p className="mb-2 leading-relaxed text-slate-600 font-semibold">Production Deployment:</p>
           <p className="mb-1 leading-relaxed text-slate-600">Frontend: Vercel, Netlify</p>
           <p className="mb-6 leading-relaxed text-slate-600">Backend: Railway, Docker VPS, Render</p>

@@ -176,7 +176,7 @@ export default function LandingPage() {
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
               Everything your school needs
             </h2>
-            <p className="mt-4 text-lg text-slate-500 max-w-xl mx-auto">
+            <p className="mt-4 text-lg text-[var(--edlink-blue-text)]/70 max-w-xl mx-auto">
               Modular tools designed for administrators, teachers, and parents — on any device.
             </p>
           </div>
@@ -221,14 +221,14 @@ export default function LandingPage() {
                   <div className="feature-card-icon"><Zap className="h-5 w-5" /></div>
                   <div>
                     <p className="font-semibold text-slate-900">Fast Setup</p>
-                    <p className="text-sm text-slate-500">Get up and running with school data in minutes.</p>
+                    <p className="text-sm text-[var(--edlink-blue-text)]/70">Get up and running with school data in minutes.</p>
                   </div>
                 </div>
                 <div className="feature-card">
                   <div className="feature-card-icon"><Users className="h-5 w-5" /></div>
                   <div>
                     <p className="font-semibold text-slate-900">Teacher Friendly</p>
-                    <p className="text-sm text-slate-500">Simple workflows for classroom and school staff.</p>
+                    <p className="text-sm text-[var(--edlink-blue-text)]/70">Simple workflows for classroom and school staff.</p>
                   </div>
                 </div>
               </div>

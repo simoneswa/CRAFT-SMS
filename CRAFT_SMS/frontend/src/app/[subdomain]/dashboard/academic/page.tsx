@@ -100,11 +100,11 @@ export default function AcademicControlCenter() {
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-3xl font-bold mb-2 text-white">Academic <span className="gradient-text">Control Center</span></h1>
-            <p className="text-gray-400">Configure your institution&apos;s structural foundation and grading rules.</p>
+            <p className="text-[var(--edlink-blue-text)]/70">Configure your institution&apos;s structural foundation and grading rules.</p>
           </div>
           <button 
             onClick={() => { setShowModal(true); setFormData({}); setError(null); }}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-teal-500 text-black font-extrabold hover:bg-teal-400 transition-all shadow-lg shadow-teal-500/20"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--edlink-green-brand)] text-black font-extrabold hover:bg-[var(--edlink-green-hover)] transition-all shadow-lg shadow-teal-500/20"
           >
             <Plus className="w-5 h-5" />
             Add {activeTab.slice(0, -1)}
@@ -117,10 +117,10 @@ export default function AcademicControlCenter() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
               className={`flex items-center gap-3 px-6 py-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
-                activeTab === tab.id ? 'bg-white/10 text-white shadow-xl' : 'text-gray-500 hover:text-gray-300'
+                activeTab === tab.id ? 'bg-white/10 text-white shadow-xl' : 'text-[var(--edlink-blue-text)]/70 hover:text-gray-300'
               }`}
             >
-              <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? 'text-teal-400' : ''}`} />
+              <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? 'text-[var(--edlink-green-brand)]' : ''}`} />
               {tab.label}
             </button>
           ))}
@@ -129,10 +129,10 @@ export default function AcademicControlCenter() {
         <div className="premium-card min-h-[400px]">
            {isLoading ? (
              <div className="flex justify-center py-32">
-               <div className="w-12 h-12 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
+               <div className="w-12 h-12 border-4 border-[var(--edlink-green-brand)]/20 border-t-teal-500 rounded-full animate-spin" />
              </div>
            ) : data.length === 0 ? (
-             <div className="text-center py-32 text-gray-500">
+             <div className="text-center py-32 text-[var(--edlink-blue-text)]/70">
                <Layers className="w-16 h-16 mx-auto mb-6 opacity-20" />
                <p className="text-xl font-medium mb-1">No {activeTab.toLowerCase()} found.</p>
                <p className="text-sm">Start by adding your first record to build the academic structure.</p>
@@ -148,31 +148,31 @@ export default function AcademicControlCenter() {
                     className="p-6 bg-white/5 border border-white/5 rounded-2xl hover:border-white/20 transition-all group relative overflow-hidden"
                   >
                     <div className="flex justify-between items-start mb-4">
-                       <div className="p-3 rounded-xl bg-white/5 group-hover:bg-teal-500/10 transition-colors">
-                          {activeTab === 'TERMS' && <Calendar className="w-5 h-5 text-teal-400" />}
+                       <div className="p-3 rounded-xl bg-white/5 group-hover:bg-[var(--edlink-green-brand)]/10 transition-colors">
+                          {activeTab === 'TERMS' && <Calendar className="w-5 h-5 text-[var(--edlink-green-brand)]" />}
                           {activeTab === 'SUBJECTS' && <BookOpen className="w-5 h-5 text-blue-400" />}
                           {activeTab === 'CLASSES' && <Layers className="w-5 h-5 text-amber-400" />}
                           {activeTab === 'CATEGORIES' && <Settings className="w-5 h-5 text-emerald-400" />}
                        </div>
                        <div className="flex gap-2">
-                          <button className="p-2 text-gray-500 hover:text-white transition-colors"><Edit2 className="w-4 h-4" /></button>
-                          <button className="p-2 text-gray-500 hover:text-rose-400 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                          <button className="p-2 text-[var(--edlink-blue-text)]/70 hover:text-white transition-colors"><Edit2 className="w-4 h-4" /></button>
+                          <button className="p-2 text-[var(--edlink-blue-text)]/70 hover:text-rose-400 transition-colors"><Trash2 className="w-4 h-4" /></button>
                        </div>
                     </div>
                     
                     <h3 className="font-bold text-lg text-white mb-1">{item.name}</h3>
                     {activeTab === 'TERMS' && (
-                       <p className="text-xs text-gray-500 flex items-center gap-2">
+                       <p className="text-xs text-[var(--edlink-blue-text)]/70 flex items-center gap-2">
                          <Clock className="w-3 h-3" />
                          {new Date(item.start_date).toLocaleDateString()} - {new Date(item.end_date).toLocaleDateString()}
                        </p>
                     )}
-                    {activeTab === 'SUBJECTS' && <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">{item.code || 'NO CODE'}</p>}
-                    {activeTab === 'CLASSES' && <p className="text-xs text-gray-500">{item.grade_level} • {item.room_number || 'No Room'}</p>}
+                    {activeTab === 'SUBJECTS' && <p className="text-xs text-[var(--edlink-blue-text)]/70 uppercase tracking-widest font-bold">{item.code || 'NO CODE'}</p>}
+                    {activeTab === 'CLASSES' && <p className="text-xs text-[var(--edlink-blue-text)]/70">{item.grade_level} • {item.room_number || 'No Room'}</p>}
                     {activeTab === 'CATEGORIES' && (
                        <div className="flex items-center gap-2">
                           <div className="h-2 flex-1 bg-white/5 rounded-full overflow-hidden">
-                             <div className="h-full bg-emerald-500" style={{ width: `${item.weight}%` }} />
+                             <div className="h-full bg-[var(--edlink-green-brand)]" style={{ width: `${item.weight}%` }} />
                           </div>
                           <span className="text-sm font-bold text-emerald-400">{item.weight}%</span>
                        </div>
@@ -180,7 +180,7 @@ export default function AcademicControlCenter() {
 
                     {item.is_current && (
                        <div className="absolute top-0 right-0 p-2">
-                          <div className="bg-teal-500/20 text-teal-400 text-[8px] font-black uppercase tracking-tighter px-2 py-0.5 rounded-bl-lg rounded-tr-lg border-l border-b border-teal-500/20">
+                          <div className="bg-[var(--edlink-green-brand)]/20 text-[var(--edlink-green-brand)] text-[8px] font-black uppercase tracking-tighter px-2 py-0.5 rounded-bl-lg rounded-tr-lg border-l border-b border-[var(--edlink-green-brand)]/20">
                              Active
                           </div>
                        </div>
@@ -205,7 +205,7 @@ export default function AcademicControlCenter() {
                >
                   <div className="flex justify-between items-center mb-6">
                      <h2 className="text-xl font-bold text-white">Add New {activeTab.slice(0, -1)}</h2>
-                     <button onClick={() => setShowModal(false)} className="p-2 hover:bg-white/5 rounded-xl transition-colors"><X className="w-5 h-5 text-gray-500" /></button>
+                     <button onClick={() => setShowModal(false)} className="p-2 hover:bg-white/5 rounded-xl transition-colors"><X className="w-5 h-5 text-[var(--edlink-blue-text)]/70" /></button>
                   </div>
 
                   {error && (
@@ -234,7 +234,7 @@ export default function AcademicControlCenter() {
                          </div>
                          <label className="flex items-center gap-3 cursor-pointer group p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/10 transition-all">
                             <input type="checkbox" className="w-4 h-4 accent-teal-500" checked={formData.is_current || false} onChange={e => setFormData({...formData, is_current: e.target.checked})} />
-                            <span className="text-sm font-bold text-gray-400 group-hover:text-white">Set as Current Active Term</span>
+                            <span className="text-sm font-bold text-[var(--edlink-blue-text)]/70 group-hover:text-white">Set as Current Active Term</span>
                          </label>
                        </>
                      )}
@@ -296,7 +296,7 @@ export default function AcademicControlCenter() {
                      <button 
                        type="submit" 
                        disabled={isSubmitting}
-                       className="w-full py-4 bg-teal-500 text-black font-extrabold rounded-2xl hover:bg-teal-400 transition-all shadow-lg shadow-teal-500/20 disabled:opacity-50 mt-4"
+                       className="w-full py-4 bg-[var(--edlink-green-brand)] text-black font-extrabold rounded-2xl hover:bg-[var(--edlink-green-hover)] transition-all shadow-lg shadow-teal-500/20 disabled:opacity-50 mt-4"
                      >
                         {isSubmitting ? 'Saving...' : `Create ${activeTab.slice(0, -1)}`}
                      </button>
@@ -311,17 +311,17 @@ export default function AcademicControlCenter() {
            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="max-w-2xl">
                  <h4 className="text-lg font-bold text-white mb-2">Operational Integrity Tip</h4>
-                 <p className="text-sm text-gray-400 leading-relaxed">
+                 <p className="text-sm text-[var(--edlink-blue-text)]/70 leading-relaxed">
                    Changes to Academic Terms or Grading Weights can significantly impact historical reports. 
                    Ensure all grades are finalized and the term is **locked** before creating a new academic period.
                  </p>
               </div>
-              <button className="flex items-center gap-2 text-sm font-bold text-teal-400 hover:text-teal-300 transition-all">
+              <button className="flex items-center gap-2 text-sm font-bold text-[var(--edlink-green-brand)] hover:text-teal-300 transition-all">
                  Read Documentation
                  <ChevronRight className="w-4 h-4" />
               </button>
            </div>
-           <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl" />
+           <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 bg-[var(--edlink-green-brand)]/5 rounded-full blur-3xl" />
         </div>
       </div>
     </DashboardLayout>

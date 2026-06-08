@@ -106,7 +106,7 @@ export default function StudentsPage() {
         <header className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-slate-950">Student Command Center</h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-500">
+            <p className="mt-2 max-w-2xl text-sm text-[var(--edlink-blue-text)]/70">
               A messy, real-world student dashboard for admin teams that ship features late and fix things in production.
             </p>
           </div>
@@ -143,12 +143,12 @@ export default function StudentsPage() {
               >
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="absolute right-4 top-4 text-slate-500 hover:text-slate-900"
+                  className="absolute right-4 top-4 text-[var(--edlink-blue-text)]/70 hover:text-slate-900"
                 >
                   <X className="h-5 w-5" />
                 </button>
                 <h2 className="text-2xl font-bold text-slate-950 mb-2">Enroll a new student</h2>
-                <p className="text-sm text-slate-500 mb-6">This is the messy invite flow everyone talks about at stand-up.</p>
+                <p className="text-sm text-[var(--edlink-blue-text)]/70 mb-6">This is the messy invite flow everyone talks about at stand-up.</p>
 
                 {error && (
                   <div className="mb-4 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
@@ -158,7 +158,7 @@ export default function StudentsPage() {
 
                 <form onSubmit={handleEnrollStudent} className="space-y-4">
                   <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Student Full Name</label>
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-[var(--edlink-blue-text)]/70">Student Full Name</label>
                     <input
                       type="text"
                       required
@@ -169,7 +169,7 @@ export default function StudentsPage() {
                     />
                   </div>
                   <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Student Email</label>
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-[var(--edlink-blue-text)]/70">Student Email</label>
                     <input
                       type="email"
                       required
@@ -183,7 +183,7 @@ export default function StudentsPage() {
                     <button
                       type="button"
                       onClick={() => setIsModalOpen(false)}
-                      className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition"
+                      className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-[var(--edlink-blue-text)] hover:bg-slate-100 transition"
                     >
                       Cancel
                     </button>
@@ -208,7 +208,7 @@ export default function StudentsPage() {
                 <div>
                   <p className="text-xs uppercase tracking-[0.28em] text-[#007A53] font-bold">Student Inbox</p>
                   <h2 className="mt-3 text-2xl font-bold text-slate-950">Classroom snapshot</h2>
-                  <p className="mt-2 text-sm text-slate-500">Everything looks a bit raw, but it works. This is the dev-friendly dashboard with quick filters and a messy list.</p>
+                  <p className="mt-2 text-sm text-[var(--edlink-blue-text)]/70">Everything looks a bit raw, but it works. This is the dev-friendly dashboard with quick filters and a messy list.</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {quickActions.map((action) => {
@@ -241,15 +241,15 @@ export default function StudentsPage() {
                 <p className="text-xs uppercase tracking-[0.28em] text-[#007A53] font-bold">Production KPI</p>
                 <div className="mt-4 grid gap-4">
                   <div className="rounded-3xl bg-white p-4 shadow-sm border border-[#E7E2DA]">
-                    <p className="text-sm text-slate-500">Pending student approvals</p>
+                    <p className="text-sm text-[var(--edlink-blue-text)]/70">Pending student approvals</p>
                     <p className="mt-2 text-3xl font-bold text-slate-950">7</p>
                   </div>
                   <div className="rounded-3xl bg-white p-4 shadow-sm border border-[#E7E2DA]">
-                    <p className="text-sm text-slate-500">Open support tickets</p>
+                    <p className="text-sm text-[var(--edlink-blue-text)]/70">Open support tickets</p>
                     <p className="mt-2 text-3xl font-bold text-slate-950">12</p>
                   </div>
                   <div className="rounded-3xl bg-white p-4 shadow-sm border border-[#E7E2DA]">
-                    <p className="text-sm text-slate-500">Latest deploy</p>
+                    <p className="text-sm text-[var(--edlink-blue-text)]/70">Latest deploy</p>
                     <p className="mt-2 text-3xl font-bold text-slate-950">2m ago</p>
                   </div>
                 </div>
@@ -264,7 +264,7 @@ export default function StudentsPage() {
                 <div className="flex items-center justify-between rounded-3xl bg-[#F0FFF6] p-4 border border-[#DAF5E2]">
                   <div>
                     <p className="text-sm font-semibold text-slate-950">Student sync queue</p>
-                    <p className="text-sm text-slate-500">2 jobs waiting. Retry available.</p>
+                    <p className="text-sm text-[var(--edlink-blue-text)]/70">2 jobs waiting. Retry available.</p>
                   </div>
                   <div className="inline-flex items-center gap-2 rounded-full bg-[#007A53]/10 px-3 py-1 text-xs font-semibold text-[#007A53]">
                     <Clock className="h-4 w-4" /> Live
@@ -273,7 +273,7 @@ export default function StudentsPage() {
                 <div className="flex items-center justify-between rounded-3xl bg-[#FFF4E5] p-4 border border-[#F5E0C2]">
                   <div>
                     <p className="text-sm font-semibold text-slate-950">Missing docs</p>
-                    <p className="text-sm text-slate-500">4 students without ID card.</p>
+                    <p className="text-sm text-[var(--edlink-blue-text)]/70">4 students without ID card.</p>
                   </div>
                   <div className="inline-flex items-center gap-2 rounded-full bg-[#BB7A00]/10 px-3 py-1 text-xs font-semibold text-[#BB7A00]">
                     <AlertCircle className="h-4 w-4" /> Warn
@@ -282,7 +282,7 @@ export default function StudentsPage() {
                 <div className="flex items-center justify-between rounded-3xl bg-[#F7F7FF] p-4 border border-[#DAD9F0]">
                   <div>
                     <p className="text-sm font-semibold text-slate-950">Grade upload</p>
-                    <p className="text-sm text-slate-500">2 classes pending review.</p>
+                    <p className="text-sm text-[var(--edlink-blue-text)]/70">2 classes pending review.</p>
                   </div>
                   <div className="inline-flex items-center gap-2 rounded-full bg-[#5C61F6]/10 px-3 py-1 text-xs font-semibold text-[#5C61F6]">
                     <Code className="h-4 w-4" /> Dev
@@ -310,13 +310,13 @@ export default function StudentsPage() {
                       <div className="flex items-start justify-between gap-4">
                         <div>
                           <p className="text-sm font-semibold text-slate-950">{student.full_name}</p>
-                          <p className="text-xs text-slate-500">{student.year} • {student.segment}</p>
+                          <p className="text-xs text-[var(--edlink-blue-text)]/70">{student.year} • {student.segment}</p>
                         </div>
-                        <span className={`rounded-full px-2 py-1 text-[11px] font-bold uppercase ${student.status === 'active' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'}`}>
+                        <span className={`rounded-full px-2 py-1 text-[11px] font-bold uppercase ${student.status === 'active' ? 'bg-[var(--edlink-green-brand)]/10 text-[var(--edlink-green-brand)]' : 'bg-amber-500/10 text-amber-600'}`}>
                           {student.status}
                         </span>
                       </div>
-                      <div className="mt-3 text-xs text-slate-500 flex flex-wrap gap-3">
+                      <div className="mt-3 text-xs text-[var(--edlink-blue-text)]/70 flex flex-wrap gap-3">
                         <span>{student.email}</span>
                         <span>{student.phone_number}</span>
                       </div>
@@ -342,7 +342,7 @@ export default function StudentsPage() {
                   <p className="text-xs uppercase tracking-[0.28em] text-[#007A53] font-bold">Student roster</p>
                   <h3 className="mt-3 text-2xl font-bold text-slate-950">Full list</h3>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-500">
+                <div className="flex items-center gap-2 text-sm text-[var(--edlink-blue-text)]/70">
                   <span className="inline-flex items-center gap-2 rounded-full bg-[#F4F7F5] px-3 py-2">Live</span>
                   <span className="inline-flex items-center gap-2 rounded-full bg-[#E7F8EF] px-3 py-2">Sync</span>
                 </div>
@@ -357,13 +357,13 @@ export default function StudentsPage() {
                 </div>
                 <div className="divide-y divide-[#E7E2DA]">
                   {filteredStudents.map((student) => (
-                    <div key={student.id} className="grid grid-cols-4 gap-4 px-4 py-4 text-sm text-slate-700">
+                    <div key={student.id} className="grid grid-cols-4 gap-4 px-4 py-4 text-sm text-[var(--edlink-blue-text)]">
                       <div>
                         <p className="font-semibold text-slate-950">{student.full_name}</p>
-                        <p className="text-xs text-slate-500">{student.email}</p>
+                        <p className="text-xs text-[var(--edlink-blue-text)]/70">{student.email}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase ${student.status === 'active' ? 'bg-emerald-500/10 text-emerald-700' : 'bg-amber-500/10 text-amber-700'}`}>
+                        <span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase ${student.status === 'active' ? 'bg-[var(--edlink-green-brand)]/10 text-emerald-700' : 'bg-amber-500/10 text-amber-700'}`}>
                           {student.status}
                         </span>
                       </div>
@@ -388,16 +388,16 @@ export default function StudentsPage() {
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="font-semibold text-slate-950">Attendance alert</p>
-                      <p className="text-xs text-slate-500">Sent to 14 parents at 8:42 AM.</p>
+                      <p className="text-xs text-[var(--edlink-blue-text)]/70">Sent to 14 parents at 8:42 AM.</p>
                     </div>
-                    <span className="text-xs text-slate-500">Queued</span>
+                    <span className="text-xs text-[var(--edlink-blue-text)]/70">Queued</span>
                   </div>
                 </div>
                 <div className="rounded-3xl border border-[#E7E2DA] bg-white p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="font-semibold text-slate-950">Fee reminder</p>
-                      <p className="text-xs text-slate-500">Drafted, waiting on final approval.</p>
+                      <p className="text-xs text-[var(--edlink-blue-text)]/70">Drafted, waiting on final approval.</p>
                     </div>
                     <span className="text-xs text-amber-600">Draft</span>
                   </div>
@@ -406,9 +406,9 @@ export default function StudentsPage() {
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="font-semibold text-slate-950">Academic performance alert</p>
-                      <p className="text-xs text-slate-500">Ready to send after QA.</p>
+                      <p className="text-xs text-[var(--edlink-blue-text)]/70">Ready to send after QA.</p>
                     </div>
-                    <span className="text-xs text-emerald-600">Ready</span>
+                    <span className="text-xs text-[var(--edlink-green-brand)]">Ready</span>
                   </div>
                 </div>
               </div>
@@ -421,21 +421,21 @@ export default function StudentsPage() {
                 <div className="flex items-center justify-between rounded-3xl bg-[#F0FFF6] p-4 border border-[#DAF5E2]">
                   <div>
                     <p className="font-semibold text-slate-950">Refactor student filters</p>
-                    <p className="text-xs text-slate-500">Make search a little less painful.</p>
+                    <p className="text-xs text-[var(--edlink-blue-text)]/70">Make search a little less painful.</p>
                   </div>
                   <span className="rounded-full bg-[#007A53]/10 px-3 py-1 text-xs font-semibold text-[#007A53]">In progress</span>
                 </div>
                 <div className="flex items-center justify-between rounded-3xl bg-[#FFF4E5] p-4 border border-[#F5E0C2]">
                   <div>
                     <p className="font-semibold text-slate-950">Add gradebook quick links</p>
-                    <p className="text-xs text-slate-500">Jump directly to subject data.</p>
+                    <p className="text-xs text-[var(--edlink-blue-text)]/70">Jump directly to subject data.</p>
                   </div>
                   <span className="rounded-full bg-[#BB7A00]/10 px-3 py-1 text-xs font-semibold text-[#BB7A00]">Planned</span>
                 </div>
                 <div className="flex items-center justify-between rounded-3xl bg-[#F7F7FF] p-4 border border-[#DAD9F0]">
                   <div>
                     <p className="font-semibold text-slate-950">Hotfix: broken invite email</p>
-                    <p className="text-xs text-slate-500">Deployed and monitoring.</p>
+                    <p className="text-xs text-[var(--edlink-blue-text)]/70">Deployed and monitoring.</p>
                   </div>
                   <span className="rounded-full bg-[#5C61F6]/10 px-3 py-1 text-xs font-semibold text-[#5C61F6]">Live</span>
                 </div>

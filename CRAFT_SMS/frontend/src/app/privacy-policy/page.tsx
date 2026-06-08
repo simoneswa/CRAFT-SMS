@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <main className="min-h-screen bg-[#FAF8F5] text-slate-800">
+    <main className="min-h-screen bg-[#FAF8F5] text-[var(--edlink-blue-text)]">
 
       {/* Top Nav */}
       <nav className="border-b border-slate-200 bg-white/90 backdrop-blur-sm sticky top-0 z-50">
@@ -40,7 +40,7 @@ export default function PrivacyPolicyPage() {
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">
             Terms of Service &amp; Privacy Policy
           </h1>
-          <p className="text-slate-500 text-sm font-medium">Last Updated: May 27, 2026</p>
+          <p className="text-[var(--edlink-blue-text)]/70 text-sm font-medium">Last Updated: May 27, 2026</p>
           <p className="mt-4 text-base text-slate-600 leading-relaxed max-w-2xl">
             Welcome to <strong>CRAFT SMS</strong> (&quot;Platform&quot;, &quot;Service&quot;, &quot;we&quot;, &quot;our&quot;, or &quot;us&quot;), an educational communication and school management platform. By accessing or using CRAFT SMS, you agree to comply with these Terms of Service. If you do not agree, please do not use the platform.
           </p>
@@ -74,7 +74,7 @@ export default function PrivacyPolicyPage() {
               <a
                 key={href}
                 href={href}
-                className="text-sm text-slate-500 hover:text-[#007A53] transition-colors py-0.5"
+                className="text-sm text-[var(--edlink-blue-text)]/70 hover:text-[#007A53] transition-colors py-0.5"
               >
                 {label}
               </a>
@@ -291,7 +291,7 @@ export default function PrivacyPolicyPage() {
               Privacy Policy
             </div>
             <h2 id="privacy" className="text-3xl font-extrabold mb-2 text-slate-900">Privacy Policy</h2>
-            <p className="text-sm text-slate-500 mb-8">Last Updated: May 27, 2026</p>
+            <p className="text-sm text-[var(--edlink-blue-text)]/70 mb-8">Last Updated: May 27, 2026</p>
             <p className="leading-relaxed mb-8 text-slate-600">CRAFT SMS values your privacy and is committed to protecting personal and institutional data.</p>
 
             <div className="space-y-8">
@@ -370,7 +370,7 @@ export default function PrivacyPolicyPage() {
 
           {/* Footer CTA */}
           <div className="border-t-2 border-slate-200 pt-10 text-center">
-            <p className="text-slate-500 text-sm mb-4">© 2026 CRAFT SMS. All Rights Reserved.</p>
+            <p className="text-[var(--edlink-blue-text)]/70 text-sm mb-4">© 2026 CRAFT SMS. All Rights Reserved.</p>
             <Link
               href="/"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#007A53] text-white font-semibold text-sm hover:bg-[#005d40] transition-colors"

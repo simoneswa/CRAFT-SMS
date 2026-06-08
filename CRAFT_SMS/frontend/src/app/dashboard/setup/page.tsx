@@ -82,7 +82,7 @@ export default function OnboardingWizard() {
     <div className="min-h-screen bg-[#030712] text-white flex flex-col items-center justify-center p-6 py-20">
       {/* Background Decor */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-20">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-teal-500/20 blur-[120px] rounded-full" />
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[var(--edlink-green-brand)]/20 blur-[120px] rounded-full" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/20 blur-[120px] rounded-full" />
       </div>
 
@@ -93,7 +93,7 @@ export default function OnboardingWizard() {
               <Building2 className="text-white w-8 h-8" />
            </div>
            <h1 className="text-4xl font-black tracking-tight mb-3 uppercase">Initialize <span className="gradient-text">Institution</span></h1>
-           <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">CRAFT SMS Institutional Onboarding Engine</p>
+           <p className="text-[var(--edlink-blue-text)]/70 font-bold uppercase tracking-widest text-xs">CRAFT SMS Institutional Onboarding Engine</p>
         </div>
 
         {/* Step Progress */}
@@ -102,11 +102,11 @@ export default function OnboardingWizard() {
            {steps.map((step, i) => (
              <div key={step.id} className="flex flex-col items-center gap-3">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
-                  i <= currentStep ? 'bg-teal-500 border-teal-500 text-black shadow-lg shadow-teal-500/20' : 'bg-[#030712] border-white/10 text-gray-600'
+                  i <= currentStep ? 'bg-[var(--edlink-green-brand)] border-[var(--edlink-green-brand)] text-black shadow-lg shadow-teal-500/20' : 'bg-[#030712] border-white/10 text-[var(--edlink-blue-text)]/70'
                 }`}>
                    <step.icon className="w-5 h-5" />
                 </div>
-                <span className={`text-[10px] font-black uppercase tracking-widest ${i <= currentStep ? 'text-teal-400' : 'text-gray-600'}`}>
+                <span className={`text-[10px] font-black uppercase tracking-widest ${i <= currentStep ? 'text-[var(--edlink-green-brand)]' : 'text-[var(--edlink-blue-text)]/70'}`}>
                    {step.title}
                 </span>
              </div>
@@ -132,7 +132,7 @@ export default function OnboardingWizard() {
                            placeholder="e.g. West Oak Academy"
                            value={formData.name}
                            onChange={e => setFormData({...formData, name: e.target.value})}
-                           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500 transition-all"
+                           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[var(--edlink-green-brand)] transition-all"
                          />
                       </div>
                       <div className="space-y-4">
@@ -143,9 +143,9 @@ export default function OnboardingWizard() {
                              placeholder="westoak"
                              value={formData.subdomain}
                              onChange={e => setFormData({...formData, subdomain: e.target.value})}
-                             className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500 transition-all text-right"
+                             className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[var(--edlink-green-brand)] transition-all text-right"
                            />
-                           <span className="text-gray-500 font-bold">.localhost:3000</span>
+                           <span className="text-[var(--edlink-blue-text)]/70 font-bold">.localhost:3000</span>
                          </div>
                       </div>
                    </div>
@@ -164,15 +164,15 @@ export default function OnboardingWizard() {
                             />
                             <div className="flex-1">
                                <p className="text-sm font-bold text-white uppercase">{formData.primary_color}</p>
-                               <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Institutional Accent Color</p>
+                               <p className="text-[10px] text-[var(--edlink-blue-text)]/70 font-bold uppercase tracking-widest mt-1">Institutional Accent Color</p>
                             </div>
                          </div>
                       </div>
                       <div className="space-y-4">
                          <label className="section-label">Logo Upload</label>
                          <div className="w-full h-32 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center hover:bg-white/5 transition-all cursor-pointer group">
-                            <Upload className="w-6 h-6 text-gray-500 group-hover:text-teal-400 mb-2" />
-                            <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">Upload Official Shield</p>
+                            <Upload className="w-6 h-6 text-[var(--edlink-blue-text)]/70 group-hover:text-[var(--edlink-green-brand)] mb-2" />
+                            <p className="text-[10px] text-[var(--edlink-blue-text)]/70 font-bold uppercase tracking-widest">Upload Official Shield</p>
                          </div>
                       </div>
                    </div>
@@ -187,7 +187,7 @@ export default function OnboardingWizard() {
                               type="text" 
                               value={formData.term_name}
                               onChange={e => setFormData({...formData, term_name: e.target.value})}
-                              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500 transition-all"
+                              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[var(--edlink-green-brand)] transition-all"
                             />
                          </div>
                          <div className="grid grid-cols-2 gap-4">
@@ -197,7 +197,7 @@ export default function OnboardingWizard() {
                                  type="date" 
                                  value={formData.start_date}
                                  onChange={e => setFormData({...formData, start_date: e.target.value})}
-                                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-teal-500 transition-all"
+                                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[var(--edlink-green-brand)] transition-all"
                                />
                             </div>
                             <div className="space-y-4">
@@ -206,7 +206,7 @@ export default function OnboardingWizard() {
                                  type="date" 
                                  value={formData.end_date}
                                  onChange={e => setFormData({...formData, end_date: e.target.value})}
-                                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-teal-500 transition-all"
+                                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[var(--edlink-green-brand)] transition-all"
                                />
                             </div>
                          </div>
@@ -216,11 +216,11 @@ export default function OnboardingWizard() {
 
                  {currentStep === 3 && (
                    <div className="text-center py-8">
-                      <div className="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                      <div className="w-20 h-20 bg-[var(--edlink-green-brand)]/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
                          <CheckCircle2 className="w-10 h-10 text-emerald-400" />
                       </div>
                       <h3 className="text-2xl font-bold text-white mb-2">Ready for Initialization</h3>
-                      <p className="text-gray-500 text-sm max-w-sm mx-auto leading-relaxed">
+                      <p className="text-[var(--edlink-blue-text)]/70 text-sm max-w-sm mx-auto leading-relaxed">
                          The system will now provision the <strong>{formData.name}</strong> tenant on <strong>{formData.subdomain}.localhost</strong> with the configured branding and academic foundations.
                       </p>
                    </div>
@@ -233,7 +233,7 @@ export default function OnboardingWizard() {
               <button 
                 onClick={prevStep}
                 disabled={currentStep === 0}
-                className={`flex items-center gap-2 text-xs font-bold uppercase tracking-widest transition-all ${currentStep === 0 ? 'text-gray-700 pointer-events-none' : 'text-gray-400 hover:text-white'}`}
+                className={`flex items-center gap-2 text-xs font-bold uppercase tracking-widest transition-all ${currentStep === 0 ? 'text-gray-700 pointer-events-none' : 'text-[var(--edlink-blue-text)]/70 hover:text-white'}`}
               >
                  <ArrowLeft className="w-4 h-4" /> Previous Phase
               </button>
@@ -249,7 +249,7 @@ export default function OnboardingWizard() {
                 <button 
                   onClick={handleComplete}
                   disabled={isSubmitting}
-                  className="px-8 py-4 rounded-xl bg-teal-500 text-black text-xs font-black uppercase tracking-[0.15em] flex items-center gap-3 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 shadow-2xl shadow-teal-500/20"
+                  className="px-8 py-4 rounded-xl bg-[var(--edlink-green-brand)] text-black text-xs font-black uppercase tracking-[0.15em] flex items-center gap-3 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 shadow-2xl shadow-teal-500/20"
                 >
                    {isSubmitting ? 'Initializing...' : 'Finalize & Launch Institution'}
                 </button>

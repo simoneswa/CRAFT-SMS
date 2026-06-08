@@ -47,7 +47,7 @@ export default function ForgotPasswordPage() {
               <ShieldCheck className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-500">Password Recovery</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[var(--edlink-blue-text)]/70">Password Recovery</p>
               <h1 className="mt-2 text-3xl font-semibold text-slate-950">Reset your school account password</h1>
             </div>
           </div>
@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
           )}
 
           {success && (
-            <div className="mb-4 rounded-3xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-700">
+            <div className="mb-4 rounded-3xl border border-[var(--edlink-divider-blue)] bg-[var(--edlink-green-brand)]/10 px-4 py-4 text-sm text-emerald-700">
               <ShieldCheck className="inline h-4 w-4 align-text-bottom mr-2" />
               {success}
             </div>
@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-slate-700">
+              <label htmlFor="email" className="block text-sm font-semibold text-[var(--edlink-blue-text)]">
                 School Email
               </label>
               <div className="mt-2">

@@ -41,7 +41,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 20, scale: 0.9 }}
               className={`pointer-events-auto flex items-center gap-3 px-5 py-4 rounded-2xl border backdrop-blur-xl shadow-2xl min-w-[300px] ${
-                toast.type === 'SUCCESS' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
+                toast.type === 'SUCCESS' ? 'bg-[var(--edlink-green-brand)]/10 border-[var(--edlink-green-brand)]/20 text-emerald-400' :
                 toast.type === 'ERROR' ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' :
                 'bg-blue-500/10 border-blue-500/20 text-blue-400'
               }`}

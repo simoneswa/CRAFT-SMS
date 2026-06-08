@@ -236,18 +236,18 @@ const loadRollCall = useCallback(async () => {
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-3xl font-bold mb-2 text-white">Student <span className="gradient-text">Attendance</span></h1>
-            <p className="text-gray-400">High-efficiency roll call and historical tracking.</p>
+            <p className="text-[var(--edlink-blue-text)]/70">High-efficiency roll call and historical tracking.</p>
           </div>
           <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
             <button 
               onClick={() => setView('ROLL_CALL')}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${view === 'ROLL_CALL' ? 'bg-teal-500 text-black' : 'text-gray-400 hover:text-white'}`}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${view === 'ROLL_CALL' ? 'bg-[var(--edlink-green-brand)] text-black' : 'text-[var(--edlink-blue-text)]/70 hover:text-white'}`}
             >
               Daily Roll Call
             </button>
             <button 
               onClick={() => setView('HISTORY')}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${view === 'HISTORY' ? 'bg-teal-500 text-black' : 'text-gray-400 hover:text-white'}`}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${view === 'HISTORY' ? 'bg-[var(--edlink-green-brand)] text-black' : 'text-[var(--edlink-blue-text)]/70 hover:text-white'}`}
             >
               History
             </button>
@@ -264,7 +264,7 @@ const loadRollCall = useCallback(async () => {
                   <select 
                     value={selectedClass}
                     onChange={(e) => setSelectedClass(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500/50 text-white cursor-pointer"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]/50 text-white cursor-pointer"
                   >
                     {classes.map(c => <option key={c.id} value={c.id} className="bg-gray-900">{c.name}</option>)}
                   </select>
@@ -272,12 +272,12 @@ const loadRollCall = useCallback(async () => {
                 <div className="flex-1 min-w-[200px]">
                   <label className="section-label mb-2 block">Date</label>
                   <div className="relative">
-                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--edlink-blue-text)]/70" />
                     <input 
                       type="date" 
                       value={attendanceDate}
                       onChange={(e) => setAttendanceDate(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-11 pr-4 text-sm focus:outline-none focus:border-teal-500/50 text-white"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-11 pr-4 text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]/50 text-white"
                     />
                   </div>
                 </div>
@@ -286,10 +286,10 @@ const loadRollCall = useCallback(async () => {
               <div className="premium-card">
                 {isLoading ? (
                   <div className="flex justify-center py-20">
-                    <div className="w-10 h-10 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
+                    <div className="w-10 h-10 border-4 border-[var(--edlink-green-brand)]/20 border-t-teal-500 rounded-full animate-spin" />
                   </div>
                 ) : students.length === 0 ? (
-                  <div className="text-center py-20 text-gray-500">
+                  <div className="text-center py-20 text-[var(--edlink-blue-text)]/70">
                     <Users className="w-12 h-12 mx-auto mb-4 opacity-20" />
                     <p>No students enrolled in this class.</p>
                   </div>
@@ -298,12 +298,12 @@ const loadRollCall = useCallback(async () => {
                     {students.map((student) => (
                       <div key={student.id} className="flex items-center justify-between py-4 group">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-gray-800 to-gray-700 border border-white/10 flex items-center justify-center font-bold text-xs text-gray-400">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-gray-800 to-gray-700 border border-white/10 flex items-center justify-center font-bold text-xs text-[var(--edlink-blue-text)]/70">
                             {student.full_name?.charAt(0)}
                           </div>
                           <div>
                             <p className="font-bold text-white text-sm">{student.full_name}</p>
-                            <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">{student.custom_id}</p>
+                            <p className="text-[10px] text-[var(--edlink-blue-text)]/70 uppercase font-bold tracking-widest">{student.custom_id}</p>
                           </div>
                         </div>
                         
@@ -312,7 +312,7 @@ const loadRollCall = useCallback(async () => {
                             {
                           id: 'PRESENT',
                           label: 'P',
-                          activeClass: 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20'
+                          activeClass: 'bg-[var(--edlink-green-brand)] text-black shadow-lg shadow-emerald-500/20'
                            },
                             { id: 'LATE', label: 'L', activeClass: 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' },
                             { id: 'ABSENT', label: 'A', activeClass: 'bg-rose-500 text-black shadow-lg shadow-rose-500/20' },
@@ -324,7 +324,7 @@ const loadRollCall = useCallback(async () => {
                               className={`w-10 h-10 rounded-lg text-xs font-black transition-all ${
                                 attendance[student.id] === opt.id 
                                   ? opt.activeClass 
-                                  : 'text-gray-500 hover:text-white'
+                                  : 'text-[var(--edlink-blue-text)]/70 hover:text-white'
                               }`}
                               title={opt.id}
                             >
@@ -343,7 +343,7 @@ const loadRollCall = useCallback(async () => {
             <div className="space-y-6">
               <div className="premium-card">
                  <h4 className="font-bold text-sm mb-6 text-white flex items-center gap-2">
-                   <History className="w-4 h-4 text-teal-400" />
+                   <History className="w-4 h-4 text-[var(--edlink-green-brand)]" />
                    Quick Summary
                  </h4>
                  <div className="space-y-4">
@@ -354,12 +354,12 @@ const loadRollCall = useCallback(async () => {
                       { label: 'Excused', val: stats.excused, color: 'blue' },
                     ].map(s => (
                       <div key={s.label} className="flex justify-between items-center text-xs">
-                         <span className="text-gray-400">{s.label}</span>
+                         <span className="text-[var(--edlink-blue-text)]/70">{s.label}</span>
                          <span className={`text-${s.color}-400 font-bold bg-${s.color}-500/10 px-2 py-0.5 rounded-md`}>{s.val}</span>
                       </div>
                     ))}
                     <div className="pt-4 border-t border-white/5">
-                       <div className="flex justify-between items-center text-[10px] font-bold text-gray-500 uppercase mb-2">
+                       <div className="flex justify-between items-center text-[10px] font-bold text-[var(--edlink-blue-text)]/70 uppercase mb-2">
                           <span>Completion</span>
                           <span>{students.length > 0 ? Math.round((Object.keys(attendance).length / students.length) * 100) : 0}%</span>
                        </div>
@@ -367,7 +367,7 @@ const loadRollCall = useCallback(async () => {
                           <motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: `${students.length > 0 ? (Object.keys(attendance).length / students.length) * 100 : 0}%` }}
-                            className="h-full bg-teal-500 rounded-full" 
+                            className="h-full bg-[var(--edlink-green-brand)] rounded-full" 
                           />
                        </div>
                     </div>
@@ -377,7 +377,7 @@ const loadRollCall = useCallback(async () => {
               <button 
                 onClick={submitAttendance}
                 disabled={isSaving || students.length === 0}
-                className="w-full py-4 bg-teal-500 hover:bg-teal-400 text-black font-extrabold rounded-2xl transition-all shadow-lg shadow-teal-500/20 disabled:opacity-50"
+                className="w-full py-4 bg-[var(--edlink-green-brand)] hover:bg-[var(--edlink-green-hover)] text-black font-extrabold rounded-2xl transition-all shadow-lg shadow-teal-500/20 disabled:opacity-50"
               >
                 {isSaving ? 'Saving...' : 'Finalize Attendance'}
               </button>
@@ -403,7 +403,7 @@ const loadRollCall = useCallback(async () => {
                 <select 
                   value={selectedClass}
                   onChange={(e) => setSelectedClass(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500/50 text-white cursor-pointer"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]/50 text-white cursor-pointer"
                 >
                   {classes.map(c => <option key={c.id} value={c.id} className="bg-gray-900">{c.name}</option>)}
                 </select>
@@ -411,7 +411,7 @@ const loadRollCall = useCallback(async () => {
             </div>
 
              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-               <div className="premium-card bg-emerald-500/5 border-emerald-500/10">
+               <div className="premium-card bg-[var(--edlink-green-brand)]/5 border-[var(--edlink-green-brand)]/10">
                   <p className="section-label text-emerald-400 mb-1">Average Presence</p>
                   <h3 className="text-3xl font-bold text-white">{isLoadingHistory ? '…' : `${historyStats.avgPresence}%`}</h3>
                </div>
@@ -431,7 +431,7 @@ const loadRollCall = useCallback(async () => {
                   <button
                     onClick={handleExportPdf}
                     disabled={isExportingPdf}
-                    className="text-xs font-bold text-teal-400 hover:underline disabled:opacity-50"
+                    className="text-xs font-bold text-[var(--edlink-green-brand)] hover:underline disabled:opacity-50"
                   >
                     {isExportingPdf ? 'Generating...' : 'Export Report (PDF)'}
                   </button>
@@ -449,14 +449,14 @@ const loadRollCall = useCallback(async () => {
                     </thead>
                     <tbody>
                      {isLoadingHistory ? (
-                      <tr><td colSpan={5} className="p-8 text-center text-gray-500">Loading history...</td></tr>
+                      <tr><td colSpan={5} className="p-8 text-center text-[var(--edlink-blue-text)]/70">Loading history...</td></tr>
                      ) : historyRows.length === 0 ? (
-                      <tr><td colSpan={5} className="p-8 text-center text-gray-500">No attendance records found.</td></tr>
+                      <tr><td colSpan={5} className="p-8 text-center text-[var(--edlink-blue-text)]/70">No attendance records found.</td></tr>
                      ) : historyRows.map((s: any, i: number) => (
                         <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                           <td className="p-4">
                              <p className="font-bold text-sm text-white">{s.name || 'Unknown'}</p>
-                             <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">{s.customId || `STU_00${i+1}`}</p>
+                             <p className="text-[10px] text-[var(--edlink-blue-text)]/70 uppercase tracking-widest font-bold">{s.customId || `STU_00${i+1}`}</p>
                           </td>
                           <td className="p-4 text-center text-sm font-bold text-gray-300">{s.present}</td>
                           <td className="p-4 text-center text-sm font-bold text-amber-400">{s.late}</td>
@@ -467,7 +467,7 @@ const loadRollCall = useCallback(async () => {
                                   {s.pct}%
                                 </span>
                                 <div className="w-20 h-1 bg-white/5 rounded-full mt-1 overflow-hidden">
-                                   <div className={`h-full ${s.pct >= 90 ? 'bg-emerald-500' : s.pct >= 80 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${s.pct}%` }} />
+                                   <div className={`h-full ${s.pct >= 90 ? 'bg-[var(--edlink-green-brand)]' : s.pct >= 80 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${s.pct}%` }} />
                                 </div>
                              </div>
                           </td>

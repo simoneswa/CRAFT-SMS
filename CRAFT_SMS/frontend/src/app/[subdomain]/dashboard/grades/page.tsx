@@ -117,7 +117,7 @@ export default function GradebookPage() {
 
   if (profile?.role !== 'TEACHER' && profile?.role !== 'SCHOOL_ADMIN') {
     return (
-      <div className="flex items-center justify-center py-32 text-gray-500">
+      <div className="flex items-center justify-center py-32 text-[var(--edlink-blue-text)]/70">
         You do not have permission to access the Gradebook.
       </div>
     )
@@ -128,12 +128,12 @@ export default function GradebookPage() {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Teacher&apos;s <span className="gradient-text">Gradebook</span></h1>
-          <p className="text-gray-400">Record and manage academic performance for your classes.</p>
+          <p className="text-[var(--edlink-blue-text)]/70">Record and manage academic performance for your classes.</p>
         </div>
         <button 
           onClick={handleSaveGrades}
           disabled={isSubmitting}
-          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-black font-bold transition-all shadow-lg shadow-teal-500/20 disabled:opacity-50"
+          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--edlink-green-brand)] hover:bg-[var(--edlink-green-hover)] text-black font-bold transition-all shadow-lg shadow-teal-500/20 disabled:opacity-50"
         >
           {isSubmitting ? <span className="animate-pulse">Saving...</span> : <><Save className="w-5 h-5" /> Save Grades</>}
         </button>
@@ -141,7 +141,7 @@ export default function GradebookPage() {
 
       {message && (
         <div className={`p-4 rounded-xl flex items-center gap-3 text-sm font-bold ${
-          message.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+          message.type === 'success' ? 'bg-[var(--edlink-green-brand)]/10 text-emerald-400 border border-[var(--edlink-green-brand)]/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
         }`}>
           {message.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
           {message.text}
@@ -151,28 +151,28 @@ export default function GradebookPage() {
       {/* Control Panel */}
       <div className="premium-card grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-           <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-             <BookOpen className="w-4 h-4 text-teal-400" /> Subject
+           <label className="block text-xs font-bold text-[var(--edlink-blue-text)]/70 uppercase tracking-widest mb-2 flex items-center gap-2">
+             <BookOpen className="w-4 h-4 text-[var(--edlink-green-brand)]" /> Subject
            </label>
            <div className="relative">
               <select 
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500/50 transition-colors appearance-none"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]/50 transition-colors appearance-none"
               >
                 {subjects.map(s => <option key={s} value={s} className="bg-[#030712]">{s}</option>)}
               </select>
            </div>
         </div>
         <div>
-           <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+           <label className="block text-xs font-bold text-[var(--edlink-blue-text)]/70 uppercase tracking-widest mb-2 flex items-center gap-2">
              <GraduationCap className="w-4 h-4 text-blue-400" /> Academic Term
            </label>
            <div className="relative">
               <select 
                 value={term}
                 onChange={(e) => setTerm(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500/50 transition-colors appearance-none"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]/50 transition-colors appearance-none"
               >
                 {terms.map(t => <option key={t} value={t} className="bg-[#030712]">{t}</option>)}
               </select>
@@ -185,17 +185,17 @@ export default function GradebookPage() {
         <div className="flex items-center justify-between mb-6">
            <h3 className="text-xl font-bold flex items-center gap-2">Class Roster</h3>
            <div className="relative hidden md:block">
-             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-             <input type="text" placeholder="Search students..." className="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-teal-500/50 w-64" />
+             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--edlink-blue-text)]/70" />
+             <input type="text" placeholder="Search students..." className="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]/50 w-64" />
            </div>
         </div>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-             <div className="w-10 h-10 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
+             <div className="w-10 h-10 border-4 border-[var(--edlink-green-brand)]/20 border-t-teal-500 rounded-full animate-spin" />
           </div>
         ) : students.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-[var(--edlink-blue-text)]/70">
              No students enrolled in this school yet.
           </div>
         ) : (
@@ -203,16 +203,16 @@ export default function GradebookPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-white/5">
-                  <th className="py-4 px-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Student ID</th>
-                  <th className="py-4 px-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Full Name</th>
-                  <th className="py-4 px-4 text-xs font-bold text-gray-500 uppercase tracking-widest text-right">Score (out of 100)</th>
+                  <th className="py-4 px-4 text-xs font-bold text-[var(--edlink-blue-text)]/70 uppercase tracking-widest">Student ID</th>
+                  <th className="py-4 px-4 text-xs font-bold text-[var(--edlink-blue-text)]/70 uppercase tracking-widest">Full Name</th>
+                  <th className="py-4 px-4 text-xs font-bold text-[var(--edlink-blue-text)]/70 uppercase tracking-widest text-right">Score (out of 100)</th>
                 </tr>
               </thead>
               <tbody>
                 {students.map((student) => (
                   <tr key={student.id} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
                     <td className="py-4 px-4">
-                      <span className="px-2 py-1 rounded-full bg-white/5 text-xs font-bold text-gray-400">
+                      <span className="px-2 py-1 rounded-full bg-white/5 text-xs font-bold text-[var(--edlink-blue-text)]/70">
                         {student.custom_id || 'PENDING'}
                       </span>
                     </td>
@@ -223,7 +223,7 @@ export default function GradebookPage() {
                         value={grades[student.id] || ''}
                         onChange={(e) => handleGradeChange(student.id, e.target.value)}
                         placeholder="--"
-                        className="w-20 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-right font-bold text-teal-400 focus:outline-none focus:border-teal-500/50 transition-colors"
+                        className="w-20 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-right font-bold text-[var(--edlink-green-brand)] focus:outline-none focus:border-[var(--edlink-green-brand)]/50 transition-colors"
                       />
                     </td>
                   </tr>

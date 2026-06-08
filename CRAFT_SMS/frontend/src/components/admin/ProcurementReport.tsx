@@ -26,14 +26,14 @@ export function ProcurementReport({ school, data }: ProcurementReportProps) {
              <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="w-16 h-16 object-contain bg-transparent" />
              <div>
                 <h1 className="text-2xl font-black uppercase tracking-tighter leading-tight">{school?.name}</h1>
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.25em] mt-1">CRAFT SMS Institutional Audit Stream</p>
+                <p className="text-[10px] font-bold text-[var(--edlink-blue-text)]/70 uppercase tracking-[0.25em] mt-1">CRAFT SMS Institutional Audit Stream</p>
              </div>
           </div>
           <div className="text-right">
              <div className="bg-black text-white px-3 py-1.5 text-[9px] font-black uppercase tracking-widest inline-block mb-3">
                 Restricted Access
              </div>
-             <p className="text-xs font-bold text-gray-600 italic">{timestamp}</p>
+             <p className="text-xs font-bold text-[var(--edlink-blue-text)]/70 italic">{timestamp}</p>
           </div>
        </header>
 
@@ -46,7 +46,7 @@ export function ProcurementReport({ school, data }: ProcurementReportProps) {
              { label: 'Audit Status', value: 'VERIFIED', icon: FileText },
           ].map((kpi, i) => (
              <div key={i} className="border-l border-gray-200 pl-4">
-                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">{kpi.label}</p>
+                <p className="text-[9px] font-black text-[var(--edlink-blue-text)]/70 uppercase tracking-widest mb-1">{kpi.label}</p>
                 <p className="text-lg font-black">{kpi.value}</p>
              </div>
           ))}
@@ -58,13 +58,13 @@ export function ProcurementReport({ school, data }: ProcurementReportProps) {
              <h3 className="text-xs font-black uppercase tracking-[0.3em] mb-6 border-b border-gray-100 pb-2">Institutional Pulse & Distribution</h3>
              <div className="grid grid-cols-2 gap-12">
                 <div className="space-y-4">
-                   <p className="text-[10px] font-bold uppercase text-gray-500">Academic Standing Summary</p>
+                   <p className="text-[10px] font-bold uppercase text-[var(--edlink-blue-text)]/70">Academic Standing Summary</p>
                    <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden flex">
                       <div className="h-full bg-black w-[40%]" />
                       <div className="h-full bg-gray-400 w-[30%]" />
                       <div className="h-full bg-gray-200 w-[30%]" />
                    </div>
-                   <div className="flex justify-between text-[8px] font-black uppercase text-gray-400">
+                   <div className="flex justify-between text-[8px] font-black uppercase text-[var(--edlink-blue-text)]/70">
                       <span>Excellence</span>
                       <span>Target</span>
                       <span>Intervention</span>
@@ -72,7 +72,7 @@ export function ProcurementReport({ school, data }: ProcurementReportProps) {
                 </div>
                 <div className="p-4 bg-gray-50 border border-gray-100 rounded-xl">
                    <p className="text-[10px] font-black uppercase mb-2">Director&apos;s Memo</p>
-                   <p className="text-xs leading-relaxed text-gray-600">
+                   <p className="text-xs leading-relaxed text-[var(--edlink-blue-text)]/70">
                       This report represents the verified operational state of {school?.name}. 
                       All academic and financial data points have been synchronized via the CRAFT SMS decentralized sync engine.
                    </p>
@@ -97,7 +97,7 @@ export function ProcurementReport({ school, data }: ProcurementReportProps) {
                    ].map((row, i) => (
                       <tr key={i}>
                          <td className="py-4 text-xs font-black uppercase">{row.name}</td>
-                         <td className="py-4 text-xs text-gray-500 italic">{row.desc}</td>
+                         <td className="py-4 text-xs text-[var(--edlink-blue-text)]/70 italic">{row.desc}</td>
                          <td className="py-4 text-xs font-black text-right">{row.val}</td>
                       </tr>
                    ))}
@@ -110,10 +110,10 @@ export function ProcurementReport({ school, data }: ProcurementReportProps) {
        <footer className="absolute bottom-16 left-16 right-16 flex justify-between items-end border-t border-gray-200 pt-8 relative z-10">
           <div>
              <h2 className="text-xl font-black italic tracking-tighter uppercase">CRAFT <span className="text-gray-300">SMS</span></h2>
-             <p className="text-[8px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Institutional Operating System • Launch v1.0</p>
+             <p className="text-[8px] font-bold text-[var(--edlink-blue-text)]/70 uppercase tracking-[0.2em] mt-1">Institutional Operating System • Launch v1.0</p>
           </div>
           <div className="text-right">
-             <p className="text-[9px] font-black uppercase text-gray-500">Certified by</p>
+             <p className="text-[9px] font-black uppercase text-[var(--edlink-blue-text)]/70">Certified by</p>
              <p className="text-[10px] font-bold uppercase mt-1">CRAFT SMS AUDIT ENGINE</p>
           </div>
        </footer>

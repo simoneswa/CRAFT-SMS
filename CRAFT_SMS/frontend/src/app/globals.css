@@ -1,11 +1,17 @@
 @import "tailwindcss";
 
 :root {
+  /* Core branding tokens */
+  --edlink-green-brand: hsl(141, 77%, 35%);    /* #149C44 */
+  --edlink-blue-text: hsl(222, 80%, 22%);      /* #0B2564 */
+  --edlink-divider-blue: hsl(229, 69%, 62%);   /* #5B73E0 */
+  --edlink-green-hover: hsl(141, 77%, 28%);    /* Darker green for hover states */
+
   --brand-primary: #007A53;
   --brand-primary-rgb: 0, 122, 83;
   --brand-surface: #FAF8F5;
   --brand-card: #FFFFFF;
-  --brand-heading: #0A251C;
+  --brand-heading: var(--edlink-blue-text);
   --brand-body: #475057;
   --brand-muted: #6B7A72;
   --brand-border: #E7E2DA;

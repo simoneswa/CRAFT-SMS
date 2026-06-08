@@ -24,22 +24,22 @@ export default function DashboardPage() {
         <h1 className="text-4xl font-extrabold tracking-tight mb-4">
           Platform <span className="gradient-text">Overview</span>
         </h1>
-        <p className="text-gray-400 text-lg">Manage multiple institutions or find your school portal.</p>
+        <p className="text-[var(--edlink-blue-text)]/70 text-lg">Manage multiple institutions or find your school portal.</p>
       </header>
 
       {/* Quick Search */}
       <div className="relative group">
-        <div className="absolute inset-0 bg-teal-500/20 blur-2xl group-hover:bg-teal-500/30 transition-all rounded-full -z-10" />
+        <div className="absolute inset-0 bg-[var(--edlink-green-brand)]/20 blur-2xl group-hover:bg-[var(--edlink-green-brand)]/30 transition-all rounded-full -z-10" />
         <div className="premium-card flex items-center gap-6 p-2 pr-4">
           <div className="flex-1 flex items-center gap-4 pl-4">
-            <Search className="text-gray-500 w-6 h-6" />
+            <Search className="text-[var(--edlink-blue-text)]/70 w-6 h-6" />
             <input 
               type="text" 
               placeholder="Search for a school in Liberia..." 
               className="w-full bg-transparent border-none focus:outline-none py-4 text-lg font-medium"
             />
           </div>
-          <button className="px-8 py-3 bg-teal-500 hover:bg-teal-400 rounded-xl text-black font-bold transition-all shadow-lg shadow-teal-500/20">
+          <button className="px-8 py-3 bg-[var(--edlink-green-brand)] hover:bg-[var(--edlink-green-hover)] rounded-xl text-black font-bold transition-all shadow-lg shadow-teal-500/20">
             Search
           </button>
         </div>
@@ -47,12 +47,12 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* For Students/Parents */}
-        <div className="premium-card group hover:border-teal-500/40 transition-all">
-          <div className="w-14 h-14 bg-teal-500/10 rounded-2xl flex items-center justify-center mb-6">
-            <Building2 className="text-teal-400 w-7 h-7" />
+        <div className="premium-card group hover:border-[var(--edlink-green-brand)]/40 transition-all">
+          <div className="w-14 h-14 bg-[var(--edlink-green-brand)]/10 rounded-2xl flex items-center justify-center mb-6">
+            <Building2 className="text-[var(--edlink-green-brand)] w-7 h-7" />
           </div>
           <h2 className="text-2xl font-bold mb-4">School Directory</h2>
-          <p className="text-gray-400 leading-relaxed mb-8">
+          <p className="text-[var(--edlink-blue-text)]/70 leading-relaxed mb-8">
             Access your school&apos;s dedicated portal. View grades, attendance, and pay fees through your specific subdomain.
           </p>
           <div className="flex flex-col gap-3">
@@ -63,7 +63,7 @@ export default function DashboardPage() {
                  className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors w-full text-left"
                >
                   <span className="font-medium">{school}</span>
-                  <ArrowRight className="w-4 h-4 text-gray-500" />
+                  <ArrowRight className="w-4 h-4 text-[var(--edlink-blue-text)]/70" />
                </button>
              ))}
           </div>
@@ -75,7 +75,7 @@ export default function DashboardPage() {
             <ShieldCheck className="text-blue-400 w-7 h-7" />
           </div>
           <h2 className="text-2xl font-bold mb-4">Super Admin Console</h2>
-          <p className="text-gray-400 leading-relaxed mb-8">
+          <p className="text-[var(--edlink-blue-text)]/70 leading-relaxed mb-8">
             Global monitoring, tenant management, and system-wide overrides for CRAFT SMS operators.
           </p>
           <button 

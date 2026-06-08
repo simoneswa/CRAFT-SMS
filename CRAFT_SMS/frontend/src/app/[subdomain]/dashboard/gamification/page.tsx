@@ -38,7 +38,7 @@ export default function LeaderboardPage() {
   const podiumIcons = [
     { label: 'Academic Champion', icon: Trophy, color: 'text-amber-400' },
     { label: 'Attendance Hero', icon: Flame, color: 'text-rose-500' },
-    { label: 'Community Star', icon: Star, color: 'text-teal-400' },
+    { label: 'Community Star', icon: Star, color: 'text-[var(--edlink-green-brand)]' },
   ]
 
   const top3 = entries.slice(0, 3)
@@ -48,17 +48,17 @@ export default function LeaderboardPage() {
       <div className="space-y-8">
         <header>
           <h1 className="text-3xl font-bold mb-2 text-white">School <span className="gradient-text">Leaderboard</span></h1>
-          <p className="text-gray-400">Celebrate top performers, high attendance streaks, and academic excellence.</p>
+          <p className="text-[var(--edlink-blue-text)]/70">Celebrate top performers, high attendance streaks, and academic excellence.</p>
         </header>
 
         {isLoading ? (
           <div className="flex justify-center py-20">
-            <div className="w-10 h-10 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
+            <div className="w-10 h-10 border-4 border-[var(--edlink-green-brand)]/20 border-t-teal-500 rounded-full animate-spin" />
           </div>
         ) : entries.length === 0 ? (
           <div className="premium-card text-center py-20">
-            <Trophy className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400">No leaderboard data yet. Start tracking student activity to populate rankings.</p>
+            <Trophy className="w-12 h-12 text-[var(--edlink-blue-text)]/70 mx-auto mb-4" />
+            <p className="text-[var(--edlink-blue-text)]/70">No leaderboard data yet. Start tracking student activity to populate rankings.</p>
           </div>
         ) : (
           <>
@@ -74,7 +74,7 @@ export default function LeaderboardPage() {
                       </div>
                       <h3 className="font-bold text-lg text-white">{name || 'Unknown'}</h3>
                       <p className="section-label mt-1">{podium.label}</p>
-                      <p className="text-sm font-bold text-teal-400 mt-2">{(entry.total_points || 0).toLocaleString()} pts</p>
+                      <p className="text-sm font-bold text-[var(--edlink-green-brand)] mt-2">{(entry.total_points || 0).toLocaleString()} pts</p>
                     </div>
                   )
                 })}
@@ -93,20 +93,20 @@ export default function LeaderboardPage() {
                   return (
                     <div key={entry.id} className="flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-2xl">
                       <div className="flex items-center gap-6">
-                        <span className="text-gray-500 font-bold w-4">#{i + 1}</span>
+                        <span className="text-[var(--edlink-blue-text)]/70 font-bold w-4">#{i + 1}</span>
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-gray-400">
+                          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-[var(--edlink-blue-text)]/70">
                             {name?.charAt(0) || '?'}
                           </div>
                           <div>
                             <p className="font-bold text-sm text-white">{name || 'Unknown Student'}</p>
-                            <p className="text-[10px] text-teal-400 font-bold uppercase tracking-widest">{entry.badge || customId || 'Member'}</p>
+                            <p className="text-[10px] text-[var(--edlink-green-brand)] font-bold uppercase tracking-widest">{entry.badge || customId || 'Member'}</p>
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-bold text-white">{(entry.total_points || 0).toLocaleString()}</p>
-                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Points</p>
+                        <p className="text-[10px] text-[var(--edlink-blue-text)]/70 font-bold uppercase tracking-widest">Points</p>
                       </div>
                     </div>
                   )

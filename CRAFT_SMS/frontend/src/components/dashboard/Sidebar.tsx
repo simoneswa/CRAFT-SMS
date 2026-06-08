@@ -103,7 +103,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
         <div>
           <span className={`text-2xl font-black tracking-tighter block leading-none uppercase ${isSuperAdmin ? 'text-white' : 'text-[var(--brand-heading)]'}`}>CRAFT <span className={`${isSuperAdmin ? 'text-[var(--accent)]' : 'text-[var(--brand-primary)]'}`}>SMS</span></span>
-          <span className={`text-[10px] ${isSuperAdmin ? 'text-gray-500' : 'text-[var(--brand-muted)]'} font-bold uppercase tracking-[0.2em] block mt-3 truncate max-w-[180px]`}>
+          <span className={`text-[10px] ${isSuperAdmin ? 'text-[var(--edlink-blue-text)]/70' : 'text-[var(--brand-muted)]'} font-bold uppercase tracking-[0.2em] block mt-3 truncate max-w-[180px]`}>
              {school?.name || 'Unified Platform'}
           </span>
         </div>
@@ -123,7 +123,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     ? 'text-[var(--accent)]' 
                     : 'text-[var(--brand-primary)]' 
                   : isSuperAdmin 
-                    ? 'text-gray-500 hover:text-white hover:bg-white/[0.03]' 
+                    ? 'text-[var(--edlink-blue-text)]/70 hover:text-white hover:bg-white/[0.03]' 
                     : 'text-[var(--brand-body)] hover:text-[var(--brand-heading)] hover:bg-[var(--brand-surface)]'
                 }`}
               >
@@ -133,7 +133,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     className={`absolute inset-0 ${isSuperAdmin ? 'bg-white/[0.03] border-l-4 border-[var(--accent)]' : 'bg-[var(--brand-primary)]/10 border-l-4 border-[var(--brand-primary)]'} rounded-r-xl -z-10`}
                   />
                 )}
-                <item.icon className={`w-4 h-4 ${isActive ? 'text-[var(--accent)]' : 'text-gray-600 group-hover:text-gray-400'}`} />
+                <item.icon className={`w-4 h-4 ${isActive ? 'text-[var(--accent)]' : 'text-[var(--edlink-blue-text)]/70 group-hover:text-[var(--edlink-blue-text)]/70'}`} />
                 {item.label}
               </div>
             </Link>
@@ -149,13 +149,13 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold truncate">{profile?.full_name || 'Loading...'}</p>
-            <p className={`text-[10px] font-bold uppercase tracking-wider truncate ${isSuperAdmin ? 'text-teal-400' : 'text-[var(--brand-primary)]'}`}>
+            <p className={`text-[10px] font-bold uppercase tracking-wider truncate ${isSuperAdmin ? 'text-[var(--edlink-green-brand)]' : 'text-[var(--brand-primary)]'}`}>
               {profile?.role?.replace('_', ' ') || 'Guest'}
             </p>
           </div>
           <button 
             onClick={signOut}
-            className={`p-2 rounded-lg transition-colors ${isSuperAdmin ? 'hover:bg-white/10 text-gray-400' : 'hover:bg-slate-100 text-[var(--brand-body)]'}`}
+            className={`p-2 rounded-lg transition-colors ${isSuperAdmin ? 'hover:bg-white/10 text-[var(--edlink-blue-text)]/70' : 'hover:bg-slate-100 text-[var(--brand-body)]'}`}
           >
             <LogOut className="w-4 h-4" />
           </button>

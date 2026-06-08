@@ -199,7 +199,7 @@ export default function GradebookPage() {
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-3xl font-bold mb-2 text-white">Academic <span className="gradient-text">Gradebook</span></h1>
-            <p className="text-gray-400">Institutional grade management and performance tracking.</p>
+            <p className="text-[var(--edlink-blue-text)]/70">Institutional grade management and performance tracking.</p>
           </div>
           <div className="flex gap-3">
              <button 
@@ -213,7 +213,7 @@ export default function GradebookPage() {
              <button 
                onClick={() => saveGrades('PUBLISHED')}
                disabled={isSaving || students.length === 0}
-               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-500 text-black font-bold hover:bg-teal-400 transition-all shadow-lg shadow-teal-500/20 disabled:opacity-50"
+               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--edlink-green-brand)] text-black font-bold hover:bg-[var(--edlink-green-hover)] transition-all shadow-lg shadow-teal-500/20 disabled:opacity-50"
              >
                 <CheckCircle2 className="w-4 h-4" />
                 Publish Grades
@@ -229,7 +229,7 @@ export default function GradebookPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               className={`p-4 rounded-2xl flex items-center gap-3 border ${
-                message.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                message.type === 'success' ? 'bg-[var(--edlink-green-brand)]/10 border-[var(--edlink-green-brand)]/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
               }`}
             >
               {message.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
@@ -248,7 +248,7 @@ export default function GradebookPage() {
             <select 
               value={selectedTerm}
               onChange={(e) => setSelectedTerm(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500/50 text-white appearance-none cursor-pointer"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]/50 text-white appearance-none cursor-pointer"
             >
               <option value="" className="bg-gray-900">Select Term</option>
               {terms.map(t => <option key={t.id} value={t.id} className="bg-gray-900">{t.name} {t.is_current ? '(Current)' : ''}</option>)}
@@ -262,7 +262,7 @@ export default function GradebookPage() {
             <select 
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500/50 text-white appearance-none cursor-pointer"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]/50 text-white appearance-none cursor-pointer"
             >
               <option value="" className="bg-gray-900">Select Class</option>
               {classes.map(c => <option key={c.id} value={c.id} className="bg-gray-900">{c.name}</option>)}
@@ -276,7 +276,7 @@ export default function GradebookPage() {
             <select 
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500/50 text-white appearance-none cursor-pointer"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]/50 text-white appearance-none cursor-pointer"
             >
               <option value="" className="bg-gray-900">Select Subject</option>
               {subjects.map(s => <option key={s.id} value={s.id} className="bg-gray-900">{s.name}</option>)}
@@ -288,10 +288,10 @@ export default function GradebookPage() {
         <div className="premium-card overflow-hidden">
           {isLoading ? (
             <div className="flex justify-center py-32">
-              <div className="w-12 h-12 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
+              <div className="w-12 h-12 border-4 border-[var(--edlink-green-brand)]/20 border-t-teal-500 rounded-full animate-spin" />
             </div>
           ) : students.length === 0 ? (
-            <div className="text-center py-32 text-gray-500">
+            <div className="text-center py-32 text-[var(--edlink-blue-text)]/70">
               <BookOpen className="w-16 h-16 mx-auto mb-6 opacity-20" />
               <p className="text-xl font-medium mb-2">Ready to grade?</p>
               <p className="text-sm">Select a term, class, and subject to begin entry.</p>
@@ -306,7 +306,7 @@ export default function GradebookPage() {
                       <th key={cat.id} className="p-4 section-label text-center min-w-[120px]">
                         <div className="flex flex-col items-center">
                           <span>{cat.name}</span>
-                          <span className="text-[10px] text-teal-400">{cat.weight}% Weight</span>
+                          <span className="text-[10px] text-[var(--edlink-green-brand)]">{cat.weight}% Weight</span>
                         </div>
                       </th>
                     ))}
@@ -318,12 +318,12 @@ export default function GradebookPage() {
                     <tr key={student.id} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
                       <td className="p-4 sticky left-0 bg-[#0a0f18] group-hover:bg-[#111827] z-10">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-gray-800 to-gray-700 border border-white/10 flex items-center justify-center font-bold text-xs text-gray-400">
+                          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-gray-800 to-gray-700 border border-white/10 flex items-center justify-center font-bold text-xs text-[var(--edlink-blue-text)]/70">
                             {student.full_name?.charAt(0)}
                           </div>
                           <div>
                             <p className="font-bold text-sm text-white">{student.full_name}</p>
-                            <p className="text-[10px] text-gray-500 uppercase tracking-widest">{student.custom_id}</p>
+                            <p className="text-[10px] text-[var(--edlink-blue-text)]/70 uppercase tracking-widest">{student.custom_id}</p>
                           </div>
                         </div>
                       </td>
@@ -337,11 +337,11 @@ export default function GradebookPage() {
                               value={grades[`${student.id}_${cat.id}`]?.score ?? ''}
                               onChange={(e) => handleGradeChange(student.id, cat.id, e.target.value)}
                               placeholder="—"
-                              className="w-full bg-white/5 border border-white/5 rounded-xl py-3 text-center text-sm font-bold focus:outline-none focus:border-teal-500/50 hover:bg-white/10 transition-all text-white"
+                              className="w-full bg-white/5 border border-white/5 rounded-xl py-3 text-center text-sm font-bold focus:outline-none focus:border-[var(--edlink-green-brand)]/50 hover:bg-white/10 transition-all text-white"
                             />
                             {grades[`${student.id}_${cat.id}`]?.status === 'PUBLISHED' && (
                                <div className="absolute top-1 right-1">
-                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
+                                 <div className="w-1.5 h-1.5 rounded-full bg-[var(--edlink-green-brand)] shadow-sm shadow-emerald-500/50" />
                                </div>
                             )}
                           </div>
@@ -352,7 +352,7 @@ export default function GradebookPage() {
                            <span className={`text-lg font-bold ${calculateStudentAvg(student.id) >= 70 ? 'text-emerald-400' : 'text-amber-400'}`}>
                              {calculateStudentAvg(student.id).toFixed(1)}%
                            </span>
-                           <span className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">Cumulative</span>
+                           <span className="text-[10px] text-[var(--edlink-blue-text)]/70 font-bold uppercase tracking-widest">Cumulative</span>
                         </div>
                       </td>
                     </tr>
@@ -364,10 +364,10 @@ export default function GradebookPage() {
         </div>
         
         {/* Footer info */}
-        <div className="flex items-center justify-between text-xs text-gray-500 p-4">
+        <div className="flex items-center justify-between text-xs text-[var(--edlink-blue-text)]/70 p-4">
            <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                 <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                 <div className="w-2 h-2 rounded-full bg-[var(--edlink-green-brand)]" />
                  Published
               </div>
               <div className="flex items-center gap-2">
