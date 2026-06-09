@@ -3,7 +3,8 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { GraduationCap, User, Building, ArrowRight, CheckCircle } from 'lucide-react'
+import { User, Building, ArrowRight, CheckCircle } from 'lucide-react'
+import Image from 'next/image'
 
 export default function SignupPage() {
   const [step, setStep] = useState(1)
@@ -67,8 +68,8 @@ export default function SignupPage() {
       >
         <div className="text-center mb-10">
           <Link href="/" className="inline-flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-[var(--brand-primary)] rounded-2xl flex items-center justify-center shadow-lg shadow-[var(--brand-primary)]/20">
-              <GraduationCap className="text-white w-7 h-7" />
+            <div className="w-12 h-12 bg-[var(--brand-primary)] rounded-2xl flex items-center justify-center shadow-lg shadow-[var(--brand-primary)]/20 overflow-hidden">
+              <Image src="/craft-logo.png" alt="CRAFT SMS Logo" width={48} height={48} className="object-cover" />
             </div>
             <span className="text-3xl font-bold tracking-tight text-[var(--brand-heading)]">CRAFT <span className="text-[var(--brand-primary)]">SMS</span></span>
           </Link>

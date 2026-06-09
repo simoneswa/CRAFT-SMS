@@ -154,7 +154,7 @@ async def get_classes(
     db: DatabaseProvider = Depends(get_db_provider),
 ):
     school_id = user["profile"]["school_id"]
-    return await db.fetch_many("classes", {"school_id": school_id})
+    return await db.fetch_many("academic_classes", {"school_id": school_id})
 
 
 @router.post("/classes")
@@ -163,7 +163,7 @@ async def create_class(
     user=Depends(RoleChecker(["SCHOOL_ADMIN"])),
     db: DatabaseProvider = Depends(get_db_provider),
 ):
-    new_class = await db.insert("classes", {
+    new_class = await db.insert("academic_classes", {
         **req.dict(),
         "school_id": user["profile"]["school_id"]
     })

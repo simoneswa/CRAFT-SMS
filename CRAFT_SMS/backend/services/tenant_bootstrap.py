@@ -86,7 +86,7 @@ async def bootstrap_new_tenant(school_id: str, db: DatabaseProvider) -> Dict[str
     # ── 3. Default Classes ──────────────────────────────────────────────
     for cls in DEFAULT_CLASSES:
         try:
-            row = await db.insert("classes", {**cls, "school_id": school_id})
+            row = await db.insert("academic_classes", {**cls, "school_id": school_id})
             report["classes"].append(row)
         except Exception as exc:
             report["errors"].append(f"classes ({cls['name']}): {exc}")

@@ -31,7 +31,7 @@ if not NEON_DSN:
 ACADEMIC_TABLES = [
     "academic_terms",
     "subjects",
-    "classes",
+    "academic_classes",
     "enrollments",
     "class_subjects",
     "grade_categories",
@@ -39,7 +39,7 @@ ACADEMIC_TABLES = [
 ]
 
 ALL_TABLES = [
-    "profiles", "schools", "academic_terms", "subjects", "classes",
+    "profiles", "schools", "academic_terms", "subjects", "academic_classes",
     "enrollments", "class_subjects", "grade_categories", "grades",
     "attendance", "slips", "messages", "notifications", "audit_logs",
 ]
@@ -155,7 +155,7 @@ async def seed_schools(conn) -> dict:
         class_ids = []
         for cname, glevel in classes_data:
             row = await conn.fetchrow("""
-                INSERT INTO classes (school_id, name, grade_level)
+                INSERT INTO academic_classes (school_id, name, grade_level)
                 VALUES ($1, $2, $3) RETURNING id;
             """, school["id"], cname, glevel)
             class_ids.append(row["id"])
@@ -216,7 +216,7 @@ async def route_contract_tests(conn) -> list:
          ()),
 
         ("GET /academic/classes",
-         "SELECT * FROM classes WHERE school_id = (SELECT id FROM schools LIMIT 1);",
+         "SELECT * FROM academic_classes WHERE school_id = (SELECT id FROM schools LIMIT 1);",
          ()),
 
         ("GET /academic/grades/my",
