@@ -40,12 +40,13 @@ export default function CommunicationCenter() {
   const loadInitialData = async () => {
     setIsLoading(true)
     try {
-      // 1. Fetch relevant contacts with mock data fallback
-      const mockContacts = [
-        { id: '1', full_name: 'Jane Smith', role: 'teacher', avatar_url: null, custom_id: 'TEACH001' },
-        { id: '2', full_name: 'John Doe', role: 'admin', avatar_url: null, custom_id: 'ADMIN001' },
-      ]
-      setContacts(mockContacts)
+      // 1. Fetch relevant contacts
+      try {
+        const contactData = await fetchAPI('/messages/contacts')
+        setContacts(Array.isArray(contactData) ? contactData : [])
+      } catch {
+        setContacts([])
+      }
       
       // 2. Fetch Broadcasts
       try {
@@ -65,11 +66,10 @@ export default function CommunicationCenter() {
     if (selectedContact && profile?.id) {
       loadMessages(selectedContact.id)
       
-      // Realtime subscription mocked - messages will be loaded via API
-      // In production, this would use Firebase realtime database or Firestore
+      // Polling for new messages since realtime is not yet implemented
       const timer = setInterval(() => {
         loadMessages(selectedContact.id)
-      }, 5000) // Poll every 5 seconds for demo
+      }, 5000) // Poll every 5 seconds
       
       return () => clearInterval(timer)
     }
@@ -155,21 +155,27 @@ export default function CommunicationCenter() {
               
               <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
                  {activeTab === 'CHAT' ? (
-                    contacts.map(contact => (
-                       <button
-                         key={contact.id}
-                         onClick={() => setSelectedContact(contact)}
-                         className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${selectedContact?.id === contact.id ? 'bg-[var(--edlink-green-brand)]/10 border border-[var(--edlink-green-brand)]/20' : 'hover:bg-white/5 border border-transparent'}`}
-                       >
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-gray-800 to-gray-700 border border-white/10 flex items-center justify-center font-bold text-xs text-[var(--edlink-blue-text)]/70 shrink-0">
-                             {contact.full_name?.charAt(0)}
-                          </div>
-                          <div className="text-left min-w-0">
-                             <p className="font-bold text-sm text-white truncate">{contact.full_name}</p>
-                             <p className="text-[10px] text-[var(--edlink-blue-text)]/70 uppercase font-bold tracking-widest">{contact.role}</p>
-                          </div>
-                       </button>
-                    ))
+                    contacts.length === 0 ? (
+                       <div className="text-center py-6 text-xs text-[var(--edlink-blue-text)]/50">
+                         No contacts available.
+                       </div>
+                    ) : (
+                      contacts.map(contact => (
+                         <button
+                           key={contact.id}
+                           onClick={() => setSelectedContact(contact)}
+                           className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${selectedContact?.id === contact.id ? 'bg-[var(--edlink-green-brand)]/10 border border-[var(--edlink-green-brand)]/20' : 'hover:bg-white/5 border border-transparent'}`}
+                         >
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-gray-800 to-gray-700 border border-white/10 flex items-center justify-center font-bold text-xs text-[var(--edlink-blue-text)]/70 shrink-0">
+                               {contact.full_name?.charAt(0) || '?'}
+                            </div>
+                            <div className="text-left min-w-0">
+                               <p className="font-bold text-sm text-white truncate">{contact.full_name}</p>
+                               <p className="text-[10px] text-[var(--edlink-blue-text)]/70 uppercase font-bold tracking-widest">{contact.role}</p>
+                            </div>
+                         </button>
+                      ))
+                    )
                  ) : (
                     broadcasts.map(bc => (
                        <button

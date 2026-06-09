@@ -4,6 +4,7 @@ import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
 import { useAuth } from '../../../providers/AuthProvider'
 import { useState, useEffect } from 'react'
 import { BarChart3, TrendingUp, Users, Building2 } from 'lucide-react'
+import { fetchAPI } from '../../../lib/api'
 
 export default function AnalyticsPage() {
   const { profile } = useAuth()
@@ -17,16 +18,15 @@ export default function AnalyticsPage() {
       try {
         setIsLoading(true)
 
-        // Mock stats - in production these would come from the API
-        const mockStats = {
-          schools: 12,
-          students: 456,
-          slips: 89,
-        }
-
+        // Fetch real stats from API
+        const realStats = await fetchAPI('/auth/admin/stats')
         if (!isMounted) return
 
-        setStats(mockStats)
+        setStats({
+          schools: realStats?.schools || 0,
+          students: realStats?.students || 0,
+          slips: realStats?.slips || 0,
+        })
       } catch (err) {
         console.warn('Analytics fetch failed; falling back to zeroed stats.', err)
         if (!isMounted) return

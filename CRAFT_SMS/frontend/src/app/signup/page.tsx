@@ -26,20 +26,24 @@ export default function SignupPage() {
          throw new Error("Please fill out all required fields.")
       }
 
-      // Mock school registration
-      const schoolData = {
-        name: formData.institutionName,
-        subdomain: formData.institutionName.toLowerCase().replace(/[^a-z0-9]/g, ''),
-        branding: {
+      // Real API call to request tenant creation
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/tenants/request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.institutionName,
+          subdomain: formData.institutionName.toLowerCase().replace(/[^a-z0-9]/g, ''),
+          contact_email: formData.email,
           contact_name: formData.fullName,
-          contact_email: formData.email
-        },
-        is_active: false
+          notes: 'Signed up via landing page'
+        })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Failed to submit request.");
       }
-      
-      // In production, this would call the API
-      console.log('School registration:', schoolData)
-      
+
       setIsSuccess(true)
     } catch (err: any) {
       setError(err.message || 'An error occurred during onboarding request.')

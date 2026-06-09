@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Trophy, Zap, Clock, ChevronRight, AlertTriangle } from 'lucide-react';
 import { useTenant } from '../../providers/TenantProvider';
+import { fetchAPI } from '../../lib/api';
 
 export function StudentWidget() {
   const [grades, setGrades] = useState<any[]>([]);
@@ -13,13 +14,8 @@ export function StudentWidget() {
       if (!school) return;
       try {
         setIsLoading(true);
-        // Mock data: Replace with actual API call if needed
-        const mockGrades = [
-          { id: '1', score: 85, max_score: 100, class_subject_id: 'ti25i-os' },
-          { id: '2', score: 92, max_score: 100, class_subject_id: 'ti25i-prog' },
-          { id: '3', score: 78, max_score: 100, class_subject_id: 'ti25i-math' },
-        ];
-        setGrades(mockGrades);
+        const realGrades = await fetchAPI('/academic/grades/my');
+        setGrades(Array.isArray(realGrades) ? realGrades : []);
       } catch (err: any) {
         setError(err.message || 'Failed to load student data');
       } finally {
@@ -53,7 +49,7 @@ export function StudentWidget() {
               <p className="text-sm text-[var(--edlink-blue-text)]/70">Progress data unavailable.</p>
             </div>
           ) : grades.length === 0 ? (
-            <p className="text-center text-sm text-[var(--edlink-blue-text)]/70 py-4">No recent grades available.</p>
+            <p className="text-center text-sm text-[var(--edlink-blue-text)]/70 py-4">No grades available yet.</p>
           ) : (
             <div className="space-y-4">
               {grades.map((item, i) => {
@@ -87,7 +83,7 @@ export function StudentWidget() {
           </div>
           <div className="p-4 rounded-2xl bg-purple-500/5 border border-purple-500/10 hover:bg-purple-500/10 transition-colors cursor-pointer group">
             <Trophy className="w-5 h-5 text-purple-400 mb-3 group-hover:scale-110 transition-transform" />
-            <p className="text-xl font-bold text-white mb-1">Top 10%</p>
+            <p className="text-xl font-bold text-white mb-1">—</p>
             <p className="text-[10px] font-bold text-purple-500/70 uppercase tracking-widest">Class Ranking</p>
           </div>
         </div>

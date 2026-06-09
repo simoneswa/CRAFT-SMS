@@ -40,7 +40,7 @@ export default function GradebookPage() {
     setIsLoading(true)
     try {
       // Fetch all students for this school via backend API
-      const data = await fetchAPI(`/academic/students?school_id=${school?.id}&role=STUDENT`).catch(() => [])
+      const data = await fetchAPI('/admin/users?role=STUDENT').catch(() => [])
       const studentList = Array.isArray(data) ? data : []
       setStudents(studentList)
       

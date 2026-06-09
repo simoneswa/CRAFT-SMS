@@ -4,12 +4,13 @@ routes/tenants.py
 Tenant management endpoints — fully migrated to DatabaseProvider.
 No Supabase SDK imports.
 """
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from pydantic import BaseModel
 from typing import Optional
 from repositories import get_db_provider, DatabaseProvider
 from core.security import RoleChecker, get_current_user
 from core.audit import log_audit_event
+from services.tenant_bootstrap import bootstrap_new_tenant
 
 router = APIRouter()
 
@@ -20,9 +21,17 @@ class SchoolCreate(BaseModel):
     branding: dict = None
 
 
+@router.get("/")
+async def list_tenants(
+    db: DatabaseProvider = Depends(get_db_provider),
+):
+    return await db.fetch_many("schools", filters={"is_active": True})
+
+
 @router.post("/schools")
 async def create_school(
     req: SchoolCreate,
+    background_tasks: BackgroundTasks,
     user=Depends(RoleChecker(["SUPER_ADMIN"])),
     db: DatabaseProvider = Depends(get_db_provider),
 ):
@@ -44,6 +53,10 @@ async def create_school(
             target_id=new_school_id,
             additional_metadata={"name": req.name, "subdomain": req.subdomain},
         )
+
+        # Provision default academic structure in the background
+        background_tasks.add_task(bootstrap_new_tenant, school_id=new_school_id, db=db)
+
         return new_school
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc))

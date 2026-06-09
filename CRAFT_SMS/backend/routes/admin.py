@@ -22,6 +22,20 @@ class InviteUserReq(BaseModel):
     school_id: Optional[str] = None  # Optional for Super Admins
 
 
+@router.get("/users")
+async def get_users(
+    role: Optional[str] = None,
+    user=Depends(RoleChecker(["SUPER_ADMIN", "SCHOOL_ADMIN", "TEACHER", "BUSINESS", "REGISTRAR"])),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
+    filters = {}
+    if user["profile"]["role"] != "SUPER_ADMIN":
+        filters["school_id"] = user["profile"]["school_id"]
+    if role:
+        filters["role"] = role
+    return await db.fetch_many("profiles", filters=filters)
+
+
 @router.post("/invite")
 async def invite_user(
     req: InviteUserReq,

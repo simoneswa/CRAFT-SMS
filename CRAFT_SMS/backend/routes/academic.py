@@ -11,6 +11,16 @@ from core.security import RoleChecker, get_current_user
 from repositories import get_db_provider, DatabaseProvider
 from core.audit import log_audit_event
 
+class GradeEntry(BaseModel):
+    student_id: str
+    subject: str
+    score: float
+    max_score: Optional[float] = 100.0
+    term: Optional[str] = "First Term"
+
+class GradeBatch(BaseModel):
+    grades: List[GradeEntry]
+
 router = APIRouter()
 
 
@@ -441,6 +451,70 @@ async def get_student_report_card(
         "subjects": report_data,
         "overall_average": round(final_avg, 2),
         "status": "FINALIZED" if subject_count > 0 else "INCOMPLETE"
+    }
+
+
+@router.get("/grades/my")
+async def get_my_grades(
+    term_id: Optional[str] = None,
+    user=Depends(RoleChecker(["STUDENT"])),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
+    school_id = user["profile"]["school_id"]
+    student_id = user["profile"]["id"]
+    filters = {"student_id": student_id, "school_id": school_id}
+    if term_id:
+        filters["academic_term_id"] = term_id
+    
+    grades = await db.fetch_many("grades", filters)
+    enriched = []
+    for g in grades:
+        cs_id = g.get("class_subject_id")
+        cs = None
+        subject = None
+        if cs_id:
+            cs = await db.fetch_one("class_subjects", {"id": cs_id})
+            if cs and cs.get("subject_id"):
+                subject = await db.fetch_one("subjects", {"id": cs["subject_id"]})
+
+        enriched.append({
+            **g,
+            "class_subjects": {
+                "subjects": {
+                    "name": subject.get("name") if subject else None
+                } if subject else None
+            } if cs else None
+        })
+    return enriched
+
+
+@router.post("/grades/batch")
+async def submit_grades_batch(
+    batch: GradeBatch,
+    user=Depends(RoleChecker(["TEACHER", "SCHOOL_ADMIN"])),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
+    school_id = user["profile"]["school_id"]
+
+    results = []
+    for entry in batch.grades:
+        try:
+            row = await db.insert("grades", {
+                "school_id":  school_id,
+                "student_id": entry.student_id,
+                "subject":    entry.subject,
+                "score":      entry.score,
+                "max_score":  entry.max_score,
+                "term":       entry.term,
+                "graded_by":  user["profile"]["id"],
+            })
+            results.append(row)
+        except Exception as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    return {
+        "message": f"Successfully submitted {len(results)} grades",
+        "data":    results,
     }
 
 

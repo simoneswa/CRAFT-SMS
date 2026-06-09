@@ -47,7 +47,7 @@ export default function TenantsPage() {
     setError(null)
     
     try {
-      await fetchAPI('/tenants', {
+      await fetchAPI('/tenants/schools', {
         method: 'POST',
         body: JSON.stringify({
           name: formData.name,

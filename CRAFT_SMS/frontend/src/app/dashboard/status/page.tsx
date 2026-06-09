@@ -3,25 +3,36 @@
 import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
 import { useState, useEffect } from 'react'
 import { Building2, CheckCircle2, XCircle, Clock } from 'lucide-react'
+import { fetchAPI } from '../../../lib/api'
 
 export default function SchoolStatusPage() {
   const [schools, setSchools] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Mock schools data
-    const mockSchools = [
-      { id: '1', name: 'Central High School', subdomain: 'central-high', is_active: true, created_at: '2024-01-15' },
-      { id: '2', name: 'Riverside Academy', subdomain: 'riverside-academy', is_active: true, created_at: '2024-02-20' },
-    ]
-    setSchools(mockSchools)
-    setIsLoading(false)
+    const loadSchools = async () => {
+      try {
+        const data = await fetchAPI('/tenants')
+        setSchools(Array.isArray(data) ? data : [])
+      } catch (err) {
+        setSchools([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadSchools()
   }, [])
 
   const toggleStatus = async (id: string, current: boolean) => {
-    // Mock status update
-    console.log('Toggling status for school:', id)
-    setSchools(prev => prev.map(s => s.id === id ? { ...s, is_active: !current } : s))
+    try {
+      await fetchAPI(`/tenants/${id}/status`, { 
+        method: 'PATCH',
+        body: JSON.stringify({ is_active: !current })
+      })
+      setSchools(prev => prev.map(s => s.id === id ? { ...s, is_active: !current } : s))
+    } catch (err) {
+      console.error('Failed to toggle status:', err)
+    }
   }
 
   return (

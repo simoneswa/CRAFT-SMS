@@ -34,7 +34,7 @@ export function SuperAdminOverview() {
     try {
       // Query backend API — data comes from Neon PostgreSQL via Cloud Run
       const [statsRes, logsRes] = await Promise.allSettled([
-        fetchAPI('/admin/stats', { method: 'GET' }),
+        fetchAPI('/auth/admin/stats', { method: 'GET' }),
         fetchAPI('/admin/audit-logs?limit=10', { method: 'GET' }),
       ])
 

@@ -30,6 +30,18 @@ class BroadcastCreate(BaseModel):
     is_emergency: bool = False
 
 
+@router.get("/contacts")
+async def get_contacts(
+    user=Depends(get_current_user),
+    db: DatabaseProvider = Depends(get_db_provider),
+):
+    school_id = user["profile"]["school_id"]
+    my_id = user["profile"]["id"]
+    
+    profiles = await db.fetch_many("profiles", filters={"school_id": school_id})
+    return [p for p in profiles if p["id"] != my_id]
+
+
 @router.post("/direct")
 async def send_direct_message(
     msg: MessageCreate,

@@ -4,6 +4,7 @@ import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
 import { useAuth } from '../../../providers/AuthProvider'
 import { useState } from 'react'
 import { Megaphone, Send } from 'lucide-react'
+import { fetchAPI } from '../../../lib/api'
 
 export default function AnnouncementsPage() {
   const { profile } = useAuth()
@@ -16,8 +17,15 @@ export default function AnnouncementsPage() {
     if (!content.trim()) return
     setIsPosting(true)
     try {
-      // Mock announcement posting
-      console.log('Posting announcement:', { author_id: profile?.id, content, is_global: isGlobal })
+      await fetchAPI('/messages/broadcasts', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: isGlobal ? 'Global Announcement' : 'School Announcement',
+          content: content,
+          target_roles: isGlobal ? ['STUDENT', 'TEACHER', 'PARENT', 'SCHOOL_ADMIN'] : ['SCHOOL_ADMIN'],
+          is_emergency: false
+        })
+      })
       setContent('')
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)

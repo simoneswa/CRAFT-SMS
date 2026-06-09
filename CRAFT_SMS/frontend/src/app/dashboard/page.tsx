@@ -6,9 +6,26 @@ import { Search, Building2, ArrowRight, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '../../providers/AuthProvider'
 import { SuperAdminOverview } from '../../components/admin/SuperAdminOverview'
+import { fetchAPI } from '../../lib/api'
 
 export default function DashboardPage() {
   const { profile, isLoading } = useAuth()
+
+  const [schools, setSchools] = React.useState<any[]>([])
+
+  React.useEffect(() => {
+    const loadSchools = async () => {
+      try {
+        const data = await fetchAPI('/tenants')
+        setSchools(Array.isArray(data) ? data : [])
+      } catch (err) {
+        setSchools([])
+      }
+    }
+    if (!isLoading && profile?.role !== 'SUPER_ADMIN') {
+      loadSchools()
+    }
+  }, [isLoading, profile])
 
   if (isLoading) return null
 
@@ -56,13 +73,15 @@ export default function DashboardPage() {
             Access your school&apos;s dedicated portal. View grades, attendance, and pay fees through your specific subdomain.
           </p>
           <div className="flex flex-col gap-3">
-              {['St. Edwards High', 'Monrovia Academy', 'Liberia Int. School'].map((school, i) => (
+              {schools.length === 0 ? (
+                <div className="p-4 text-[var(--edlink-blue-text)]/70 text-sm">No schools available.</div>
+              ) : schools.map((school, i) => (
                <button 
                  key={i} 
-                 onClick={() => alert(`Access to ${school} is currently restricted. Please use your direct school link.`)}
+                 onClick={() => alert(`Access to ${school.name} is currently restricted. Please use your direct school link.`)}
                  className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors w-full text-left"
                >
-                  <span className="font-medium">{school}</span>
+                  <span className="font-medium">{school.name}</span>
                   <ArrowRight className="w-4 h-4 text-[var(--edlink-blue-text)]/70" />
                </button>
              ))}

@@ -4,6 +4,8 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Mail, ShieldCheck, AlertTriangle } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { sendPasswordResetEmail } from 'firebase/auth'
+import { auth } from '../../lib/firebase'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -22,8 +24,8 @@ export default function ForgotPasswordPage() {
         throw new Error('Please enter a valid email address')
       }
 
-      // Mock password reset flow
-      console.log('Password reset requested for:', email)
+      // Real Firebase password reset flow
+      await sendPasswordResetEmail(auth, email)
       
       setSuccess('If an account exists for that email, we have sent password reset instructions. Please check your inbox.')
     } catch (err: any) {

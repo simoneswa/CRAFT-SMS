@@ -14,7 +14,7 @@ export default function NewsFeedPage() {
 
   useEffect(() => {
     if (school?.id) {
-      fetchAPI(`/tenants/schools/${school.id}/news`)
+      fetchAPI('/messages/broadcasts')
         .then((data) => {
           setNews(data || [])
         })

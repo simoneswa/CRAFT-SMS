@@ -29,10 +29,7 @@ export function NotificationBell() {
       } catch (err) {
         // Non-fatal: keep dashboard interactive even if notifications endpoint fails
         console.warn('Failed to fetch notifications. The table might be missing or restricted.', err)
-        // Mock notifications fallback
-        safeSetNotifications([
-          { id: '1', type: 'assignment', title: 'Quiz #11 Available', message: 'Discrete Mathematics', created_at: new Date().toISOString() },
-        ])
+        safeSetNotifications([])
       }
     }
 
