@@ -26,7 +26,7 @@ class CloudSQLDatabaseProvider:
     Pool is initialised lazily on first use and reused across requests.
     """
 
-    _pool = None  # asyncpg.Pool — shared singleton
+    _pools: dict = {}  # asyncpg.Pool per event loop
 
     def __init__(self) -> None:
         # DSN is resolved at first query; pool is shared across instances
@@ -42,15 +42,17 @@ class CloudSQLDatabaseProvider:
     # Pool lifecycle
     # ------------------------------------------------------------------
     async def _get_pool(self):
-        if CloudSQLDatabaseProvider._pool is None:
+        import asyncio
+        loop = asyncio.get_running_loop()
+        if loop not in CloudSQLDatabaseProvider._pools:
             import asyncpg
-            CloudSQLDatabaseProvider._pool = await asyncpg.create_pool(
+            CloudSQLDatabaseProvider._pools[loop] = await asyncpg.create_pool(
                 dsn=self._dsn,
                 min_size=2,
                 max_size=10,
                 command_timeout=30,
             )
-        return CloudSQLDatabaseProvider._pool
+        return CloudSQLDatabaseProvider._pools[loop]
 
     # ------------------------------------------------------------------
     # Internal SQL builder (minimal — expands as needed during Phase B)
@@ -142,6 +144,14 @@ class CloudSQLDatabaseProvider:
     @classmethod
     async def close_pool(cls) -> None:
         """Call on application shutdown to release connections gracefully."""
-        if cls._pool:
-            await cls._pool.close()
-            cls._pool = None
+        import asyncio
+        try:
+            loop = asyncio.get_running_loop()
+            pool = cls._pools.pop(loop, None)
+            if pool:
+                await pool.close()
+        except RuntimeError:
+            # If no running loop, close all pools we can
+            for pool in list(cls._pools.values()):
+                await pool.close()
+            cls._pools.clear()
