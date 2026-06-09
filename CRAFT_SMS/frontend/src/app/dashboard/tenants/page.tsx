@@ -14,6 +14,7 @@ import {
   X
 } from 'lucide-react'
 import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
+import { fetchAPI } from '../../../lib/api'
 
 export default function TenantsPage() {
   const [schools, setSchools] = useState<any[]>([])
@@ -31,13 +32,8 @@ export default function TenantsPage() {
   const fetchSchools = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('schools')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setSchools(data || [])
+      const data = await fetchAPI('/tenants', { method: 'GET' })
+      setSchools(Array.isArray(data) ? data : [])
     } catch (err) {
       console.error('Error fetching schools:', err)
     } finally {
@@ -51,22 +47,15 @@ export default function TenantsPage() {
     setError(null)
     
     try {
-      // Insert directly via Supabase — RLS policy "Super Admins can manage all schools" permits this.
-      // The backend API route is bypassed because:
-      //   1. SUPABASE_SERVICE_ROLE_KEY is missing from the Railway backend
-      //   2. Backend .env points to a different Supabase project than the frontend
-      const { data, error: insertError } = await supabase
-        .from('schools')
-        .insert({
+      await fetchAPI('/tenants', {
+        method: 'POST',
+        body: JSON.stringify({
           name: formData.name,
           subdomain: formData.subdomain.toLowerCase(),
           is_active: true,
           branding: { primary_color: '#0D9488', secondary_color: '#111827' }
         })
-        .select()
-        .single()
-
-      if (insertError) throw insertError
+      })
       
       setIsModalOpen(false)
       setFormData({ name: '', subdomain: '' })

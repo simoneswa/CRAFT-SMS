@@ -6,9 +6,9 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 if (!API_BASE_URL) {
   console.error(`
 [CRAFT SMS] CRITICAL: NEXT_PUBLIC_API_URL is missing!
-  API calls will likely fail. Ensure your Vercel deployment has 
-  NEXT_PUBLIC_API_URL set to your Railway backend URL.
-  (e.g., https://craft-backend.up.railway.app/api)
+  API calls will likely fail. Ensure your deployment has 
+  NEXT_PUBLIC_API_URL set to your Cloud Run backend URL.
+  (e.g., https://craft-sms-backend-XXXXX-uc.a.run.app/api)
 `)
 }
 

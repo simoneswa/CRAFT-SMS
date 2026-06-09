@@ -80,28 +80,6 @@ jobs:
           echo "API enablement step complete."
 
       # ----------------------------------------------------------------
-      # 3. Build frontend
-      # ----------------------------------------------------------------
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install pnpm and frontend dependencies
-        run: |
-          corepack enable
-          corepack prepare pnpm@latest --activate
-          pnpm install --no-frozen-lockfile
-        working-directory: ./CRAFT_SMS/frontend
-
-      - name: Build frontend
-        run: pnpm build
-        working-directory: ./CRAFT_SMS/frontend
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-
-      # ----------------------------------------------------------------
       # 4. Build and push backend Docker image directly (no Cloud Build)
       # ----------------------------------------------------------------
       - name: Build backend Docker image
@@ -135,8 +113,8 @@ jobs:
             --allow-unauthenticated \
             --service-account="craft-sms-backend@${PROJECT}.iam.gserviceaccount.com" \
             --concurrency=20 \
-            --set-env-vars="GCP_PROJECT=${PROJECT},DB_PROVIDER=cloudsql,FIREBASE_PROJECT_ID=${FIREBASE_PID},FIREBASE_STORAGE_BUCKET=${FIREBASE_PID}.firebasestorage.app,FIREBASE_AUTH_JWT_AUD=${FIREBASE_PID},FIREBASE_AUTH_JWT_ISS=https://securetoken.google.com/${FIREBASE_PID}" \
-            --update-secrets="CLOUD_SQL_DATABASE_URL=CLOUD_SQL_DATABASE_URL:latest,FIREBASE_SERVICE_ACCOUNT_JSON=FIREBASE_SERVICE_ACCOUNT_JSON:latest,ALLOWED_ORIGINS=ALLOWED_ORIGINS:latest" \
+            --set-env-vars="GCP_PROJECT=${PROJECT},DB_PROVIDER=neon,FIREBASE_PROJECT_ID=${FIREBASE_PID},FIREBASE_STORAGE_BUCKET=${FIREBASE_PID}.firebasestorage.app,FIREBASE_AUTH_JWT_AUD=${FIREBASE_PID},FIREBASE_AUTH_JWT_ISS=https://securetoken.google.com/${FIREBASE_PID}" \
+            --update-secrets="DATABASE_URL=NEON_DATABASE_URL:latest,FIREBASE_SERVICE_ACCOUNT_JSON=FIREBASE_SERVICE_ACCOUNT_JSON:latest,ALLOWED_ORIGINS=ALLOWED_ORIGINS:latest" \
             --min-instances=1 \
             --max-instances=10 \
             --memory=512Mi \
@@ -144,6 +122,45 @@ jobs:
             --timeout=60 \
             --port=8080 \
             --project="$PROJECT"
+
+      # ----------------------------------------------------------------
+      # 5b. Capture Cloud Run URL for Frontend Build
+      # ----------------------------------------------------------------
+      - name: Get Cloud Run URL
+        id: get-url
+        run: |
+          URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} --format='value(status.url)' --project=${{ secrets.GCP_PROJECT_ID }} --region=${{ env.GCP_REGION }})
+          echo "BACKEND_URL=$URL" >> $GITHUB_OUTPUT
+
+      # ----------------------------------------------------------------
+      # 3. Build frontend (Moved after Backend Deploy to get URL)
+      # ----------------------------------------------------------------
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm and frontend dependencies
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+          pnpm install --no-frozen-lockfile
+        working-directory: ./CRAFT_SMS/frontend
+
+      - name: Build frontend
+        run: pnpm build
+        working-directory: ./CRAFT_SMS/frontend
+        env:
+          # Strictly pointing to the Cloud Run Backend URL
+          NEXT_PUBLIC_API_URL: ${{ steps.get-url.outputs.BACKEND_URL }}
+          NEXT_PUBLIC_ROOT_DOMAIN: craft-sms-5bb1c.web.app
+          NEXT_PUBLIC_FIREBASE_API_KEY: AIzaSyA0DV6kD9T3JeS8DN8fIkUcg8qKE5J-iGc
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: craft-sms-5bb1c.firebaseapp.com
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: craft-sms-5bb1c
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: craft-sms-5bb1c.firebasestorage.app
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "885085013969"
+          NEXT_PUBLIC_FIREBASE_APP_ID: 1:885085013969:web:c9f83645e32ef0582602f0
+          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: G-TWD2F8DS7Z
 
       # ----------------------------------------------------------------
       # 6. Smoke test /health

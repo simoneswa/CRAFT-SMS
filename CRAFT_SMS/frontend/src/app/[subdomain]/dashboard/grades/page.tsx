@@ -39,20 +39,14 @@ export default function GradebookPage() {
   const fetchStudents = async () => {
     setIsLoading(true)
     try {
-      // Fetch all students for this school
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, full_name, custom_id')
-        .eq('school_id', school?.id)
-        .eq('role', 'STUDENT')
-        .order('full_name', { ascending: true })
-
-      if (error) throw error
-      setStudents(data || [])
+      // Fetch all students for this school via backend API
+      const data = await fetchAPI(`/academic/students?school_id=${school?.id}&role=STUDENT`).catch(() => [])
+      const studentList = Array.isArray(data) ? data : []
+      setStudents(studentList)
       
       // Reset local grade states when fetching new students
       const initialGrades: Record<string, string> = {}
-      data?.forEach(s => {
+      studentList.forEach((s: any) => {
         initialGrades[s.id] = ''
       })
       setGrades(initialGrades)

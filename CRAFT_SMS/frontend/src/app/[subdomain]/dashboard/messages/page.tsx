@@ -66,7 +66,7 @@ export default function CommunicationCenter() {
       loadMessages(selectedContact.id)
       
       // Realtime subscription mocked - messages will be loaded via API
-      // In production, this would use Supabase realtime channels
+      // In production, this would use Firebase realtime database or Firestore
       const timer = setInterval(() => {
         loadMessages(selectedContact.id)
       }, 5000) // Poll every 5 seconds for demo

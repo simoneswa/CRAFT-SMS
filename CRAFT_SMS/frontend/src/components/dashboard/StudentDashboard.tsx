@@ -44,7 +44,10 @@ export default function StudentDashboard() {
     let isMounted = true
 
     async function loadStudentData() {
-      if (!profile?.id) return
+      if (!profile?.id) {
+        if (isMounted) setIsLoading(false)
+        return
+      }
       setIsLoading(true)
 
       try {

@@ -55,9 +55,9 @@ export default function GuidesPage() {
           <ul className="list-disc pl-6 mb-4 text-slate-600 space-y-1">
             <li>Node.js 20+</li>
             <li>PostgreSQL</li>
-            <li>Supabase Project</li>
-            <li>Railway or VPS deployment</li>
-            <li>Modern browser</li>
+            <li>Firebase Project</li>
+            <li>Neon PostgreSQL</li>
+            <li>Google Cloud Run</li>
           </ul>
           <p className="mb-2 leading-relaxed text-slate-600 font-semibold">Installation Steps:</p>
           <ol className="list-decimal pl-6 mb-4 text-slate-600 space-y-1">
@@ -82,9 +82,9 @@ export default function GuidesPage() {
           <ul className="list-disc pl-6 mb-4 text-slate-600 space-y-1">
             <li>Frontend: Next.js</li>
             <li>Backend: FastAPI</li>
-            <li>Database: PostgreSQL</li>
-            <li>Realtime: Supabase</li>
-            <li>Auth: JWT + RLS</li>
+            <li>Database: Neon PostgreSQL</li>
+            <li>Realtime: Firebase</li>
+            <li>Auth: Firebase Auth + ID Tokens</li>
             <li>Offline Cache: IndexedDB</li>
             <li>Sync Engine: Service Worker Layer</li>
           </ul>
@@ -124,7 +124,7 @@ export default function GuidesPage() {
           <ul className="list-disc pl-6 mb-6 text-slate-600 space-y-2">
             <li><strong>Authentication:</strong> JWT Access Tokens, Refresh Tokens, Role-based permissions, Session isolation, Secure cookie storage.</li>
             <li><strong>Data Protection:</strong> HTTPS encryption, Database isolation, API validation, Rate limiting, Device fingerprint monitoring, Audit logging.</li>
-            <li><strong>Frontend Variables:</strong> NEXT_PUBLIC_API_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY.</li>
+            <li><strong>Frontend Variables:</strong> NEXT_PUBLIC_API_URL, NEXT_PUBLIC_FIREBASE_API_KEY, etc.</li>
           </ul>
         </section>
 

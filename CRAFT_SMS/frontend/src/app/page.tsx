@@ -57,10 +57,10 @@ const features = [
 ]
 
 const stats = [
-  { value: '128+', label: 'Schools Onboarded' },
+  { value: 'Secure', label: 'Cloud Infrastructure' },
   { value: '99.9%', label: 'Platform Uptime' },
-  { value: '21,406', label: 'Students Managed' },
-  { value: '4.9★', label: 'Average Rating' },
+  { value: 'Real-time', label: 'Student Management' },
+  { value: '24/7', label: 'Support Access' },
 ]
 
 export default function LandingPage() {
@@ -147,6 +147,21 @@ export default function LandingPage() {
                 </button>
               </Link>
             </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="mt-16 md:mt-24 relative max-w-5xl mx-auto"
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-surface)] via-transparent to-transparent z-10 top-1/2"></div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src="/hero-student.jpg" 
+              alt="Students collaborating" 
+              className="w-full h-auto object-cover rounded-3xl shadow-2xl border border-slate-200" 
+            />
           </motion.div>
         </div>
       </section>
@@ -238,16 +253,16 @@ export default function LandingPage() {
               <p className="text-sm uppercase tracking-[0.3em] text-[var(--brand-primary)] font-bold mb-4">Live in 3 regions</p>
               <div className="space-y-5">
                 <div className="rounded-3xl bg-[#effaf5] p-5">
-                  <p className="text-sm text-slate-600">Students managed</p>
-                  <p className="mt-2 text-4xl font-bold text-slate-900">21,406</p>
+                  <p className="text-sm text-slate-600">Student Management</p>
+                  <p className="mt-2 text-3xl font-bold text-slate-900">Effortless</p>
                 </div>
                 <div className="rounded-3xl bg-[#faf7ef] p-5">
-                  <p className="text-sm text-slate-600">Active school networks</p>
-                  <p className="mt-2 text-4xl font-bold text-slate-900">128+</p>
+                  <p className="text-sm text-slate-600">School Networks</p>
+                  <p className="mt-2 text-3xl font-bold text-slate-900">Scalable</p>
                 </div>
                 <div className="rounded-3xl bg-[#f0f9ff] p-5">
-                  <p className="text-sm text-slate-600">Parent messages sent</p>
-                  <p className="mt-2 text-4xl font-bold text-slate-900">84,200+</p>
+                  <p className="text-sm text-slate-600">Parent Communications</p>
+                  <p className="mt-2 text-3xl font-bold text-slate-900">Instant</p>
                 </div>
               </div>
             </div>
@@ -300,61 +315,46 @@ export default function LandingPage() {
             <p className="mt-12 text-sm text-slate-500 font-medium">© 2026 CRAFT SMS. All Right Reserved</p>
           </div>
 
-          <div className="hidden md:block md:col-span-1"></div>
+          <div className="md:col-span-1"></div>
 
           <div className="md:col-span-2">
-            <p className="font-bold text-white mb-6">Produk</p>
-            <ul className="space-y-4 text-sm font-medium">
-              {['siAkadCloud', 'GoFeederCloud', 'AkreditasiCloud', 'ProFeeder', 'CRAFTSMSPay', 'EdLink', 'MauKuliah', 'Karirlink'].map((l) => (
-                <li key={l}><a href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">{l}</a></li>
-              ))}
+            <p className="font-bold text-white mb-6">Legal & Resources</p>
+            <ul className="space-y-4 text-sm font-medium mb-8">
+              <li><Link href="/privacy-policy" className="text-slate-400 hover:text-[#007A53] transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="text-slate-400 hover:text-[#007A53] transition-colors">Terms & Conditions</Link></li>
             </ul>
           </div>
 
           <div className="md:col-span-2">
-            <p className="font-bold text-white mb-6">Perusahaan</p>
+            <p className="font-bold text-white mb-6">Support</p>
             <ul className="space-y-4 text-sm font-medium mb-8">
-              {['Tentang CRAFT SMS', 'Karir', 'Berita'].map((l) => (
-                <li key={l}><a href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">{l}</a></li>
-              ))}
-            </ul>
-            <p className="font-bold text-white mb-6">Partner</p>
-            <ul className="space-y-4 text-sm font-medium">
-              {['Perguruan Tinggi', 'Authorized Sales Partner'].map((l) => (
-                <li key={l}><a href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">{l}</a></li>
-              ))}
+              <li><Link href="/docs/user-guide" className="text-slate-400 hover:text-[#007A53] transition-colors">User Guide</Link></li>
+              <li><Link href="/help-center" className="text-slate-400 hover:text-[#007A53] transition-colors">Help Center</Link></li>
+              <li><a href="mailto:support@craftsms.com" className="text-slate-400 hover:text-[#007A53] transition-colors">Email Us</a></li>
             </ul>
           </div>
 
           <div className="md:col-span-1">
             <p className="font-bold text-white mb-6">Platform</p>
             <ul className="space-y-4 text-sm font-medium">
-              {['CRAFT SMS PRO', 'Panduan', 'Privacy & Policy'].map((l) => (
-                <li key={l}><a href="#" className="text-slate-400 hover:text-[#007A53] transition-colors">{l}</a></li>
-              ))}
+              <li><Link href="/dashboard" className="text-slate-400 hover:text-[#007A53] transition-colors">CRAFT SMS PRO</Link></li>
             </ul>
           </div>
 
           <div className="md:col-span-2">
-            <p className="font-bold text-white mb-6">Ikuti Craft SMS</p>
+            <p className="font-bold text-white mb-6">Follow Craft SMS</p>
             <div className="flex flex-col gap-4">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-400 hover:text-white group">
-                <div className="w-8 h-8 rounded-md bg-[#1877F2] flex items-center justify-center text-white group-hover:-translate-y-0.5 transition-transform shadow-lg shadow-[#1877F2]/20">
-                  <FaFacebook className="w-4 h-4" />
-                </div>
-                <span className="text-sm font-medium">CRAFT SMS Utama</span>
-              </a>
               <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-400 hover:text-white group">
                 <div className="w-8 h-8 rounded-md bg-gradient-to-tr from-[#FD1D1D] via-[#E1306C] to-[#833AB4] flex items-center justify-center text-white group-hover:-translate-y-0.5 transition-transform shadow-lg shadow-[#E1306C]/20">
                   <FaInstagram className="w-4 h-4" />
                 </div>
-                <span className="text-sm font-medium">craftsms_official</span>
+                <span className="text-sm font-medium">Instagram</span>
               </a>
               <a href="https://wa.me/231880864187" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-400 hover:text-white group">
                 <div className="w-8 h-8 rounded-md bg-[#25D366] flex items-center justify-center text-white group-hover:-translate-y-0.5 transition-transform shadow-lg shadow-[#25D366]/20">
                   <FaWhatsapp className="w-4 h-4" />
                 </div>
-                <span className="text-sm font-medium">CRAFT SMS</span>
+                <span className="text-sm font-medium">WhatsApp</span>
               </a>
             </div>
           </div>

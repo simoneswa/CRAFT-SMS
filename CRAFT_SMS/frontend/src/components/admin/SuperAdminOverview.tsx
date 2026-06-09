@@ -15,6 +15,7 @@ import {
   Wrench
 } from 'lucide-react'
 import { useToast } from '../../providers/ToastProvider'
+import { fetchAPI } from '../../lib/api'
 
 export function SuperAdminOverview() {
   const [metrics, setMetrics] = useState<any>({})
@@ -31,43 +32,25 @@ export function SuperAdminOverview() {
     setIsLoading(true)
     setError(null)
     try {
-      // Query Supabase directly — no Railway backend needed.
-      // This works as long as the user is authenticated (which they are, since login succeeded).
-      const [schoolsRes, usersRes, slipsRes, logsRes] = await Promise.allSettled([
-        supabase.from('schools').select('*', { count: 'exact', head: true }),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('slips').select('amount').eq('status', 'VERIFIED'),
-        supabase
-          .from('audit_logs')
-          .select('*, actor:profiles(full_name, role)')
-          .order('created_at', { ascending: false })
-          .limit(10),
+      // Query backend API — data comes from Neon PostgreSQL via Cloud Run
+      const [statsRes, logsRes] = await Promise.allSettled([
+        fetchAPI('/admin/stats', { method: 'GET' }),
+        fetchAPI('/admin/audit-logs?limit=10', { method: 'GET' }),
       ])
 
-      const totalTenants =
-        schoolsRes.status === 'fulfilled' ? schoolsRes.value.count ?? 0 : 0
-
-      const totalUsers =
-        usersRes.status === 'fulfilled' ? usersRes.value.count ?? 0 : 0
-
-      const revenue =
-        slipsRes.status === 'fulfilled' && Array.isArray(slipsRes.value.data)
-          ? slipsRes.value.data.reduce(
-              (sum: number, slip: any) => sum + (Number(slip.amount) || 0),
-              0
-            )
-          : 0
+      const stats =
+        statsRes.status === 'fulfilled' ? statsRes.value : {}
 
       const auditLogs =
-        logsRes.status === 'fulfilled' && Array.isArray(logsRes.value.data)
-          ? logsRes.value.data
+        logsRes.status === 'fulfilled' && Array.isArray(logsRes.value)
+          ? logsRes.value
           : []
 
       setMetrics({
-        total_tenants: totalTenants,
-        total_users: totalUsers,
-        platform_revenue: revenue,
-        system_health: '99.9%',
+        total_tenants: stats?.total_tenants ?? 0,
+        total_users: stats?.total_users ?? 0,
+        platform_revenue: stats?.platform_revenue ?? 0,
+        system_health: stats?.system_health ?? '99.9%',
       })
       setLogs(auditLogs)
     } catch (err: any) {

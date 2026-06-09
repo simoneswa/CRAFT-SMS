@@ -22,7 +22,7 @@ import { generatePDFFromElement } from '../../../../lib/pdfGenerator'
 import { ReceiptTemplate } from '../../../../components/finance/ReceiptTemplate'
 import { fetchAPI } from '../../../../lib/api'
 
-// ALL DATA SOURCED FROM /api/finance/slips — NO SUPABASE DIRECT CALLS
+// ALL DATA SOURCED FROM /api/finance/slips — NO DIRECT DB CALLS
 
 export default function FinancePage() {
   const { profile } = useAuth()

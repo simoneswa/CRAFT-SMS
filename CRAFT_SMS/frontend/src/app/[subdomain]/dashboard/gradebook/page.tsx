@@ -76,41 +76,25 @@ export default function GradebookPage() {
     if (!selectedTerm || !selectedClass || !selectedSubject) return
     setIsLoading(true)
     try {
-      // 1. Get enrolled students
-      const { data: enrollmentData } = await supabase
-        .from('enrollments')
-        .select('student_id, profiles!student_id(id, full_name, custom_id)')
-        .eq('class_id', selectedClass)
-        .eq('academic_term_id', selectedTerm)
-        .eq('school_id', school?.id)
-
-      const studentList = enrollmentData?.map(e => e.profiles) || []
+      // 1. Get enrolled students via backend API
+      const enrollmentData = await fetchAPI(
+        `/academic/classes/${selectedClass}/students?term_id=${selectedTerm}`
+      ).catch(() => [])
+      const studentList = Array.isArray(enrollmentData) ? enrollmentData : []
       setStudents(studentList)
 
-      // 2. Get existing grades for these students in this subject
-      // First, get the class_subject_id
-      const { data: csData } = await supabase
-        .from('class_subjects')
-        .select('id')
-        .eq('class_id', selectedClass)
-        .eq('subject_id', selectedSubject)
-        .single()
+      // 2. Get existing grades for this class+subject+term
+      const gradeData = await fetchAPI(
+        `/academic/grades?class_id=${selectedClass}&subject_id=${selectedSubject}&term_id=${selectedTerm}`
+      ).catch(() => [])
 
-      if (csData) {
-        const { data: gradeData } = await supabase
-          .from('grades')
-          .select('*')
-          .eq('class_subject_id', csData.id)
-          .eq('academic_term_id', selectedTerm)
-
-        const gradeMap: Record<string, any> = {}
-        gradeData?.forEach(g => {
+      const gradeMap: Record<string, any> = {}
+      if (Array.isArray(gradeData)) {
+        gradeData.forEach((g: any) => {
           gradeMap[`${g.student_id}_${g.category_id}`] = g
         })
-        setGrades(gradeMap)
-      } else {
-        setGrades({})
       }
+      setGrades(gradeMap)
     } catch (err) {
       console.error('Failed to load grades:', err)
     } finally {
@@ -141,19 +125,11 @@ export default function GradebookPage() {
     setIsSaving(true)
     setMessage(null)
     try {
-      const csResp = await supabase
-        .from('class_subjects')
-        .select('id')
-        .eq('class_id', selectedClass)
-        .eq('subject_id', selectedSubject)
-        .single()
-        
-      if (!csResp.data) throw new Error("Class-Subject assignment not found.")
-      
-      const entries = Object.entries(grades).map(([key, g]) => ({
+      const entries = Object.entries(grades).map(([_key, g]) => ({
         student_id: g.student_id,
         category_id: g.category_id,
-        class_subject_id: csResp.data.id,
+        class_id: selectedClass,
+        subject_id: selectedSubject,
         academic_term_id: selectedTerm,
         school_id: school?.id,
         score: g.score,
@@ -161,13 +137,11 @@ export default function GradebookPage() {
         graded_by: profile?.id
       })).filter(e => e.score !== null)
 
-      // Using upsert for simple reconciliation
-      const { error } = await supabase
-        .from('grades')
-        .upsert(entries, { onConflict: 'student_id,class_subject_id,category_id,academic_term_id' })
+      await fetchAPI('/academic/grades/batch', {
+        method: 'POST',
+        body: JSON.stringify({ grades: entries })
+      })
 
-      if (error) throw error
-      
       setMessage({ type: 'success', text: `Grades ${status === 'PUBLISHED' ? 'published' : 'saved as draft'} successfully.` })
       loadGrades()
     } catch (err: any) {

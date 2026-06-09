@@ -56,7 +56,7 @@ export function DeploymentReadiness() {
              {[
                 { name: 'Row-Level Security (RLS)', desc: 'Institutional boundary isolation', status: 'VERIFIED' },
                 { name: 'Wildcard Domain Routing', desc: 'Tenant-specific resolution logic', status: 'ACTIVE' },
-                { name: 'Supabase Storage Policy', desc: 'Private record access control', status: 'SECURED' },
+                { name: 'Firebase Storage Policy', desc: 'Private record access control', status: 'SECURED' },
                 { name: 'JWT Session Integrity', desc: 'Production-grade token refresh', status: 'OPTIMAL' },
              ].map((row, i) => (
                 <div key={i} className="flex justify-between items-center group">

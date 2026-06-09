@@ -83,7 +83,10 @@ export default function TeacherDashboard() {
     let isMounted = true
 
     async function loadInstructorData() {
-      if (!profile?.id) return
+      if (!profile?.id) {
+        if (isMounted) setIsLoading(false)
+        return
+      }
       setIsLoading(true)
       try {
         const [plansRes, classesRes] = await Promise.all([

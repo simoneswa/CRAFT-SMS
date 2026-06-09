@@ -18,15 +18,8 @@ export default function LeaderboardPage() {
   const fetchLeaderboard = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('leaderboard_entries')
-        .select('*, profiles!student_id(full_name, custom_id)')
-        .eq('school_id', school?.id)
-        .order('total_points', { ascending: false })
-        .limit(20)
-
-      if (error) throw error
-      setEntries(data || [])
+      // Backend gamification endpoint pending. Setting to empty state.
+      setEntries([])
     } catch (err) {
       console.error('Failed to fetch leaderboard:', err)
       setEntries([])

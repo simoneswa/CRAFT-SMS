@@ -38,7 +38,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Guard: only redirect to /login after a stabilization delay.
-    // This prevents redirect loops during the brief window when Supabase
+    // This prevents redirect loops during the brief window when Firebase
     // auth state is still propagating after a router.push from the login page.
     if (!isMounted || isLoading || userId) return
 
