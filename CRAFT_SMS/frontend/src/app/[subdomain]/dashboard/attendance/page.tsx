@@ -2,14 +2,14 @@
 
 import { DashboardLayout } from '../../../../components/dashboard/DashboardLayout'
 import { useState, useEffect, useCallback } from 'react'
-import { 
-  Calendar, 
-  Users, 
-  Check, 
-  X, 
-  Clock, 
-  History, 
-  Save, 
+import {
+  Calendar,
+  Users,
+  Check,
+  X,
+  Clock,
+  History,
+  Save,
   ChevronRight,
   Filter,
   AlertCircle
@@ -25,11 +25,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 export default function AttendancePage() {
   const { school } = useTenant()
   const { profile } = useAuth()
-  
+
   const [classes, setClasses] = useState<any[]>([])
   const [selectedClass, setSelectedClass] = useState<string>('')
   const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split('T')[0])
-  
+
   const [students, setStudents] = useState<any[]>([])
   const [attendance, setAttendance] = useState<Record<string, string>>({}) // studentId -> status
   const [isLoading, setIsLoading] = useState(true)
@@ -56,47 +56,24 @@ export default function AttendancePage() {
     }
   }
 
-const loadRollCall = useCallback(async () => {
+  const loadRollCall = useCallback(async () => {
     if (!selectedClass || !attendanceDate) return
     setIsLoading(true)
 
-    const supabase = createClient()
-
     try {
       // 1. Get enrolled students for current active term
-      const { data: termData } = await supabase
-        .from('academic_terms')
-        .select('id')
-        .eq('school_id', school?.id)
-        .eq('is_current', true)
-        .single()
+      const terms = await fetchAPI('/academic/terms')
+      const currentTerm = terms.find((t: any) => t.is_current)
+      if (!currentTerm) throw new Error("No current academic term set.")
 
-      if (!termData) throw new Error("No current academic term set.")
-
-      const { data: enrollmentData } = await supabase
-        .from('enrollments')
-        .select('profiles!student_id(id, full_name, custom_id)')
-        .eq('class_id', selectedClass)
-        .eq('academic_term_id', termData.id)
-        .eq('school_id', school?.id)
-
-      const studentList =
-        (enrollmentData?.map((e: any) =>
-          Array.isArray(e.profiles) ? e.profiles[0] : e.profiles
-        ).filter(Boolean) as any[]) || []
-
-      setStudents(studentList)
+      const studentsList = await fetchAPI(`/academic/classes/${selectedClass}/students?term_id=${currentTerm.id}`)
+      setStudents(studentsList || [])
 
       // 2. Get existing attendance for this date/class
-      const { data: attData } = await supabase
-        .from('attendance')
-        .select('*')
-        .eq('school_id', school?.id)
-        .eq('date', attendanceDate)
-        .in('student_id', studentList.map((s: any) => s.id))
-
+      const attData = await fetchAPI(`/academic/attendance?class_id=${selectedClass}&date=${attendanceDate}`)
+      
       const attMap: Record<string, string> = {}
-      attData?.forEach((a: any) => {
+      ;(attData || []).forEach((a: any) => {
         attMap[a.student_id] = a.status
       })
       setAttendance(attMap)
@@ -118,24 +95,23 @@ const loadRollCall = useCallback(async () => {
   const loadHistory = async () => {
     if (!school?.id || !selectedClass) return
     setIsLoadingHistory(true)
-    const supabase = createClient()
+    
     try {
-      const { data } = await supabase
-        .from('attendance')
-        .select('student_id, status, profiles!student_id(full_name, custom_id)')
-        .eq('school_id', school.id)
-      
+      // In a real app this would call a specific history endpoint.
+      // For now we'll simulate fetching all attendance for the class.
+      const data = await fetchAPI(`/academic/attendance?class_id=${selectedClass}&date=all`)
+
       const rows: Record<string, any> = {}
-      ;(data || []).forEach((r: any) => {
-        const id = r.student_id
-        const name = Array.isArray(r.profiles) ? r.profiles[0]?.full_name : r.profiles?.full_name
-        const customId = Array.isArray(r.profiles) ? r.profiles[0]?.custom_id : r.profiles?.custom_id
-        if (!rows[id]) rows[id] = { name, customId, present: 0, late: 0, absent: 0, excused: 0 }
-        if (r.status === 'PRESENT') rows[id].present++
-        else if (r.status === 'LATE') rows[id].late++
-        else if (r.status === 'ABSENT') rows[id].absent++
-        else if (r.status === 'EXCUSED') rows[id].excused++
-      })
+        ; (data || []).forEach((r: any) => {
+          const id = r.student_id
+          const name = r.profiles?.full_name || 'Unknown'
+          const customId = r.profiles?.custom_id || 'STU'
+          if (!rows[id]) rows[id] = { name, customId, present: 0, late: 0, absent: 0, excused: 0 }
+          if (r.status === 'PRESENT') rows[id].present++
+          else if (r.status === 'LATE') rows[id].late++
+          else if (r.status === 'ABSENT') rows[id].absent++
+          else if (r.status === 'EXCUSED') rows[id].excused++
+        })
 
       const rowList = Object.values(rows)
       const totalDays = rowList.length > 0 ? Math.max(...rowList.map((r: any) => r.present + r.late + r.absent + r.excused)) : 0
@@ -200,14 +176,13 @@ const loadRollCall = useCallback(async () => {
       return
     }
 
-    // Online path: direct Supabase upsert
-    const supabase = createClient()
+    // Online path: direct backend call
     try {
-      const { error } = await supabase
-        .from('attendance')
-        .upsert(entries, { onConflict: 'school_id,student_id,date' })
+      await fetchAPI('/academic/attendance/batch', {
+        method: 'POST',
+        body: JSON.stringify({ class_id: selectedClass, date: attendanceDate, entries })
+      })
 
-      if (error) throw error
       alert('Attendance saved successfully.')
     } catch (err: any) {
       // Network failure despite onLine flag — fall back to queue
@@ -239,13 +214,13 @@ const loadRollCall = useCallback(async () => {
             <p className="text-[var(--edlink-blue-text)]/70">High-efficiency roll call and historical tracking.</p>
           </div>
           <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
-            <button 
+            <button
               onClick={() => setView('ROLL_CALL')}
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${view === 'ROLL_CALL' ? 'bg-[var(--edlink-green-brand)] text-black' : 'text-[var(--edlink-blue-text)]/70 hover:text-white'}`}
             >
               Daily Roll Call
             </button>
-            <button 
+            <button
               onClick={() => setView('HISTORY')}
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${view === 'HISTORY' ? 'bg-[var(--edlink-green-brand)] text-black' : 'text-[var(--edlink-blue-text)]/70 hover:text-white'}`}
             >
@@ -261,7 +236,7 @@ const loadRollCall = useCallback(async () => {
               <div className="premium-card flex flex-wrap items-center gap-6 p-4">
                 <div className="flex-1 min-w-[200px]">
                   <label className="section-label mb-2 block">Select Class</label>
-                  <select 
+                  <select
                     value={selectedClass}
                     onChange={(e) => setSelectedClass(e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]/50 text-white cursor-pointer"
@@ -273,8 +248,8 @@ const loadRollCall = useCallback(async () => {
                   <label className="section-label mb-2 block">Date</label>
                   <div className="relative">
                     <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--edlink-blue-text)]/70" />
-                    <input 
-                      type="date" 
+                    <input
+                      type="date"
                       value={attendanceDate}
                       onChange={(e) => setAttendanceDate(e.target.value)}
                       className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-11 pr-4 text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]/50 text-white"
@@ -306,14 +281,14 @@ const loadRollCall = useCallback(async () => {
                             <p className="text-[10px] text-[var(--edlink-blue-text)]/70 uppercase font-bold tracking-widest">{student.custom_id}</p>
                           </div>
                         </div>
-                        
+
                         <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
                           {[
                             {
-                          id: 'PRESENT',
-                          label: 'P',
-                          activeClass: 'bg-[var(--edlink-green-brand)] text-black shadow-lg shadow-emerald-500/20'
-                           },
+                              id: 'PRESENT',
+                              label: 'P',
+                              activeClass: 'bg-[var(--edlink-green-brand)] text-black shadow-lg shadow-emerald-500/20'
+                            },
                             { id: 'LATE', label: 'L', activeClass: 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' },
                             { id: 'ABSENT', label: 'A', activeClass: 'bg-rose-500 text-black shadow-lg shadow-rose-500/20' },
                             { id: 'EXCUSED', label: 'E', activeClass: 'bg-blue-500 text-black shadow-lg shadow-blue-500/20' }
@@ -321,11 +296,10 @@ const loadRollCall = useCallback(async () => {
                             <button
                               key={opt.id}
                               onClick={() => markAttendance(student.id, opt.id)}
-                              className={`w-10 h-10 rounded-lg text-xs font-black transition-all ${
-                                attendance[student.id] === opt.id 
-                                  ? opt.activeClass 
+                              className={`w-10 h-10 rounded-lg text-xs font-black transition-all ${attendance[student.id] === opt.id
+                                  ? opt.activeClass
                                   : 'text-[var(--edlink-blue-text)]/70 hover:text-white'
-                              }`}
+                                }`}
                               title={opt.id}
                             >
                               {opt.label}
@@ -342,56 +316,56 @@ const loadRollCall = useCallback(async () => {
             {/* Sidebar Summary */}
             <div className="space-y-6">
               <div className="premium-card">
-                 <h4 className="font-bold text-sm mb-6 text-white flex items-center gap-2">
-                   <History className="w-4 h-4 text-[var(--edlink-green-brand)]" />
-                   Quick Summary
-                 </h4>
-                 <div className="space-y-4">
-                    {[
-                      { label: 'Present', val: stats.present, color: 'emerald' },
-                      { label: 'Late', val: stats.late, color: 'amber' },
-                      { label: 'Absent', val: stats.absent, color: 'rose' },
-                      { label: 'Excused', val: stats.excused, color: 'blue' },
-                    ].map(s => (
-                      <div key={s.label} className="flex justify-between items-center text-xs">
-                         <span className="text-[var(--edlink-blue-text)]/70">{s.label}</span>
-                         <span className={`text-${s.color}-400 font-bold bg-${s.color}-500/10 px-2 py-0.5 rounded-md`}>{s.val}</span>
-                      </div>
-                    ))}
-                    <div className="pt-4 border-t border-white/5">
-                       <div className="flex justify-between items-center text-[10px] font-bold text-[var(--edlink-blue-text)]/70 uppercase mb-2">
-                          <span>Completion</span>
-                          <span>{students.length > 0 ? Math.round((Object.keys(attendance).length / students.length) * 100) : 0}%</span>
-                       </div>
-                       <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${students.length > 0 ? (Object.keys(attendance).length / students.length) * 100 : 0}%` }}
-                            className="h-full bg-[var(--edlink-green-brand)] rounded-full" 
-                          />
-                       </div>
+                <h4 className="font-bold text-sm mb-6 text-white flex items-center gap-2">
+                  <History className="w-4 h-4 text-[var(--edlink-green-brand)]" />
+                  Quick Summary
+                </h4>
+                <div className="space-y-4">
+                  {[
+                    { label: 'Present', val: stats.present, color: 'emerald' },
+                    { label: 'Late', val: stats.late, color: 'amber' },
+                    { label: 'Absent', val: stats.absent, color: 'rose' },
+                    { label: 'Excused', val: stats.excused, color: 'blue' },
+                  ].map(s => (
+                    <div key={s.label} className="flex justify-between items-center text-xs">
+                      <span className="text-[var(--edlink-blue-text)]/70">{s.label}</span>
+                      <span className={`text-${s.color}-400 font-bold bg-${s.color}-500/10 px-2 py-0.5 rounded-md`}>{s.val}</span>
                     </div>
-                 </div>
+                  ))}
+                  <div className="pt-4 border-t border-white/5">
+                    <div className="flex justify-between items-center text-[10px] font-bold text-[var(--edlink-blue-text)]/70 uppercase mb-2">
+                      <span>Completion</span>
+                      <span>{students.length > 0 ? Math.round((Object.keys(attendance).length / students.length) * 100) : 0}%</span>
+                    </div>
+                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${students.length > 0 ? (Object.keys(attendance).length / students.length) * 100 : 0}%` }}
+                        className="h-full bg-[var(--edlink-green-brand)] rounded-full"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-              
-              <button 
+
+              <button
                 onClick={submitAttendance}
                 disabled={isSaving || students.length === 0}
                 className="w-full py-4 bg-[var(--edlink-green-brand)] hover:bg-[var(--edlink-green-hover)] text-black font-extrabold rounded-2xl transition-all shadow-lg shadow-teal-500/20 disabled:opacity-50"
               >
                 {isSaving ? 'Saving...' : 'Finalize Attendance'}
               </button>
-              
+
               <div className="p-4 bg-amber-500/5 border border-amber-500/10 rounded-2xl">
-                 <div className="flex items-start gap-3">
-                    <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5" />
-                    <div>
-                       <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1">Attention</p>
-                       <p className="text-[11px] text-amber-500/80 leading-relaxed">
-                         Finalizing attendance will trigger parent notifications for students marked Absent or Late.
-                       </p>
-                    </div>
-                 </div>
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5" />
+                  <div>
+                    <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1">Attention</p>
+                    <p className="text-[11px] text-amber-500/80 leading-relaxed">
+                      Finalizing attendance will trigger parent notifications for students marked Absent or Late.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -400,7 +374,7 @@ const loadRollCall = useCallback(async () => {
             <div className="premium-card flex flex-wrap items-center gap-6 p-4">
               <div className="flex-1 min-w-[200px]">
                 <label className="section-label mb-2 block">Class</label>
-                <select 
+                <select
                   value={selectedClass}
                   onChange={(e) => setSelectedClass(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--edlink-green-brand)]/50 text-white cursor-pointer"
@@ -410,72 +384,72 @@ const loadRollCall = useCallback(async () => {
               </div>
             </div>
 
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-               <div className="premium-card bg-[var(--edlink-green-brand)]/5 border-[var(--edlink-green-brand)]/10">
-                  <p className="section-label text-emerald-400 mb-1">Average Presence</p>
-                  <h3 className="text-3xl font-bold text-white">{isLoadingHistory ? '…' : `${historyStats.avgPresence}%`}</h3>
-               </div>
-               <div className="premium-card bg-rose-500/5 border-rose-500/10">
-                  <p className="section-label text-rose-400 mb-1">Chronic Absentees</p>
-                  <h3 className="text-3xl font-bold text-white">{isLoadingHistory ? '…' : historyStats.chronicAbsentees}</h3>
-               </div>
-               <div className="premium-card bg-blue-500/5 border-blue-500/10">
-                  <p className="section-label text-blue-400 mb-1">Days Tracked</p>
-                  <h3 className="text-3xl font-bold text-white">{isLoadingHistory ? '…' : historyStats.daysTracked}</h3>
-               </div>
-             </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="premium-card bg-[var(--edlink-green-brand)]/5 border-[var(--edlink-green-brand)]/10">
+                <p className="section-label text-emerald-400 mb-1">Average Presence</p>
+                <h3 className="text-3xl font-bold text-white">{isLoadingHistory ? '…' : `${historyStats.avgPresence}%`}</h3>
+              </div>
+              <div className="premium-card bg-rose-500/5 border-rose-500/10">
+                <p className="section-label text-rose-400 mb-1">Chronic Absentees</p>
+                <h3 className="text-3xl font-bold text-white">{isLoadingHistory ? '…' : historyStats.chronicAbsentees}</h3>
+              </div>
+              <div className="premium-card bg-blue-500/5 border-blue-500/10">
+                <p className="section-label text-blue-400 mb-1">Days Tracked</p>
+                <h3 className="text-3xl font-bold text-white">{isLoadingHistory ? '…' : historyStats.daysTracked}</h3>
+              </div>
+            </div>
 
             <div className="premium-card overflow-hidden">
-               <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                  <h3 className="font-bold text-white">Student Attendance Ranking</h3>
-                  <button
-                    onClick={handleExportPdf}
-                    disabled={isExportingPdf}
-                    className="text-xs font-bold text-[var(--edlink-green-brand)] hover:underline disabled:opacity-50"
-                  >
-                    {isExportingPdf ? 'Generating...' : 'Export Report (PDF)'}
-                  </button>
-               </div>
-               <div className="overflow-x-auto custom-scrollbar" id="attendance-history-table">
-                  <table className="w-full text-left">
-                    <thead>
-                      <tr className="bg-white/5 border-b border-white/10">
-                        <th className="p-4 section-label">Student</th>
-                        <th className="p-4 section-label text-center">Days Present</th>
-                        <th className="p-4 section-label text-center">Late</th>
-                        <th className="p-4 section-label text-center">Absent</th>
-                        <th className="p-4 section-label text-right">Attendance %</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                     {isLoadingHistory ? (
+              <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                <h3 className="font-bold text-white">Student Attendance Ranking</h3>
+                <button
+                  onClick={handleExportPdf}
+                  disabled={isExportingPdf}
+                  className="text-xs font-bold text-[var(--edlink-green-brand)] hover:underline disabled:opacity-50"
+                >
+                  {isExportingPdf ? 'Generating...' : 'Export Report (PDF)'}
+                </button>
+              </div>
+              <div className="overflow-x-auto custom-scrollbar" id="attendance-history-table">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="bg-white/5 border-b border-white/10">
+                      <th className="p-4 section-label">Student</th>
+                      <th className="p-4 section-label text-center">Days Present</th>
+                      <th className="p-4 section-label text-center">Late</th>
+                      <th className="p-4 section-label text-center">Absent</th>
+                      <th className="p-4 section-label text-right">Attendance %</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {isLoadingHistory ? (
                       <tr><td colSpan={5} className="p-8 text-center text-[var(--edlink-blue-text)]/70">Loading history...</td></tr>
-                     ) : historyRows.length === 0 ? (
+                    ) : historyRows.length === 0 ? (
                       <tr><td colSpan={5} className="p-8 text-center text-[var(--edlink-blue-text)]/70">No attendance records found.</td></tr>
-                     ) : historyRows.map((s: any, i: number) => (
-                        <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                          <td className="p-4">
-                             <p className="font-bold text-sm text-white">{s.name || 'Unknown'}</p>
-                             <p className="text-[10px] text-[var(--edlink-blue-text)]/70 uppercase tracking-widest font-bold">{s.customId || `STU_00${i+1}`}</p>
-                          </td>
-                          <td className="p-4 text-center text-sm font-bold text-gray-300">{s.present}</td>
-                          <td className="p-4 text-center text-sm font-bold text-amber-400">{s.late}</td>
-                          <td className="p-4 text-center text-sm font-bold text-rose-400">{s.absent}</td>
-                          <td className="p-4 text-right">
-                             <div className="flex flex-col items-end">
-                                <span className={`text-sm font-black ${s.pct >= 90 ? 'text-emerald-400' : s.pct >= 80 ? 'text-amber-400' : 'text-rose-400'}`}>
-                                  {s.pct}%
-                                </span>
-                                <div className="w-20 h-1 bg-white/5 rounded-full mt-1 overflow-hidden">
-                                   <div className={`h-full ${s.pct >= 90 ? 'bg-[var(--edlink-green-brand)]' : s.pct >= 80 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${s.pct}%` }} />
-                                </div>
-                             </div>
-                          </td>
-                        </tr>
-                     ))}
-                    </tbody>
-                  </table>
-               </div>
+                    ) : historyRows.map((s: any, i: number) => (
+                      <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                        <td className="p-4">
+                          <p className="font-bold text-sm text-white">{s.name || 'Unknown'}</p>
+                          <p className="text-[10px] text-[var(--edlink-blue-text)]/70 uppercase tracking-widest font-bold">{s.customId || `STU_00${i + 1}`}</p>
+                        </td>
+                        <td className="p-4 text-center text-sm font-bold text-gray-300">{s.present}</td>
+                        <td className="p-4 text-center text-sm font-bold text-amber-400">{s.late}</td>
+                        <td className="p-4 text-center text-sm font-bold text-rose-400">{s.absent}</td>
+                        <td className="p-4 text-right">
+                          <div className="flex flex-col items-end">
+                            <span className={`text-sm font-black ${s.pct >= 90 ? 'text-emerald-400' : s.pct >= 80 ? 'text-amber-400' : 'text-rose-400'}`}>
+                              {s.pct}%
+                            </span>
+                            <div className="w-20 h-1 bg-white/5 rounded-full mt-1 overflow-hidden">
+                              <div className={`h-full ${s.pct >= 90 ? 'bg-[var(--edlink-green-brand)]' : s.pct >= 80 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${s.pct}%` }} />
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
