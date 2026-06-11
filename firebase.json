@@ -13,10 +13,6 @@
           "serviceId": "craft-sms-backend",
           "region": "us-central1"
         }
-      },
-      {
-        "source": "**",
-        "destination": "/index.html"
       }
     ],
     "frameworksBackend": {
