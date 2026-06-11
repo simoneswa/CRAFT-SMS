@@ -25,34 +25,34 @@ const BRAND = {
 
 const features = [
   {
-    icon: <Globe className="h-6 w-6" />,
-    title: 'Offline-First',
+    icon: <Globe className="h-7 w-7 text-white" />,
     desc: "Work even without internet. Auto-syncs when you're back online.",
+    color: { bg: 'bg-[#fbf7eb]', iconBg: 'bg-[#f4b400]' }
   },
   {
-    icon: <Shield className="h-6 w-6" />,
-    title: 'Smart & Secure',
+    icon: <Shield className="h-7 w-7 text-white" />,
     desc: 'Your data is protected with enterprise security and role-based access.',
+    color: { bg: 'bg-[#f3effb]', iconBg: 'bg-[#673ab7]' }
   },
   {
-    icon: <BookOpen className="h-6 w-6" />,
-    title: 'All-in-One Platform',
-    desc: 'Academics, Finance, Attendance, Exams, Communication & more.',
-  },
-  {
-    icon: <BarChart3 className="h-6 w-6" />,
-    title: 'Analytics & Reports',
-    desc: 'Visual dashboards and exportable reports for principals and administrators.',
-  },
-  {
-    icon: <Bell className="h-6 w-6" />,
-    title: 'Smart Notifications',
+    icon: <Bell className="h-7 w-7 text-white" />,
     desc: 'Push alerts for parents, staff, and students — across SMS, email, and in-app.',
+    color: { bg: 'bg-[#eef8fe]', iconBg: 'bg-[#03a9f4]' }
   },
   {
-    icon: <CreditCard className="h-6 w-6" />,
-    title: 'School Finance',
+    icon: <BookOpen className="h-7 w-7 text-white" />,
+    desc: 'Academics, Finance, Attendance, Exams, Communication & more.',
+    color: { bg: 'bg-[#eefaf3]', iconBg: 'bg-[#4caf50]' }
+  },
+  {
+    icon: <BarChart3 className="h-7 w-7 text-white" />,
+    desc: 'Visual dashboards and exportable reports for principals and administrators.',
+    color: { bg: 'bg-[#ecfbfb]', iconBg: 'bg-[#00bcd4]' }
+  },
+  {
+    icon: <CreditCard className="h-7 w-7 text-white" />,
     desc: 'Fee collection, receipts, and financial reporting built for institutional clarity.',
+    color: { bg: 'bg-[#f6fceb]', iconBg: 'bg-[#8bc34a]' }
   },
 ]
 
@@ -205,15 +205,14 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.07, duration: 0.4 }}
                 viewport={{ once: true }}
-                className="group flex flex-col gap-4 rounded-[28px] border border-slate-100 bg-white p-7 shadow-sm hover:-translate-y-1.5 hover:shadow-xl hover:border-[#007A53]/20 transition-all duration-300"
+                className={`group flex flex-col rounded-2xl ${f.color.bg} p-8 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 min-h-[200px]`}
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#007A53]/10 text-[#007A53] group-hover:bg-[#007A53] group-hover:text-white transition-all duration-300">
+                <div className={`flex h-16 w-16 items-center justify-center rounded-full ${f.color.iconBg} mb-6 shadow-sm`}>
                   {f.icon}
                 </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-slate-900">{f.title}</h3>
-                  <p className="mt-2 text-sm text-slate-600">{f.desc}</p>
-                </div>
+                <p className="text-[15px] leading-relaxed text-slate-700 font-medium">
+                  {f.desc}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -270,92 +269,111 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="bg-slate-900 border-t border-white/10 pt-20 pb-10">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-8 gap-12 lg:gap-8">
-          <div className="md:col-span-2 space-y-6">
-            <div className="flex items-center gap-3">
-              <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-8 w-auto object-contain block bg-transparent" />
-              <span className="text-xl font-bold tracking-tight text-white">
-                CRAFT <span style={{ color: BRAND.primary }}>SMS</span>
-              </span>
-            </div>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Unified School Management for the Modern Era.
-            </p>
-            <div className="space-y-4">
-              <p className="text-sm font-semibold text-white">Contact Us</p>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <footer className="bg-[#1e2330] pt-16 pb-8 text-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
+            {/* Column 1 */}
+            <div className="space-y-6 lg:col-span-1">
+              <div className="flex items-center gap-3">
+                <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-8 w-auto object-contain block bg-transparent" />
+                <span className="text-xl font-bold tracking-tight text-white">
+                  CRAFT <span style={{ color: BRAND.primary }}>SMS</span>
+                </span>
+              </div>
+              
+              <div className="space-y-4 mt-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded bg-white/10 flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div className="flex flex-col justify-center h-10">
+                    <a href="mailto:support@craftsms.com" className="text-sm font-semibold hover:text-[#007A53] transition-colors">support@craftsms.com</a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded bg-white/10 flex items-center justify-center shrink-0">
+                    <FaWhatsapp className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <a href="tel:+231880864187" className="text-sm font-semibold text-[#facc15] hover:text-white transition-colors">
+                      +231 88 086 4187
+                    </a>
+                    <p className="text-xs text-slate-400 mt-1">Operating Hours: 08:30 - 16:30</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded bg-white/10 flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
-                  <div>
-                    <p className="text-sm text-slate-300 font-medium">Headquarters</p>
-                    <p className="text-xs text-slate-500 mt-1">Monrovia, Liberia</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 mt-2">
-                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <a href="tel:+231880864187" className="text-sm text-slate-300 font-medium hover:text-[#007A53] transition-colors">
-                      +231 88 086 4187
-                    </a>
-                    <p className="text-xs text-slate-500 mt-1">Operating Hours: 08:30 - 16:30</p>
+                  <div className="flex flex-col justify-center h-10">
+                    <p className="text-sm font-semibold">Monrovia, Liberia</p>
                   </div>
                 </div>
               </div>
+              <p className="text-xs text-slate-500 mt-8 pt-8">© 2026 CRAFT SMS. All Right Reserved</p>
             </div>
-            <p className="mt-12 text-sm text-slate-500 font-medium">© 2026 CRAFT SMS. All Right Reserved</p>
-          </div>
 
-          <div className="md:col-span-1"></div>
+            {/* Column 2: Products */}
+            <div>
+              <h4 className="text-white font-bold mb-6">Product</h4>
+              <ul className="space-y-4 text-sm text-slate-400">
+                <li><Link href="/dashboard" className="hover:text-white transition-colors">CRAFT SMS PRO</Link></li>
+                <li><Link href="/dashboard/student" className="hover:text-white transition-colors">Student Portal</Link></li>
+                <li><Link href="/dashboard/parent" className="hover:text-white transition-colors">Parent Portal</Link></li>
+              </ul>
+            </div>
 
-          <div className="md:col-span-2">
-            <p className="font-bold text-white mb-6">Legal & Resources</p>
-            <ul className="space-y-4 text-sm font-medium mb-8">
-              <li><Link href="/privacy-policy" className="text-slate-400 hover:text-[#007A53] transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="text-slate-400 hover:text-[#007A53] transition-colors">Terms & Conditions</Link></li>
-            </ul>
-          </div>
+            {/* Column 3: Company */}
+            <div>
+              <h4 className="text-white font-bold mb-6">Company</h4>
+              <ul className="space-y-4 text-sm text-slate-400">
+                <li><Link href="/about" className="hover:text-white transition-colors">About CRAFT</Link></li>
+                <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
+                <li><Link href="/news" className="hover:text-white transition-colors">News</Link></li>
+              </ul>
+            </div>
 
-          <div className="md:col-span-2">
-            <p className="font-bold text-white mb-6">Support</p>
-            <ul className="space-y-4 text-sm font-medium mb-8">
-              <li><Link href="/docs/user-guide" className="text-slate-400 hover:text-[#007A53] transition-colors">User Guide</Link></li>
-              <li><Link href="/help-center" className="text-slate-400 hover:text-[#007A53] transition-colors">Help Center</Link></li>
-              <li><a href="mailto:support@craftsms.com" className="text-slate-400 hover:text-[#007A53] transition-colors">Email Us</a></li>
-            </ul>
-          </div>
+            {/* Column 4: Resources */}
+            <div>
+              <h4 className="text-white font-bold mb-6">Resources</h4>
+              <ul className="space-y-4 text-sm text-slate-400">
+                <li><Link href="/docs/user-guide" className="hover:text-white transition-colors">User Guide</Link></li>
+                <li><Link href="/help-center" className="hover:text-white transition-colors">Help Center</Link></li>
+                <li><Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-white transition-colors">Terms & Conditions</Link></li>
+              </ul>
+            </div>
 
-          <div className="md:col-span-1">
-            <p className="font-bold text-white mb-6">Platform</p>
-            <ul className="space-y-4 text-sm font-medium">
-              <li><Link href="/dashboard" className="text-slate-400 hover:text-[#007A53] transition-colors">CRAFT SMS PRO</Link></li>
-            </ul>
-          </div>
-
-          <div className="md:col-span-2">
-            <p className="font-bold text-white mb-6">Follow Craft SMS</p>
-            <div className="flex flex-col gap-4">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-400 hover:text-white group">
-                <div className="w-8 h-8 rounded-md bg-gradient-to-tr from-[#FD1D1D] via-[#E1306C] to-[#833AB4] flex items-center justify-center text-white group-hover:-translate-y-0.5 transition-transform shadow-lg shadow-[#E1306C]/20">
-                  <FaInstagram className="w-4 h-4" />
-                </div>
-                <span className="text-sm font-medium">Instagram</span>
-              </a>
-              <a href="https://wa.me/231880864187" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-400 hover:text-white group">
-                <div className="w-8 h-8 rounded-md bg-[#25D366] flex items-center justify-center text-white group-hover:-translate-y-0.5 transition-transform shadow-lg shadow-[#25D366]/20">
-                  <FaWhatsapp className="w-4 h-4" />
-                </div>
-                <span className="text-sm font-medium">WhatsApp</span>
-              </a>
+            {/* Column 5: Social Media */}
+            <div>
+              <h4 className="text-white font-bold mb-6">Follow CRAFT</h4>
+              <div className="flex flex-col gap-4">
+                <a href="#" className="flex items-center gap-3 text-sm text-slate-400 hover:text-white group">
+                  <div className="w-6 h-6 rounded bg-[#3b5998] flex items-center justify-center text-white">
+                    <FaFacebook className="w-3.5 h-3.5" />
+                  </div>
+                  <span>Facebook</span>
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-slate-400 hover:text-white group">
+                  <div className="w-6 h-6 rounded bg-gradient-to-tr from-[#FD1D1D] via-[#E1306C] to-[#833AB4] flex items-center justify-center text-white">
+                    <FaInstagram className="w-3.5 h-3.5" />
+                  </div>
+                  <span>Instagram</span>
+                </a>
+                <a href="https://wa.me/231880864187" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-slate-400 hover:text-white group">
+                  <div className="w-6 h-6 rounded bg-[#25D366] flex items-center justify-center text-white">
+                    <FaWhatsapp className="w-3.5 h-3.5" />
+                  </div>
+                  <span>WhatsApp</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>
