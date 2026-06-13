@@ -2,12 +2,16 @@
 
 :root {
   /* Core branding tokens */
-  --edlink-green-brand: hsl(141, 77%, 35%);    /* #149C44 */
-  --edlink-blue-text: hsl(222, 80%, 22%);      /* #0B2564 */
-  --edlink-divider-blue: hsl(229, 69%, 62%);   /* #5B73E0 */
-  --edlink-green-hover: hsl(141, 77%, 28%);    /* Darker green for hover states */
+  --edlink-green-brand: #025129;
+  /* #149C44 */
+  --edlink-blue-text: hsl(222, 80%, 22%);
+  /* #0B2564 */
+  --edlink-divider-blue: hsl(229, 69%, 62%);
+  /* #5B73E0 */
+  --edlink-green-hover: #025129;
+  /* Darker green for hover states */
 
-  --brand-primary: #007A53;
+  --brand-primary: #11e4a1;
   --brand-primary-rgb: 0, 122, 83;
   --brand-surface: #FAF8F5;
   --brand-card: #FFFFFF;
@@ -35,11 +39,11 @@ body {
 }
 
 @layer components {
+
   /* Core brand card styling for the refreshed interface */
   .premium-card {
-    @apply bg-[var(--brand-card)] border border-[var(--brand-border)] rounded-[var(--brand-radius-card)] p-[var(--spacing-card)]
-           text-[var(--brand-heading)] transition-all duration-300;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+    @apply bg-[var(--brand-card)] border border-[var(--brand-border)] rounded-[var(--brand-radius-card)] p-[var(--spacing-card)] text-[var(--brand-heading)] transition-all duration-300;
+    box-shadow: 0 8px 30px rgba(207, 197, 197, 0.04);
     background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.95), transparent);
   }
 
@@ -49,9 +53,8 @@ body {
 
   /* Brand card without padding - for layouts that manage padding */
   .brand-card {
-    @apply bg-[var(--brand-card)] border border-[var(--brand-border)] rounded-[var(--brand-radius-card)]
-           text-[var(--brand-heading)] transition-all duration-300;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+    @apply bg-[var(--brand-card)] border border-[var(--brand-border)] rounded-[var(--brand-radius-card)] text-[var(--brand-heading)] transition-all duration-300;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
   }
 
   .brand-card:hover {
@@ -101,11 +104,13 @@ body {
   .brand-glow {
     @apply relative overflow-hidden;
   }
+
   .brand-glow::after {
     content: '';
     @apply absolute -top-[50%] -left-[50%] w-[200%] h-[200%] pointer-events-none opacity-[0.03] transition-opacity duration-700;
     background: radial-gradient(circle at center, var(--accent) 0%, transparent 70%);
   }
+
   .brand-glow:hover::after {
     @apply opacity-[0.08];
   }
@@ -113,17 +118,20 @@ body {
   /* Custom scrollbar for sidebar and overflow areas */
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.1) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
   }
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
     height: 4px;
   }
+
   .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
   }
+
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(255,255,255,0.1);
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 4px;
   }
 
@@ -131,9 +139,11 @@ body {
   .badge-verified {
     @apply px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20;
   }
+
   .badge-pending {
     @apply px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-amber-500/10 text-amber-400 border border-amber-500/20;
   }
+
   .badge-rejected {
     @apply px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-rose-500/10 text-rose-400 border border-rose-500/20;
   }
@@ -150,9 +160,17 @@ body {
 }
 
 @keyframes float {
-  0%   { transform: translateY(0px); }
-  50%  { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .animate-float {

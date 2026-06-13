@@ -3,7 +3,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy & Terms of Service — CRAFT SMS',
+  title: 'Privacy Policy & Terms of Service CRAFT SMS',
   description: 'Read the CRAFT SMS Terms of Service, Privacy Policy, Cookie Policy, and Disclaimer. Last updated May 27, 2026.',
 }
 
@@ -100,7 +100,8 @@ export default function PrivacyPolicyPage() {
                 'Student workflow management',
                 'Internal messaging systems',
                 'Administrative coordination',
-                'Offline-first educational operations',
+                'Offline first educational operations',
+                'Reduce the workload of Teachers'
               ].map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -214,7 +215,7 @@ export default function PrivacyPolicyPage() {
             <ul className="list-disc list-inside space-y-2 text-slate-600 leading-relaxed ml-2 mb-4">
               {['Cloud hosting services', 'Authentication systems', 'Notification gateways', 'Analytics platforms', 'Payment processors'].map(i => <li key={i}>{i}</li>)}
             </ul>
-            <p className="leading-relaxed text-slate-600">We are not responsible for outages, failures, or policy changes caused by third-party providers.</p>
+            <p className="leading-relaxed text-slate-600">We are not responsible for outages, failures, or policy changes caused by third party providers.</p>
           </section>
 
           <div className="border-t border-slate-100" />
@@ -228,7 +229,7 @@ export default function PrivacyPolicyPage() {
 
           <section id="security">
             <h2 className="text-2xl font-bold mb-4 text-slate-900">11. Security</h2>
-            <p className="leading-relaxed mb-4 text-slate-600">We implement industry-standard security practices to protect platform data. However, no digital platform can guarantee absolute security. Users and institutions are responsible for:</p>
+            <p className="leading-relaxed mb-4 text-slate-600">We implement industry standard security practices to protect platform data. However, no digital platform can guarantee absolute security. Users and institutions are responsible for:</p>
             <ul className="list-disc list-inside space-y-2 text-slate-600 leading-relaxed ml-2">
               {['Using secure passwords', 'Managing authorized access', 'Protecting school devices', 'Monitoring administrative permissions'].map(i => <li key={i}>{i}</li>)}
             </ul>
@@ -375,7 +376,7 @@ export default function PrivacyPolicyPage() {
               href="/"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#007A53] text-white font-semibold text-sm hover:bg-[#005d40] transition-colors"
             >
-              ← Return to Homepage
+              ← Return to Home page
             </Link>
           </div>
         </div>
