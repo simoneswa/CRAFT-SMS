@@ -1,12 +1,12 @@
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-
 export const generatePDFFromElement = async (
   elementId: string, 
   filename: string,
   onProgress?: (status: string) => void
 ): Promise<void> => {
   try {
+    // Dynamically import to prevent Next.js SSR worker crashes during static build
+    const { default: jsPDF } = await import('jspdf');
+    const { default: html2canvas } = await import('html2canvas');
     if (onProgress) onProgress('Preparing document...');
     
     const element = document.getElementById(elementId);

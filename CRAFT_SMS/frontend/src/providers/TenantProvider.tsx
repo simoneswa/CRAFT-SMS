@@ -29,13 +29,12 @@ const TenantContext = createContext<TenantContextType>({
  * Extracts the tenant subdomain from the current browser hostname.
  *
  * Handles:
- *   craft-sms.vercel.app                         → "craft-sms"   (production)
- *   craft-sms-git-main-simoneswas-projects.vercel.app → "craft-sms"   (git preview)
- *   craft-sms-pr-42-user.vercel.app              → "craft-sms"   (PR preview)
- *   craft-sms-abc123def456.vercel.app            → "craft-sms"   (hash preview)
- *   school.craftsms.com                          → "school"      (custom domain)
- *   school.localhost:3000                        → "school"      (local dev)
- *   localhost:3000                               → null          (root, no tenant)
+ *   craft-sms-5bb1c.firebaseapp.com              → "demo"
+ *   craft-sms-5bb1c.web.app                      → "demo"
+ *   craftsms.com                                 → null
+ *   school.craftsms.com                          → "school"
+ *   school.localhost:3000                        → "school"
+ *   localhost:3000                               → "demo"
  */
 function extractSubdomain(): string | null {
   const hostname = typeof window !== 'undefined' ? window.location.hostname : ''
@@ -114,11 +113,11 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
           return
         }
 
-        // ✅ School found
+        //  School found
         console.log('[TenantProvider] School loaded successfully:', data?.name)
         setSchool(data)
         setError(null)
-        
+
         // Cache for offline use
         try {
           await db.schools.put(data)
@@ -127,7 +126,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (err: any) {
         console.error('[TenantProvider] Fatal error fetching school:', err)
-        
+
         // Offline fallback: check local DB
         try {
           const cachedSchool = await db.schools.where('subdomain').equals(detectedSubdomain).first()

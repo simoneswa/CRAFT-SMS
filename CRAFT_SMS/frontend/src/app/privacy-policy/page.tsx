@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
+import { Logo } from '../../components/ui/Logo'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -14,9 +15,8 @@ export default function PrivacyPolicyPage() {
       {/* Top Nav */}
       <nav className="border-b border-slate-200 bg-white/90 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/craft-logo.png" alt="CRAFT SMS Logo" className="h-8 w-auto object-contain block" />
+          <Link href="/" className="flex items-center gap-2 group py-2">
+            <Logo variant="full" width={120} height={30} />
             <span className="font-bold text-slate-900 text-lg tracking-tight">
               CRAFT <span className="text-[#007A53]">SMS</span>
             </span>

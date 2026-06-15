@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, Mail, ShieldCheck, AlertTriangle } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { sendPasswordResetEmail } from 'firebase/auth'
+import { Logo } from '../../components/ui/Logo'
 import { auth } from '../../lib/firebase'
 
 export default function ForgotPasswordPage() {
@@ -39,6 +40,10 @@ export default function ForgotPasswordPage() {
   return (
     <main className="min-h-screen bg-[#FAF8F5] text-slate-950">
       <div className="mx-auto flex min-h-screen max-w-4xl items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <div className="absolute top-8 left-8">
+          <Logo variant="full" width={160} height={40} />
+        </div>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -113,4 +118,3 @@ export default function ForgotPasswordPage() {
     </main>
   )
 }
-

@@ -1,7 +1,6 @@
 {
   "hosting": {
-    "public": "CRAFT_SMS/frontend/out",
-    "cleanUrls": true,
+    "public": "out",
     "ignore": [
       "firebase.json",
       "**/.*",
