@@ -32,6 +32,24 @@ self.addEventListener('message', (event) => {
     self.skipWaiting();
   }
 });
+// Track whether skipWaiting was requested so we can notify clients on activate
+let _skipWaitingRequested = false;
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    _skipWaitingRequested = true;
+    self.skipWaiting();
+  }
+});
+  // If skipWaiting was requested, tell clients to reload so they pick up the new
+  // assets. The client will decide whether to perform a hard reload.
+  if (_skipWaitingRequested) {
+    self.clients.matchAll({ type: 'window' }).then((clients) => {
+      for (const client of clients) {
+        client.postMessage({ type: 'RELOAD_PAGE' });
+      }
+    });
+    _skipWaitingRequested = false;
+  }
 
 self.addEventListener('fetch', (event) => {
   // 1. Bypass all cross-origin requests (e.g. Supabase auth, external APIs)

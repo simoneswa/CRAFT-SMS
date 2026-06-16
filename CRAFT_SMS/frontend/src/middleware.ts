@@ -27,8 +27,9 @@ function isVercelDomain(hostname: string): boolean {
 
 export function middleware(request: NextRequest) {
   const url = request.nextUrl
-  const hostname = request.headers.get('host') || ''
-  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'craftsms.com'
+  const rawHost = request.headers.get('host') || request.nextUrl.hostname || ''
+  const hostname = rawHost.split(':')[0].toLowerCase()
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN?.toLowerCase() || 'craftsms.com'
 
   // 1. Pathname Exclusions (Run FIRST — protect ALL static/system paths)
   const globalPaths = ['/login', '/signup', '/docs', '/api', '/_next', '/favicon.ico', '/public']

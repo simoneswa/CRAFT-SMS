@@ -12,8 +12,9 @@ export default function ClientProviders({ children }: { children: React.ReactNod
       navigator.serviceWorker.addEventListener("controllerchange", () => {
         if (!refreshing) {
           refreshing = true;
-          console.log('[SW] Controller changed — reloading for fresh cache');
-          window.location.reload();
+          console.log('[SW] Controller changed — new service worker controlling.');
+          // Avoid forcing a hard reload. Only reload when explicitly requested by the SW
+          // (e.g., message { type: 'RELOAD_PAGE' }) to preserve user state.
         }
       });
 
@@ -28,7 +29,9 @@ export default function ClientProviders({ children }: { children: React.ReactNod
             if (installingWorker) {
               installingWorker.onstatechange = () => {
                 if (installingWorker.state === "installed" && navigator.serviceWorker.controller) {
-                  console.log('[SW] New version installed — sending SKIP_WAITING');
+                  console.log('[SW] New version installed — asking SW to skip waiting.');
+                  // Tell the service worker to skip waiting, but do not force a page reload.
+                  // The SW can notify the page via postMessage when it wants the page to reload.
                   installingWorker.postMessage({ type: "SKIP_WAITING" });
                 }
               };
@@ -36,6 +39,13 @@ export default function ClientProviders({ children }: { children: React.ReactNod
           };
         })
         .catch((err) => console.error("SW registration failed:", err));
+      // Listen for explicit reload messages from the service worker
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event?.data?.type === 'RELOAD_PAGE') {
+          console.log('[SW] Received RELOAD_PAGE — reloading now');
+          window.location.reload();
+        }
+      });
     }
   }, []);
 

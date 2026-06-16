@@ -1,0 +1,111 @@
+   Γû▓ Next.js 15.1.7
+   - Environments: .env.local, .env.production, .env
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+BUILD TRACE: generateStaticParams in src/app/[subdomain]/layout.tsx
+BUILD TRACE: generateStaticParams in src/app/[subdomain]/layout.tsx
+BUILD TRACE: generateStaticParams in src/app/[subdomain]/layout.tsx
+BUILD TRACE: generateStaticParams in src/app/[subdomain]/layout.tsx
+BUILD TRACE: generateStaticParams in src/app/[subdomain]/layout.tsx
+BUILD TRACE: generateStaticParams in src/app/[subdomain]/layout.tsx
+BUILD TRACE: generateStaticParams in src/app/[subdomain]/layout.tsx
+BUILD TRACE: generateStaticParams in src/app/[subdomain]/layout.tsx
+BUILD TRACE: generateStaticParams in src/app/[subdomain]/layout.tsx
+BUILD TRACE: generateStaticParams in src/app/[subdomain]/layout.tsx
+BUILD TRACE: generateStaticParams in src/app/[subdomain]/layout.tsx
+BUILD TRACE: generateStaticParams in src/app/[subdomain]/layout.tsx
+BUILD TRACE: generateStaticParams in src/app/[subdomain]/layout.tsx
+BUILD TRACE: generateStaticParams in src/app/[subdomain]/layout.tsx
+   Generating static pages (0/35) ...
+BUILD TRACE: SubdomainLayout rendered
+BUILD TRACE: SubdomainLayout rendered
+BUILD TRACE: SubdomainLayout rendered
+BUILD TRACE: SubdomainLayout rendered
+BUILD TRACE: SubdomainLayout rendered
+BUILD TRACE: SubdomainLayout rendered
+BUILD TRACE: SubdomainLayout rendered
+BUILD TRACE: SubdomainLayout rendered
+BUILD TRACE: SubdomainLayout rendered
+BUILD TRACE: SubdomainLayout rendered
+BUILD TRACE: SubdomainLayout rendered
+BUILD TRACE: DashboardPage rendered
+BUILD TRACE: SubdomainLayout rendered
+BUILD TRACE: SubdomainPage rendered
+BUILD TRACE: SubdomainLayout rendered
+BUILD TRACE: SubdomainLayout rendered
+   Generating static pages (8/35) 
+   Generating static pages (17/35) 
+   Generating static pages (26/35) 
+ Γ£ô Generating static pages (35/35)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+
+Redirects
+Γöî source: /:path+/
+Γö£ destination: /:path+
+Γöö permanent: true
+
+
+Route (app)                              Size     First Load JS
+Γöî Γùï /                                    7.8 kB          157 kB
+Γö£ Γùï /_not-found                          988 B           107 kB
+Γö£ ΓùÅ /[subdomain]                         9.17 kB         195 kB
+Γö£   Γöö /demo
+Γö£ ΓùÅ /[subdomain]/dashboard               5.51 kB         243 kB
+Γö£   Γöö /demo/dashboard
+Γö£ ΓùÅ /[subdomain]/dashboard/academic      4.05 kB         241 kB
+Γö£   Γöö /demo/dashboard/academic
+Γö£ ΓùÅ /[subdomain]/dashboard/analytics     111 kB          348 kB
+Γö£   Γöö /demo/dashboard/analytics
+Γö£ ΓùÅ /[subdomain]/dashboard/attendance    4.88 kB         242 kB
+Γö£   Γöö /demo/dashboard/attendance
+Γö£ ΓùÅ /[subdomain]/dashboard/finance       15 kB           237 kB
+Γö£   Γöö /demo/dashboard/finance
+Γö£ ΓùÅ /[subdomain]/dashboard/gamification  2.03 kB         239 kB
+Γö£   Γöö /demo/dashboard/gamification
+Γö£ ΓùÅ /[subdomain]/dashboard/gradebook     3.54 kB         241 kB
+Γö£   Γöö /demo/dashboard/gradebook
+Γö£ ΓùÅ /[subdomain]/dashboard/grades        3.99 kB         187 kB
+Γö£   Γöö /demo/dashboard/grades
+Γö£ ΓùÅ /[subdomain]/dashboard/messages      3.28 kB         240 kB
+Γö£   Γöö /demo/dashboard/messages
+Γö£ ΓùÅ /[subdomain]/dashboard/news          1.52 kB         239 kB
+Γö£   Γöö /demo/dashboard/news
+Γö£ ΓùÅ /[subdomain]/dashboard/report-card   3.18 kB         240 kB
+Γö£   Γöö /demo/dashboard/report-card
+Γö£ ΓùÅ /[subdomain]/dashboard/settings      2 kB            108 kB
+Γö£   Γöö /demo/dashboard/settings
+Γö£ ΓùÅ /[subdomain]/dashboard/students      2.5 kB          240 kB
+Γö£   Γöö /demo/dashboard/students
+Γö£ Γùï /dashboard                           5.75 kB         227 kB
+Γö£ Γùï /dashboard/analytics                 2.77 kB         184 kB
+Γö£ Γùï /dashboard/announcements             2.82 kB         184 kB
+Γö£ Γùï /dashboard/audit                     2 kB            108 kB
+Γö£ Γùï /dashboard/health                    3.42 kB         154 kB
+Γö£ Γùï /dashboard/security                  2 kB            108 kB
+Γö£ Γùï /dashboard/setup                     6.38 kB         196 kB
+Γö£ Γùï /dashboard/status                    2.49 kB         153 kB
+Γö£ Γùï /dashboard/system-settings           2.96 kB         109 kB
+Γö£ Γùï /dashboard/tenants                   5.93 kB         196 kB
+Γö£ Γùï /docs                                176 B           110 kB
+Γö£ Γùï /forgot-password                     2.94 kB         202 kB
+Γö£ Γùï /login                               6.52 kB         200 kB
+Γö£ Γùï /maintenance                         2.44 kB         148 kB
+Γö£ Γùï /privacy-policy                      190 B           115 kB
+Γöö Γùï /signup                              3.79 kB         158 kB
++ First Load JS shared by all            106 kB
+  Γö£ chunks/9147-dd2f00d4e643c380.js      50.7 kB
+  Γö£ chunks/b2bc8835-f68651843d9177e0.js  53 kB
+  Γöö other shared chunks (total)          2.17 kB
+
+
+╞Æ Middleware                             32.6 kB
+
+Γùï  (Static)  prerendered as static content
+ΓùÅ  (SSG)     prerendered as static HTML (uses generateStaticParams)
+

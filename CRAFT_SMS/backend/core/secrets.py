@@ -6,8 +6,8 @@ def get_secret(secret_name: str, default: Optional[str] = None) -> Optional[str]
     Fetches a secret from Google Secret Manager.
     Falls back to environment variables for local development if GCP_PROJECT is not set.
     """
-    project_id = os.environ.get("GCP_PROJECT")
-    
+    project_id = os.environ.get("GCP_PROJECT") or os.environ.get("GOOGLE_CLOUD_PROJECT")
+
     # If not running in GCP or explicitly set to fallback, use ENV
     if not project_id:
         return os.environ.get(secret_name, default)

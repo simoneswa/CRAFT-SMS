@@ -67,10 +67,10 @@ steps:
         echo "Validating health endpoint at: $URL/health"
         STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL/health")
         if [ "$STATUS" -ne 200 ]; then
-          echo "❌ Smoke test failed with HTTP status $STATUS"
+          echo " Smoke test failed with HTTP status $STATUS"
           exit 1
         fi
-        echo "✅ Smoke test passed with HTTP status $STATUS"
+        echo "Smoke test passed with HTTP status $STATUS"
 
 images:
   - '${_IMAGE}:$SHORT_SHA'
