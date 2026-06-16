@@ -10,6 +10,9 @@
     "deploy": "firebase deploy --only hosting"
   },
   "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": "20"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.4",
     "dexie": "^4.4.2",
